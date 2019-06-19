@@ -1,0 +1,88 @@
+{
+  "name": "crank",
+  "description": "Developer SDK for Automaton.",
+  "version": "0.0.0",
+  "author": "Eric Peterson @iamEAP",
+  "bin": {
+    "crank": "./bin/run"
+  },
+  "bugs": "https://github.com/the-automaton/crank/issues",
+  "dependencies": {
+    "@oclif/command": "^1.5.14",
+    "@oclif/config": "^1.13.0",
+    "@oclif/parser": "^3.8.1",
+    "@oclif/plugin-help": "^2.2.0",
+    "bluebird": "^3.5.5",
+    "chalk": "^2.4.2",
+    "cli-ux": "^5.2.1",
+    "google-protobuf": "^3.8.0",
+    "grpc": "^1.21.1",
+    "inquirer": "^6.3.1",
+    "node-forge": "^0.8.4",
+    "rxjs": "^6.5.2",
+    "tslib": "^1.10.0",
+    "yaml": "^1.6.0"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.0",
+    "@oclif/test": "^1.2.4",
+    "@oclif/tslint": "^3.1.1",
+    "@types/bluebird": "^3.5.27",
+    "@types/chai": "^4.1.7",
+    "@types/google-protobuf": "^3.2.7",
+    "@types/inquirer": "^6.0.3",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^10.14.9",
+    "@types/node-forge": "^0.8.3",
+    "@types/rimraf": "^2.0.2",
+    "@types/yaml": "^1.0.2",
+    "chai": "^4.2.0",
+    "globby": "^8.0.2",
+    "grpc_tools_node_protoc_ts": "^2.5.3",
+    "mocha": "^5.2.0",
+    "nyc": "^13.3.0",
+    "rimraf": "^2.6.3",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/the-automaton/crank",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "topics": {
+      "cog": {
+        "description": "Install, uninstall, test, and authenticate Automaton cogs."
+      },
+      "registry": {
+        "description": "Utility commands for the crank CLI."
+      }
+    },
+    "bin": "crank",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": "the-automaton/crank",
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "tslint -p test -t stylish",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "types": "lib/index.d.ts"
+}

@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package automaton.cog;
+
+import "google/protobuf/struct.proto";
+
+service CogService {
+  rpc GetManifest (ManifestRequest) returns (CogManifest) {}
+  rpc RunStep (RunStepRequest) returns (RunStepResponse) {}
+  rpc RunSteps (stream RunStepRequest) returns (stream RunStepResponse) {}
+}
+
+message ManifestRequest {}
+
+message CogManifest {
+  string name = 1;
+  string version = 2;
+  repeated StepDefinition step_definitions = 3;
+  repeated FieldDefinition auth_fields = 4;
+}
+
+message StepDefinition {
+  string step_id = 1;
+  string name = 2;
+  string expression = 3;
+  repeated FieldDefinition expected_fields = 4;
+}
+
+message FieldDefinition {
+  enum Optionality {
+    OPTIONAL = 0;
+    REQUIRED = 1;
+  }
+  enum Type {
+    ANYSCALAR = 0;
+    STRING = 1;
+    BOOLEAN = 2;
+    NUMERIC = 3;
+    DATE = 4;
+    DATETIME = 5;
+    EMAIL = 6;
+    PHONE = 7;
+    ANYNONSCALAR = 8;
+    MAP = 9;
+  }
+  string key = 1;
+  Optionality optionality = 2;
+  Type type = 3;
+  string description = 4;
+}
+
+message RunStepRequest {
+  Step step = 1;
+}
+
+message Step {
+  string step_id = 1;
+  google.protobuf.Struct data = 2;
+}
+
+message RunStepResponse {
+  enum Outcome {
+    PASSED = 0;
+    FAILED = 1;
+    ERROR = 2;
+  }
+  Outcome outcome = 1;
+  string message_format = 2;
+  repeated google.protobuf.Value message_args = 3;
+  google.protobuf.Struct response_data = 4;
+}

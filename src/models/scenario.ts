@@ -1,0 +1,74 @@
+import * as fs from 'fs'
+import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
+import * as YAML from 'yaml'
+
+import {Step} from '../proto/cog_pb'
+import {Registries} from '../services/registries'
+
+import {Step as RunnerStep} from './step'
+
+interface ScenarioConstructorArgs {
+  registries: Registries
+  fromFile: string
+}
+
+export class Scenario {
+  public name: string
+  public description: string
+  public steps: RunnerStep[]
+
+  private readonly registries: Registries
+
+  constructor({registries, fromFile}: ScenarioConstructorArgs) {
+    this.registries = registries
+
+    const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
+    let steps = scenario.steps.map((step: any) => {
+      return this.getRunnerStepForStep(step)
+    })
+    this.name = scenario.scenario
+    this.description = scenario.description
+    this.steps = steps
+  }
+
+  protected getRunnerStepForStep(step: any): RunnerStep {
+    let protoStep: Step = new Step()
+    let cogName = ''
+    let stepDefName = ''
+    let stepDefExpression = ''
+    let stepDefId = ''
+    let data: any = step.data ? step.data : {}
+    const stepRegistry = this.registries.buildStepRegistry()
+
+    stepRegistry.forEach((stepDef: any) => {
+      const StepRegex: RegExp = new RegExp(stepDef.expression, 'i')
+      let matches
+      if (matches = StepRegex.exec(step.step)) {
+        protoStep.setStepId(stepDef.stepId)
+
+        if (matches.hasOwnProperty('groups')) {
+          /* tslint:disable:prefer-object-spread */
+          data = Object.assign(data, matches.groups)
+        }
+
+        protoStep.setData(Struct.fromJavaScript(data))
+        cogName = stepDef._cog
+        stepDefExpression = stepDef.expression
+        stepDefId = stepDef.stepId
+        stepDefName = stepDef.name
+      }
+    })
+
+    if (!protoStep.getStepId()) {
+      throw new Error(`Missing step definition for ${step.step}`)
+    }
+
+    return new RunnerStep({
+      cog: cogName,
+      protoSteps: protoStep,
+      stepText: step.step || stepDefName || stepDefExpression || stepDefId,
+      registries: this.registries,
+    })
+
+  }
+}
