@@ -1,71 +1,347 @@
+/**
+ * ### Background
+ * **Automaton** is a platform that brings quality and reliability tools to
+ * end-users of complex SaaS tech stacks, especially sales and marketing
+ * technology ecosystems.
+ *
+ * **Cogs** are like composable assertion libraries, each exposing steps and
+ * assertions for a particular platform or technology. Technically, a Cog is
+ * just a [grpc service](https://grpc.io/docs/guides/concepts/) that
+ * implements the `CogService` found in this documentation.
+ *
+ * **Crank** is the Automaton Developer SDK: a CLI for scaffolding, testing,
+ * and independently running Cogs. Technically, `crank` (or portions of it)
+ * is just a grpc client that knows how to instantiate and communicate with
+ * Cog grpc servers.
+ *
+ * Below, you will find API reference documentation for Cogs (meaning, the grpc
+ * service and all of the underlying protocol buffer message definitions).
+ *
+ * You may want to start with [the service definition](#automaton.cog.CogService).
+ *
+ * ---
+ */
 syntax = "proto3";
-
 package automaton.cog;
-
 import "google/protobuf/struct.proto";
 
+/**
+ * Any grpc service that implements this interface is a Cog! There are only
+ * three methods to implement:
+ */
 service CogService {
+
+  /**
+   * Should return Cog metadata sufficient for Cog clients (like `crank`) to
+   * run your cog, including details like:
+   * <br><br>
+   * - **name**: e.g. `myorg/my-system-cog`<br>
+   * - **version**: e.g. `1.0.0`<br>
+   * - **Authentication Fields**: An optional list of [Fields](#automaton.cog.FieldDefinition) (and their definitions) needed by your Cog to authenticate with the system under test.<br>
+   * - **Step Definitions**: A list of [Steps](#automaton.cog.StepDefinition) (and their definitions) your Cog exposes.
+   * <br><br>
+   * See [the CogManifest definition](#automaton.cog.CogManifest) for details.
+   */
   rpc GetManifest (ManifestRequest) returns (CogManifest) {}
+
+  /**
+   * Should take a [RunStepRequest](#automaton.cog.RunStepRequest), execute the
+   * step corresponding to the enclosed [Step](#automaton.cog.Step)'s `step_id`
+   * using the enclosed Step's `data`, and respond with a [RunStepResponse](#automaton.cog.RunStepResponse),
+   * including details like:
+   * <br><br>
+   * - **outcome**: basically pass, fail, or error<br>
+   * - **messageFormat**: message (including replacement tokens) to display to the user, describing the result of the step<br>
+   * - **messageArgs**: an optional list of parameters to be substituted in the messageFormat above
+   */
   rpc RunStep (RunStepRequest) returns (RunStepResponse) {}
+
+  /**
+   * Should behave similarly to the `RunStep` method, but instead of taking a
+   * single `RunStepRequest`, this method takes a stream of `RunStepRequests`,
+   * and writes back a corresponding stream of `RunStepResponses`.
+   * <br><br>
+   * Cog clients (like `crank`) are under no obligation to write
+   * `RunStepRequests` serially, but may. Your implementation is under no
+   * obligation to guarantee the order of responses on the `RunStepResponse`
+   * stream, but may.
+   * <br><br>
+   * This method exists to support systems where running multiple steps and
+   * assertions in the same context or scope is advantageous or necessary.
+   * Systems with onerous authentication schemes would be one. Performing
+   * multiple assertions in the context of a single headless browser session
+   * would be another.
+   */
   rpc RunSteps (stream RunStepRequest) returns (stream RunStepResponse) {}
 }
 
+/**
+ * Represents a request to retrieve metadata about your Cog.
+ *
+ * This will always empty.
+ */
 message ManifestRequest {}
 
+/**
+ * Represents metadata about your Cog.
+ *
+ * The details contained here are used by Cog clients (like `crank`) to run and
+ * interact with your Cog.
+ */
 message CogManifest {
+  /**
+   * The globally unique name of your Cog. Should match this Cog's docker image
+   * name if you intend to distribute it on docker hub.
+   * <br><br>
+   * **An example**: `myorg/my-system-cog`
+   */
   string name = 1;
+
+  /**
+   * The version of your Cog. Should adhere to semenatic versioning standards.
+   * <br><Br>
+   * **An example**: `1.0.0`
+   */
   string version = 2;
+
+  /**
+   * A list of steps your Cog can run, including descriptions of data required
+   * by each step to run. Order does not matter.
+   */
   repeated StepDefinition step_definitions = 3;
+
+  /**
+   * A list of fields your Cog expects to be passed as metadata on each
+   * RunStep or RunSteps call. Order does not matter.
+   */
   repeated FieldDefinition auth_fields = 4;
+
 }
 
+/**
+ * A step represents an action, assertion, or validation that can be run
+ * against a system, e.g. creating an object, asserting that a field on an
+ * object has a certain value, or triggering an event or action in a system.
+ *
+ * The details provided on a StepDefinition are used by Cog clients (like
+ * `crank`) to run your Cog's specific steps.
+ */
 message StepDefinition {
+
+  /**
+   * A unique identifier representing this step. This will be passed back as
+   * the Step.step_id on the Step passed to your RunStep(s) implementation. Use
+   * it to dispatch step-specific logic in response to a RunStepRequest.
+   * <br><br>
+   * Note: Once defined, this should almost never be modified; if modified, the
+   * change should be accompanied by a major-version change on your
+   * CogManifest.version.
+   * <br><br>
+   * **An example**: `AssertValueOfMySytemField`
+   */
   string step_id = 1;
+
+  /**
+   * A human-readable name for this step. This may be used as a way to
+   * represent this step to users in a UI or CLI, and may be shown in step run
+   * logs.
+   * <br><br>
+   * **An example**: `Assert the Value of a  Field`
+   */
   string name = 2;
+
+  /**
+   * A string that can be evaluated as an ECMAScript-compatible regular
+   * expression. This is used to identify and evaluate this step in
+   * cucumber-like scenario files.
+   * <br><br>
+   * You should ensure that this expression is globally unique, and would not
+   * be ambiguous with step expressions from other Cogs. An easy way to do this
+   * is to include the system/service your Cog integrates with in the
+   * expression text.
+   * <br><br>
+   * You are encouraged to use named regex capturing groups whose names
+   * correspond to keys on the expected_fields field definitions defined on
+   * this step.
+   * <br><br>
+   * Note: Once defined, this should almost never be modified; if modified, the
+   * change should be accompanied by an appropriate change to your
+   * CogManifest.version.
+   * <br><br>
+   * **An example**: `the MySystem (?<fieldName>.+) field should have value
+   * (?<expectedValue>.+)`
+   * <br><br>
+   * Which would be matched by a step in a scenario file like:
+   * `Then the MySystem emailAddress field should have value test@example.com`
+   * <br><br>
+   * And which would result in Step.data on a RunStepRequest looking like:
+   * `{ "fieldName": "emailAddress", "expectedValue": "test@example.com" }`
+   */
   string expression = 3;
+
+  /**
+   * A list of field definitions that this step needs in order to run. The key
+   * of each expected field will be used as a key on the map/dictionary passed
+   * in on Step.data on a RunStepRequest.
+   */
   repeated FieldDefinition expected_fields = 4;
+
 }
 
+/**
+ * Represents metadata about a field that your Cog expects to run.
+ *
+ * Field definitions can be applied to both Steps (to define what data is
+ * required by the step to run) and the Cog itself (to define what
+ * authentication details are required for your Cog to run any steps).
+ */
 message FieldDefinition {
+
+  /**
+   * A field's optionality.
+   */
   enum Optionality {
-    OPTIONAL = 0;
-    REQUIRED = 1;
+    OPTIONAL = 0; /// This field is optional.
+    REQUIRED = 1; /// This field is required.
   }
+
+  /**
+   * A field's type.
+   */
   enum Type {
-    ANYSCALAR = 0;
-    STRING = 1;
-    BOOLEAN = 2;
-    NUMERIC = 3;
-    DATE = 4;
-    DATETIME = 5;
-    EMAIL = 6;
-    PHONE = 7;
-    ANYNONSCALAR = 8;
-    MAP = 9;
+    ANYSCALAR = 0; /// This field represents any scalar value.
+    STRING = 1; /// This field represents a string value.
+    BOOLEAN = 2; /// This field represents a boolean value.
+    NUMERIC = 3; /// This field represents any type of numeric value.
+    DATE = 4; /// This field represents a date.
+    DATETIME = 5; /// This field represents a date/time.
+    EMAIL = 6; /// This field represents an email address.
+    PHONE = 7; /// This field represents a phone number.
+    ANYNONSCALAR = 8; /// This field represents any non-scalar value.
+    MAP = 9; /// This field represents a map/dictionary/associative array/arbitrary key-value pair (conceptually like a JSON object)
   }
+
+  /**
+   * The unique identifier for this field. This key will be used when a Cog
+   * client (like `crank`) passes data to your Cog.
+   * <br>
+   * <br>
+   * If this field represents an expected field on a StepDefinition, this will
+   * be used as the key on Step.data. If this field represents an
+   * authentication field on the Cog itself, it will be the key used to set
+   * metadata on the grpc call.
+   * <br>
+   * <br>
+   * **An example**: `mySystemAuthToken`
+   */
   string key = 1;
+
+  /**
+   * The optionality of this field (either optional or required).
+   */
   Optionality optionality = 2;
+
+  /**
+   * The type for this field. This is used by Cog clients (like `crank`) to
+   * infer validation rules and UX when presenting your cog and steps to users.
+   * It may also be used when serializing data that is passed to your Cog in
+   * RunStep(s) requests.
+   */
   Type type = 3;
+
+  /**
+   * The description of this field. This may be used by Cog clients (like
+   * crank) to help users understand what the field is and how it will be
+   * used.
+   * <br>
+   * <br>
+   * **An example**: `Token used to authenticate to MySystem`
+   */
   string description = 4;
+
 }
 
+/**
+ * Argument passed to the `RunStep` (or `RunSteps`) methods. Represents a
+ * request to your Cog to run a step.
+ */
 message RunStepRequest {
+
+  /**
+   * The step your Cog should run, identified by `step_id`, and including data
+   * as specified in your corresponding `StepDefinition`.
+   */
   Step step = 1;
+
 }
 
+/**
+ * Represents a Step your Cog should run.
+ */
 message Step {
+
+  /**
+   * Corresponds to the step_id you provided in your StepDefinition.
+   */
   string step_id = 1;
+
+  /**
+   * An arbitrary package of data your step needs to run. Should correspond to
+   * a map/dictionary of field values corresponding to the expected_fields you
+   * provided on your StepDefinition.
+   */
   google.protobuf.Struct data = 2;
+
 }
 
+/**
+ * Represents the response you send to the Cog client once your Step has
+ * finished running (on `RunStep` and `RunSteps` methods).
+ */
 message RunStepResponse {
+
+  /**
+   * The status of a completed step.
+   */
   enum Outcome {
-    PASSED = 0;
-    FAILED = 1;
-    ERROR = 2;
+    PASSED = 0; /// Means this step completed successfully.
+    FAILED = 1; /// Means this step completed, but did not meet expectations.
+    ERROR = 2; /// Means this step could not be completed due to an error.
   }
+
+  /**
+   * The outcome of this step.
+   */
   Outcome outcome = 1;
+
+  /**
+   * A message format, similar to a string suitable for use in printf, that
+   * represents the outcome of this step. Acceptable replacement tokens are:
+   * <br><br>
+   * - `%s` for strings,<br>
+   * - `%d` for numeric values of any kind, and<br>
+   * - `%%` as a way to print a single percent sign.
+   * <br><br>
+   * This message (and supplied arguments below) may be used by Cog clients
+   * (like `crank`) in step run logs. You will most likely want to vary this
+   * message based on the outcome of this step.
+   * <br><br>
+   * **An example**: `Expected MySytem field %s to have value %s, but it was
+   * actually %s`
+   */
   string message_format = 2;
+
+  /**
+   * An optional list of arguments to be applied to the message_format. Will be
+   * used to replace tokens in the message_format, similar to printf.
+   */
   repeated google.protobuf.Value message_args = 3;
+
+  /**
+   * Can be used to pass arbitrary data back to the Cog client. This may be
+   * used by Cog clients (like `crank`) to print additional data in logs to
+   * help users debug further.
+   */
   google.protobuf.Struct response_data = 4;
+
 }
