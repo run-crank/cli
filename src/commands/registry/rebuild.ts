@@ -31,7 +31,11 @@ export class Rebuild extends RegistryAwareCommand {
   }
 
   protected async rebuildCogRegistryEntry(cogRegEntry: CogRegistryEntry) {
+    this.log(`Rebuilding registry entry for ${cogRegEntry.name}`)
+
     return new Promise(async resolve => {
+      let client: CogServiceClient;
+
       if (!cogRegEntry._runConfig) {
         this.log(`No run configuration found for ${cogRegEntry.name}. Try re-installing.`)
         process.exitCode = 1
@@ -41,7 +45,16 @@ export class Rebuild extends RegistryAwareCommand {
 
       const runConfig = cogRegEntry._runConfig
 
-      const client: CogServiceClient = await this.cogManager.startCogAndGetClient(runConfig, false)
+      try {
+        client = await this.cogManager.startCogAndGetClient(runConfig, false)
+      }
+      catch (e) {
+        this.log(`There was a problem rebuilding registry entry for ${cogRegEntry.name}`)
+        process.exitCode = 1
+        resolve()
+        return
+      }
+
       client.getManifest(new ManifestRequest(), async (err, manifest: CogManifest) => {
         if (err) {
           this.log(`Problem rebuilding registry entry for ${cogRegEntry.name}: ${err}`)
