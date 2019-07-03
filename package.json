@@ -21,7 +21,9 @@
     "node-forge": "^0.8.4",
     "rxjs": "^6.5.2",
     "tslib": "^1.10.0",
-    "yaml": "^1.6.0"
+    "yaml": "^1.6.0",
+    "yeoman-environment": "^2.3.4",
+    "yeoman-generator": "^4.0.1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.0",
@@ -36,6 +38,7 @@
     "@types/node-forge": "^0.8.3",
     "@types/rimraf": "^2.0.2",
     "@types/yaml": "^1.0.2",
+    "@types/yeoman-environment": "^2.3.1",
     "chai": "^4.2.0",
     "globby": "^8.0.2",
     "grpc_tools_node_protoc_ts": "^2.5.3",

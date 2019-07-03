@@ -1,0 +1,49 @@
+{
+  "name": "cog-<%= options.packageSafeName %>",
+  "version": "0.1.0",
+  "description": "Automaton cog for <%= options.name %>",
+  "scripts": {
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "ts-node src/grpc-server.ts",
+    "test": "nyc mocha -r ts-node/register test/*.ts test/**/*.ts"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "test/**/*.ts",
+      "**/*.js",
+      "src/grpc-server.ts"
+    ],
+    "reporter": [
+      "html",
+      "text"
+    ],
+    "all": true
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/google-protobuf": "^3.2.7",
+    "@types/mocha": "^5.2.7",
+    "@types/needle": "^2.0.4",
+    "@types/node": "^12.0.4",
+    "chai": "^4.2.0",
+    "grpc-tools": "^1.7.3",
+    "grpc_tools_node_protoc_ts": "^2.5.1",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "sinon-chai": "^3.3.0",
+    "ts-sinon": "^1.0.17",
+    "tslint": "^5.17.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "google-protobuf": "^3.8.0",
+    "grpc": "^1.21.1",
+    "needle": "^2.4.0",
+    "ts-node": "^8.3.0"
+  }
+}
