@@ -37,13 +37,13 @@ export default class Run extends StepAwareCommand {
 
     try {
       scenario = new Scenario({registries: this.registry, fromFile: args.fileOrFolder})
+      await this.cogManager.decorateStepsWithClients(scenario.steps, flags['use-ssl'])
     } catch (e) {
       this.log(chalk.red('Error running scenario:'))
       this.log(chalk.red(`  ${e}`))
       process.exitCode = 1
       return
     }
-    await this.cogManager.decorateStepsWithClients(scenario.steps, flags['use-ssl'])
 
     // Run through steps.
     this.log(`\n${scenario.name}\n`)

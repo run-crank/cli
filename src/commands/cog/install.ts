@@ -112,7 +112,11 @@ export default class Install extends RegistryAwareCommand {
         await this.cogManager.startCogAndGetClient(cogConfig, false)
         resolve(true)
       } catch (e) {
-        reject(`${command} doesn't appear to be a valid cog.${e && e.message ? ' ' + e.message : ''}`)
+        let errMessage = `${command} doesn't appear to be a valid cog`
+        if (e && e.message) {
+          errMessage += `: ${e.message}`
+        }
+        reject(errMessage)
       }
     })
   }
