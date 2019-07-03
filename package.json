@@ -1,8 +1,8 @@
 {
   "name": "crank",
-  "description": "Developer SDK for Automaton.",
-  "version": "0.0.0",
-  "author": "Eric Peterson @iamEAP",
+  "description": "Test automation for integrated SaaS, by Automaton.",
+  "version": "0.1.0",
+  "author": "Automaton Inc",
   "bin": {
     "crank": "./bin/run"
   },
