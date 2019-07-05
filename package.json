@@ -73,13 +73,20 @@
       "cog": {
         "description": "Install, uninstall, test, and authenticate Automaton cogs."
       },
+      "help": {
+        "description": "Display help for Crank."
+      },
       "registry": {
         "description": "Utility commands for the crank CLI."
+      },
+      "update": {
+        "description": "Update the Crank CLI."
       }
     },
     "bin": "crank",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@oclif/plugin-update"
     ],
     "update": {
       "s3": {
@@ -87,13 +94,16 @@
         "bucket": "crank-cli",
         "host": "https://crank-assets.automatoninc.com"
       }
+    },
+    "macos": {
+      "identifier": "com.automatoninc.crank"
     }
   },
   "repository": "the-automaton/crank",
   "scripts": {
-    "postpack": "rm -f oclif.manifest.json",
+    "postpack": "rm -f oclif.manifest.json && rm -f tsconfig.tsbuildinfo",
     "posttest": "tslint -p test -t stylish",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepack": "rm -rf lib && tsc -b && cp -r src/proto lib/proto && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "build-proto": "./scripts/build-proto.sh",

@@ -7,3 +7,4 @@
 /yarn.lock
 node_modules
 test/.test_cache
+tsconfig.tsbuildinfo

@@ -37,6 +37,7 @@ USAGE
 * [`crank help [COMMAND]`](#crank-help-command)
 * [`crank registry:rebuild`](#crank-registryrebuild)
 * [`crank run FILEORFOLDER`](#crank-run-fileorfolder)
+* [`crank update [CHANNEL]`](#crank-update-channel)
 
 ## `crank cog:auth COGNAME`
 
@@ -210,4 +211,15 @@ EXAMPLES
 ```
 
 _See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.1.0/src/commands/run.ts)_
+
+## `crank update [CHANNEL]`
+
+update the crank CLI
+
+```
+USAGE
+  $ crank update [CHANNEL]
+```
+
+_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v1.3.9/src/commands/update.ts)_
 <!-- commandsstop -->
