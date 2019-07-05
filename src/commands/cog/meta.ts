@@ -41,7 +41,7 @@ class MetaCogService implements ICogServiceServer {
   getManifest(call: grpc.ServerUnaryCall<ManifestRequest>, callback: grpc.sendUnaryData<CogManifest>) {
     // Set basic cog details.
     const manifest: CogManifest = new CogManifest()
-    manifest.setName('MetaCog')
+    manifest.setName('automatoninc/metacog')
     manifest.setVersion('0.1.0')
 
     // Declare a "password" authentication field.

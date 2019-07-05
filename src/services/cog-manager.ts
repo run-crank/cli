@@ -69,7 +69,7 @@ export class CogManager {
       const client = new CogServiceClient(`${this.host}:${cogPort}`, clientCredentials)
       client.waitForReady(Date.now() + 5000, err => {
         if (err) {
-          reject()
+          reject(err)
           return
         }
 
@@ -103,7 +103,10 @@ export class CogManager {
       })
       args.push(dockerImage)
       cogProc = spawn('docker', args, {
-        env: {PATH: process.env.PATH},
+        env: {
+          PATH: process.env.PATH,
+          HOME: process.env.HOME,
+        },
         cwd: config.cwd || process.cwd(),
         stdio: 'ignore',
         detached: true,
@@ -113,6 +116,7 @@ export class CogManager {
     } else if (config.strategy === 'custom') {
       /* tslint:disable:prefer-object-spread */
       cogEnv = Object.assign({
+        HOME: process.env.HOME,
         PATH: process.env.PATH,
         PORT: cogPort,
         HOST: cogHost,

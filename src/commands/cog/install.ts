@@ -67,9 +67,9 @@ export default class Install extends RegistryAwareCommand {
 
     const cmd = flags['local-start-command'] || ''
     const cogConfig = this.getCogConfigForLocalCommand(cmd)
-    const client = await this.cogManager.startCogAndGetClient(cogConfig, false)
 
     try {
+      const client = await this.cogManager.startCogAndGetClient(cogConfig, false)
       const cogRegEntry: CogRegistryEntry = await this.installCog(client, cmd, flags.force)
       const cogName = cogRegEntry.name || ''
       this.log(`Successfully installed ${cogName} cog.`)
@@ -88,7 +88,7 @@ export default class Install extends RegistryAwareCommand {
 
       await this.installCogAuth(cogName, authFields)
     } catch (e) {
-      this.log(e)
+      this.log(`There was a problem installing the Cog: ${e && e.message ? e.message : 'unknown error'}`)
       process.exitCode = 1
       return
     }
