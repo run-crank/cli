@@ -130,7 +130,7 @@ class MetaCogService implements ICogServiceServer {
     if (password.toString() !== 'Crank123') {
       stepResponse = new RunStepResponse()
       stepResponse.setOutcome(RunStepResponse.Outcome.ERROR)
-      stepResponse.setMessageFormat('Password is incorrect. Re-auth with `$ crank cog:auth MetaCog` and enter Crank123')
+      stepResponse.setMessageFormat('Password is incorrect. Re-auth with `$ crank cog:auth automatoninc/metacog` and enter Crank123')
       return stepResponse
     }
 
