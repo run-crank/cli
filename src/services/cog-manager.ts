@@ -76,7 +76,7 @@ export class CogManager {
         // gRPC client sometimes seems to say it's ready before it really is :(
         setTimeout(() => {
           resolve(client)
-        }, 500)
+        }, 600)
       })
     })
   }

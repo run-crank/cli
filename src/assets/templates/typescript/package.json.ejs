@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Automaton cog for <%= options.name %>",
   "scripts": {
+    "build-docker": "docker build -t <%= options.machineName %>:$npm_package_version -t <%= options.machineName %>:latest .",
     "build-proto": "scripts/build-proto.sh",
     "build-ts": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
