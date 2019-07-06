@@ -1,8 +1,9 @@
 FROM mhart/alpine-node:12 AS build
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src
 RUN npm install \
+  && npm run build-ts \
   && npm prune --production
 
 RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 && \
@@ -16,5 +17,5 @@ COPY --from=build /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 COPY --from=build /app .
 COPY . .
 EXPOSE 28866
-LABEL com.automatoninc.cog-version="1.0"
-ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "npm", "start"]
+LABEL com.automatoninc.cog-for="<%= options.name %>"
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "node", "build/grpc-server.js"]
