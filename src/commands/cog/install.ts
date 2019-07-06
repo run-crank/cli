@@ -1,6 +1,7 @@
 import {IConfig} from '@oclif/config'
 import {flags} from '@oclif/parser'
 import {Promise as Bluebird} from 'bluebird'
+import * as cp from 'child_process'
 import {ServiceError} from 'grpc'
 import * as inquirer from 'inquirer'
 
@@ -35,7 +36,7 @@ export default class Install extends RegistryAwareCommand {
 
   static args = [{
     name: 'cogName',
-    description: 'The name/version of the cog to install (@todo not implemented yet)',
+    description: 'The name:version of the Cog to install (e.g. org-name/cog-name:1.0.0)',
   }]
 
   protected cogManager: CogManager
@@ -46,31 +47,51 @@ export default class Install extends RegistryAwareCommand {
   }
 
   async run() {
-    const {flags} = this.parse(Install)
+    const {flags, args} = this.parse(Install)
+    let cogConfig
 
     if (flags.source === 'docker') {
-      this.log('Docker-based cog management is not implemented.')
-      this.log('  Use --source=local to install and test your local cog.')
-      process.exitCode = 1
-      return
-    }
+      // Check that a cog name was passed.
+      if (!args.cogName) {
+        this.log('You must specify the Cog to install.')
+        process.exitCode = 1
+        return
+      }
 
-    if (!flags['local-start-command']) {
-      const inquiry: any = await inquirer.prompt({
-        name: 'localStartCommand',
-        type: 'input',
-        message: `${Install.flags['local-start-command'].description} (e.g. npm start)`,
-        validate: this.validateLocalCogCommand.bind(this)
+      // Download from docker hub...
+      this.log(`Attempting to pull ${args.cogName} from docker hub`)
+      const dockerPullProc = cp.spawnSync('docker', ['pull', args.cogName], {
+        stdio: 'inherit'
       })
-      flags['local-start-command'] = inquiry.localStartCommand
-    }
 
-    const cmd = flags['local-start-command'] || ''
-    const cogConfig = this.getCogConfigForLocalCommand(cmd)
+      if (dockerPullProc.status !== 0) {
+        this.log('There was a problem pulling the Cog from docker hub.')
+        process.exitCode = 1
+        return
+      }
+
+      cogConfig = {
+        strategy: 'docker',
+        dockerImage: args.cogName
+      }
+    } else {
+      if (!flags['local-start-command']) {
+        const inquiry: any = await inquirer.prompt({
+          name: 'localStartCommand',
+          type: 'input',
+          message: `${Install.flags['local-start-command'].description} (e.g. npm start)`,
+          validate: this.validateLocalCogCommand.bind(this)
+        })
+        flags['local-start-command'] = inquiry.localStartCommand
+      }
+
+      const cmd = flags['local-start-command'] || ''
+      cogConfig = this.getCogConfigForLocalCommand(cmd)
+    }
 
     try {
       const client = await this.cogManager.startCogAndGetClient(cogConfig, false)
-      const cogRegEntry: CogRegistryEntry = await this.installCog(client, cmd, flags.force)
+      const cogRegEntry: CogRegistryEntry = await this.installCog(client, cogConfig, flags.force)
       const cogName = cogRegEntry.name || ''
       this.log(`Successfully installed ${cogName} cog.`)
       if (!cogRegEntry.authFieldsList || cogRegEntry.authFieldsList.length === 0 || flags['ignore-auth']) {
@@ -129,7 +150,7 @@ export default class Install extends RegistryAwareCommand {
     }
   }
 
-  protected async installCog(client: CogServiceClient, cmd: string, force = false): Promise<CogRegistryEntry> {
+  protected async installCog(client: CogServiceClient, runConfig: any, force = false): Promise<CogRegistryEntry> {
     return new Promise((resolve, reject) => {
       client.getManifest(new ManifestRequest(), (err: ServiceError | null, manifest: CogManifest) => {
         if (err) {
@@ -137,7 +158,6 @@ export default class Install extends RegistryAwareCommand {
           return
         }
 
-        const runConfig = this.getCogConfigForLocalCommand(cmd)
         this.installCogRegEntry(manifest, force, runConfig)
           .then(resolve)
           .catch(reject)
