@@ -80,6 +80,7 @@ export class CogManager {
 
   public startCog(cogHost: string, cogPort: number, config: CogConfig, sslConfig: any): void {
     let dockerImage = config.dockerImage || 'dockerImageNotSpecified'
+    let dockerName = dockerImage.replace(/[\W_]+/g, '.')
     let cmd = config.cmd || 'commandNotSpecified'
     let sslEnv: any = {}
     let cogProc: ChildProcess
@@ -94,7 +95,7 @@ export class CogManager {
     }
 
     if (config.strategy === 'docker') {
-      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', `HOST=${cogHost}`, '--name', dockerImage]
+      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', `HOST=${cogHost}`, '--name', dockerName]
       Object.keys(sslEnv).forEach(envVar => {
         if (sslEnv.hasOwnProperty(envVar)) {
           args.push('-e')
@@ -111,7 +112,7 @@ export class CogManager {
         stdio: 'ignore',
         detached: true,
       })
-      this.dockerImageNames.push(dockerImage)
+      this.dockerImageNames.push(dockerName)
       this.cogProcesses.push(cogProc)
     } else if (config.strategy === 'custom') {
       /* tslint:disable:prefer-object-spread */
@@ -146,9 +147,14 @@ export class CogManager {
             return
           }
 
-          this.clientCache[matches[0].name] = await this.startCogAndGetClient(matches[0]._runConfig, useSsl)
-          steps[index].client = this.clientCache[matches[0].name]
-          resolve()
+          try {
+            this.clientCache[matches[0].name] = await this.startCogAndGetClient(matches[0]._runConfig, useSsl)
+            steps[index].client = this.clientCache[matches[0].name]
+            resolve()
+          }
+          catch (e) {
+            reject(`Unable to start cog corresponding to "${step.stepText}": ${e && e.message ? e.message : 'unknown error'}`)
+          }
         } else {
           reject(`Unable to find cog corresponding to ${step.stepText}`)
         }
