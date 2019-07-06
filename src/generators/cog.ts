@@ -1,6 +1,5 @@
 import * as path from 'path'
 import * as Generator from 'yeoman-generator'
-import * as fs from 'fs'
 
 import {CogGeneratorArgs} from '../services/cog-generator'
 
@@ -51,7 +50,7 @@ class CogGenerator extends Generator {
   }
 
   private _getSlugSafeVersionOf(string: string): string {
-    const slugSafeString = string;
+    const slugSafeString = string
     return slugSafeString.replace(/[\s]+/g, '-')
       .replace(/[^a-zA-Z0-9\-]+/g, '')
       .toLowerCase()

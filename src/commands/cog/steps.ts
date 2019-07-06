@@ -6,12 +6,12 @@ import * as inquirer from 'inquirer'
 import {Subject} from 'rxjs'
 
 import {Step as StepRunner} from '../../models/step'
+import {CogServiceClient} from '../../proto/cog_grpc_pb'
 import {RunStepResponse, Step as ProtoStep} from '../../proto/cog_pb'
 import {CogManager} from '../../services/cog-manager'
 import {CogRegistryEntry} from '../../services/registries'
 import {Timer} from '../../services/timer'
 import StepAwareCommand from '../../step-aware-command'
-import { CogServiceClient } from '../../proto/cog_grpc_pb';
 
 export default class Step extends StepAwareCommand {
   static description = 'Run multiple cog steps interactively.'
@@ -42,7 +42,7 @@ export default class Step extends StepAwareCommand {
   async run() {
     const {args, flags} = this.parse(Step)
     const cogConfig = this.registry.getCogConfigFromRegistry(args.cogName)
-    let cogClient: CogServiceClient;
+    let cogClient: CogServiceClient
 
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
       this.log(`Couldn't find a cog named ${args.cogName}`)
@@ -70,8 +70,8 @@ export default class Step extends StepAwareCommand {
     try {
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
-      this.log(`There was a problem starting cog ${args.cogName}`)
-      this.log(`You may need to reinstall it`)
+      this.log(`There was a problem starting cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
+      this.log('You may need to reinstall it')
       process.exitCode = 1
       return
     }

@@ -4,10 +4,10 @@ import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
 
 import {Step as StepRunner} from '../../models/step'
+import {CogServiceClient} from '../../proto/cog_grpc_pb'
 import {Step as ProtoStep} from '../../proto/cog_pb'
 import {CogManager} from '../../services/cog-manager'
 import StepAwareCommand from '../../step-aware-command'
-import { CogServiceClient } from '../../proto/cog_grpc_pb';
 
 export default class Step extends StepAwareCommand {
   static description = 'Run a single cog step interactively.'
@@ -63,8 +63,8 @@ export default class Step extends StepAwareCommand {
     try {
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
-      this.log(`There was a problem starting cog ${args.cogName}`)
-      this.log(`You may need to reinstall it`)
+      this.log(`There was a problem starting cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
+      this.log('You may need to reinstall it')
       process.exitCode = 1
       return
     }

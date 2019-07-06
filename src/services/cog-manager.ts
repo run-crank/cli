@@ -95,7 +95,7 @@ export class CogManager {
     }
 
     if (config.strategy === 'docker') {
-      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', `HOST=0.0.0.0`, '--name', dockerName]
+      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', 'HOST=0.0.0.0', '--name', dockerName]
       Object.keys(sslEnv).forEach(envVar => {
         if (sslEnv.hasOwnProperty(envVar)) {
           args.push('-e')
@@ -151,8 +151,7 @@ export class CogManager {
             this.clientCache[matches[0].name] = await this.startCogAndGetClient(matches[0]._runConfig, useSsl)
             steps[index].client = this.clientCache[matches[0].name]
             resolve()
-          }
-          catch (e) {
+          } catch (e) {
             reject(`Unable to start cog corresponding to "${step.stepText}": ${e && e.message ? e.message : 'unknown error'}`)
           }
         } else {

@@ -26,7 +26,7 @@ export class Scaffold extends Command {
       description: "Your organization's name (e.g. from docker hub or github)"
     }),
     'include-example-step': flags.boolean({
-      description: "Scaffolded code will include an example step and tests (prepend with --no- to negate",
+      description: 'Scaffolded code will include an example step and tests (prepend with --no- to negate)',
       allowNo: true
     })
   }
