@@ -154,7 +154,7 @@ export default class Install extends RegistryAwareCommand {
     return new Promise((resolve, reject) => {
       client.getManifest(new ManifestRequest(), (err: ServiceError | null, manifest: CogManifest) => {
         if (err) {
-          reject(`There was an error reading this cog's manifest: ${err}`)
+          reject(err)
           return
         }
 
