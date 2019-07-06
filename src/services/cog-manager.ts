@@ -95,7 +95,7 @@ export class CogManager {
     }
 
     if (config.strategy === 'docker') {
-      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', `HOST=${cogHost}`, '--name', dockerName]
+      args = ['run', '--rm', '-p', `${cogPort}:28866`, '-e', `HOST=0.0.0.0`, '--name', dockerName]
       Object.keys(sslEnv).forEach(envVar => {
         if (sslEnv.hasOwnProperty(envVar)) {
           args.push('-e')
