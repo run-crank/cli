@@ -19,7 +19,7 @@ $ npm install -g crank
 $ crank COMMAND
 running command...
 $ crank (-v|--version|version)
-crank/0.1.1 darwin-x64 node-v10.13.0
+crank/0.2.0 darwin-x64 node-v10.13.0
 $ crank --help [COMMAND]
 USAGE
   $ crank COMMAND
@@ -54,7 +54,7 @@ EXAMPLE
   $ crank cog:auth MyCog
 ```
 
-_See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/auth.ts)_
+_See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/auth.ts)_
 
 ## `crank cog:install [COGNAME]`
 
@@ -65,7 +65,7 @@ USAGE
   $ crank cog:install [COGNAME]
 
 ARGUMENTS
-  COGNAME  The name/version of the cog to install (@todo not implemented yet)
+  COGNAME  The name:version of the Cog to install (e.g. org-name/cog-name:1.0.0)
 
 OPTIONS
   -f, --force                                Install this cog over any preexisting installation with the same name
@@ -77,7 +77,7 @@ EXAMPLE
   $ crank install --source=local
 ```
 
-_See code: [src/commands/cog/install.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/install.ts)_
+_See code: [src/commands/cog/install.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/install.ts)_
 
 ## `crank cog:scaffold`
 
@@ -92,7 +92,7 @@ OPTIONS
                                            scaffolded code will be placed (defaults to the current working directory).
 
   --[no-]include-example-step              Scaffolded code will include an example step and tests (prepend with --no- to
-                                           negate
+                                           negate)
 
   --language=typescript                    The programming language you want to use to build your cog.
 
@@ -104,7 +104,7 @@ EXAMPLE
   $ crank cog:scaffold
 ```
 
-_See code: [src/commands/cog/scaffold.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/scaffold.ts)_
+_See code: [src/commands/cog/scaffold.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/scaffold.ts)_
 
 ## `crank cog:step COGNAME`
 
@@ -125,7 +125,7 @@ EXAMPLES
   $ crank cog:step MyCog --step=MyStepId
 ```
 
-_See code: [src/commands/cog/step.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/step.ts)_
+_See code: [src/commands/cog/step.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/step.ts)_
 
 ## `crank cog:steps COGNAME`
 
@@ -143,7 +143,7 @@ EXAMPLE
   $ crank cog:steps MyCog
 ```
 
-_See code: [src/commands/cog/steps.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/steps.ts)_
+_See code: [src/commands/cog/steps.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/steps.ts)_
 
 ## `crank cog:uninstall COGNAME`
 
@@ -154,13 +154,15 @@ USAGE
   $ crank cog:uninstall COGNAME
 
 OPTIONS
-  --ignore-auth  Will retain any cog auth details in cache
+  --force              Will uninstall the Cog without prompting for confirmation
+  --ignore-auth        Will retain any Cog auth details in cache
+  --keep-docker-image  Will keep the docker image associated with the Cog
 
 EXAMPLE
-  $ crank uninstall MyCog
+  $ crank uninstall automatoninc/my-cog
 ```
 
-_See code: [src/commands/cog/uninstall.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/cog/uninstall.ts)_
+_See code: [src/commands/cog/uninstall.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/cog/uninstall.ts)_
 
 ## `crank help [COMMAND]`
 
@@ -191,7 +193,7 @@ EXAMPLE
   $ crank registry:rebuild
 ```
 
-_See code: [src/commands/registry/rebuild.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/registry/rebuild.ts)_
+_See code: [src/commands/registry/rebuild.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/registry/rebuild.ts)_
 
 ## `crank run FILEORFOLDER`
 
@@ -210,7 +212,7 @@ EXAMPLES
   $ crank run --use-ssl /path/to/scenario-folder
 ```
 
-_See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.1.1/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.2.0/src/commands/run.ts)_
 
 ## `crank update [CHANNEL]`
 
