@@ -20,7 +20,7 @@ class CogGenerator extends Generator {
       this.options.machineName = `${safeOrg}/${this.options.packageSafeName}`
     }
 
-    this.sourceRoot(path.join(__dirname, `../../templates/${this.options.language}`))
+    this.sourceRoot(path.join(__dirname, `../assets/templates/${this.options.language}`))
 
     // Always copy the cog.proto into the same location, regardless of language.
     this.fs.copy(this.templatePath('../../proto/cog.proto'), this.destinationPath('proto/cog.proto'))
@@ -87,7 +87,7 @@ class CogGenerator extends Generator {
     this.fs.copyTpl(this.templatePath('src/cog.ts.ejs'), this.destinationPath('src/cog.ts'), this)
 
     // Copy proto files (all of them, because this CLI is also written in TS).
-    this.fs.copy(this.templatePath('../../src/proto'), this.destinationPath('src/proto'))
+    this.fs.copy(this.templatePath('../../../proto'), this.destinationPath('src/proto'))
 
     // Copy test files.
     this.fs.copyTpl(this.templatePath('test/cog.ts.ejs'), this.destinationPath('test/cog.ts'), this)

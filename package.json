@@ -103,11 +103,11 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json && rm -f tsconfig.tsbuildinfo",
     "posttest": "tslint -p test -t stylish",
-    "prepack": "rm -rf lib && tsc -b && cp -r src/proto lib/proto && oclif-dev manifest && oclif-dev readme",
+    "prepack": "rm -rf lib && tsc -b && cp -r src/proto lib/proto && cp -r src/assets lib/assets && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "build-proto": "./scripts/build-proto.sh",
-    "build-proto-docs": "docker run --rm -v $(pwd)/proto:/out -v $(pwd)/proto:/proto pseudomuto/protoc-gen-doc --proto_path=/proto --doc_opt=markdown,README.md /proto/cog.proto && sed -i '' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&#43;/+/g' -e 's/&#34;/\"/g' proto/README.md"
+    "build-proto-docs": "docker run --rm -v $(pwd)/src/assets/proto:/out -v $(pwd)/src/assets/proto:/proto pseudomuto/protoc-gen-doc --proto_path=/proto --doc_opt=markdown,README.md /proto/cog.proto && sed -i '' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&#43;/+/g' -e 's/&#34;/\"/g' src/assets/proto/README.md"
   },
   "types": "lib/index.d.ts"
 }
