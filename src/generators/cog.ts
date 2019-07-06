@@ -78,6 +78,9 @@ class CogGenerator extends Generator {
     this.fs.copyTpl(this.templatePath('Dockerfile.ejs'), this.destinationPath('Dockerfile'), this)
     this.fs.copyTpl(this.templatePath('README.md.ejs'), this.destinationPath('README.md'), this)
 
+    // Copy scripts files.
+    this.fs.copy(this.templatePath('scripts'), this.destinationPath('scripts'))
+
     // Copy src files.
     this.fs.copy(this.templatePath('src/grpc-server.ts'), this.destinationPath('src/grpc-server.ts'))
     this.fs.copy(this.templatePath('src/base-step.ts'), this.destinationPath('src/base-step.ts'))

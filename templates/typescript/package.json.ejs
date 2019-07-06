@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "description": "Automaton cog for <%= options.name %>",
   "scripts": {
+    "build-proto": "scripts/build-proto.sh",
+    "build-ts": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "ts-node src/grpc-server.ts",
     "test": "nyc mocha -r ts-node/register test/*.ts test/**/*.ts"
