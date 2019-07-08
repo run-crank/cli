@@ -67,7 +67,7 @@ export class CogManager {
 
     return new Promise((resolve, reject) => {
       const client = new CogServiceClient(`${this.host}:${cogPort}`, clientCredentials)
-      client.waitForReady(Date.now() + 5000, err => {
+      client.waitForReady(Date.now() + 10000, err => {
         if (err) {
           reject(err)
           return
