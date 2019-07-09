@@ -19,7 +19,7 @@ $ npm install -g crank
 $ crank COMMAND
 running command...
 $ crank (-v|--version|version)
-crank/0.2.3 darwin-x64 node-v10.13.0
+crank/0.3.0 darwin-x64 node-v10.13.0
 $ crank --help [COMMAND]
 USAGE
   $ crank COMMAND
@@ -35,7 +35,9 @@ USAGE
 * [`crank cog:steps COGNAME`](#crank-cogsteps-cogname)
 * [`crank cog:uninstall COGNAME`](#crank-coguninstall-cogname)
 * [`crank help [COMMAND]`](#crank-help-command)
+* [`crank registry:cogs`](#crank-registrycogs)
 * [`crank registry:rebuild`](#crank-registryrebuild)
+* [`crank registry:steps`](#crank-registrysteps)
 * [`crank run FILEORFOLDER`](#crank-run-fileorfolder)
 * [`crank update [CHANNEL]`](#crank-update-channel)
 
@@ -54,7 +56,7 @@ EXAMPLE
   $ crank cog:auth MyCog
 ```
 
-_See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/auth.ts)_
+_See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/auth.ts)_
 
 ## `crank cog:install [COGNAME]`
 
@@ -77,7 +79,7 @@ EXAMPLE
   $ crank install --source=local
 ```
 
-_See code: [src/commands/cog/install.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/install.ts)_
+_See code: [src/commands/cog/install.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/install.ts)_
 
 ## `crank cog:scaffold`
 
@@ -104,7 +106,7 @@ EXAMPLE
   $ crank cog:scaffold
 ```
 
-_See code: [src/commands/cog/scaffold.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/scaffold.ts)_
+_See code: [src/commands/cog/scaffold.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/scaffold.ts)_
 
 ## `crank cog:step COGNAME`
 
@@ -125,7 +127,7 @@ EXAMPLES
   $ crank cog:step MyCog --step=MyStepId
 ```
 
-_See code: [src/commands/cog/step.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/step.ts)_
+_See code: [src/commands/cog/step.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/step.ts)_
 
 ## `crank cog:steps COGNAME`
 
@@ -143,7 +145,7 @@ EXAMPLE
   $ crank cog:steps MyCog
 ```
 
-_See code: [src/commands/cog/steps.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/steps.ts)_
+_See code: [src/commands/cog/steps.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/steps.ts)_
 
 ## `crank cog:uninstall COGNAME`
 
@@ -162,7 +164,7 @@ EXAMPLE
   $ crank uninstall automatoninc/my-cog
 ```
 
-_See code: [src/commands/cog/uninstall.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/cog/uninstall.ts)_
+_See code: [src/commands/cog/uninstall.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/cog/uninstall.ts)_
 
 ## `crank help [COMMAND]`
 
@@ -181,9 +183,33 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.0/src/commands/help.ts)_
 
+## `crank registry:cogs`
+
+List Cogs that are currently installed on this machine
+
+```
+USAGE
+  $ crank registry:cogs
+
+OPTIONS
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
+
+EXAMPLES
+  $ crank registry:cogs
+  $ crank registry:cogs --extended --no-truncate
+```
+
+_See code: [src/commands/registry/cogs.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/registry/cogs.ts)_
+
 ## `crank registry:rebuild`
 
-Rebuild the cog registry (not unlike blowing on an old video game cartridge)
+Rebuild the Cog registry (not unlike blowing on an old video game cartridge)
 
 ```
 USAGE
@@ -193,7 +219,31 @@ EXAMPLE
   $ crank registry:rebuild
 ```
 
-_See code: [src/commands/registry/rebuild.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/registry/rebuild.ts)_
+_See code: [src/commands/registry/rebuild.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/registry/rebuild.ts)_
+
+## `crank registry:steps`
+
+List steps that are currently available on this machine
+
+```
+USAGE
+  $ crank registry:steps
+
+OPTIONS
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
+
+EXAMPLES
+  $ crank registry:steps
+  $ crank registry:steps --extended --no-truncate
+```
+
+_See code: [src/commands/registry/steps.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/registry/steps.ts)_
 
 ## `crank run FILEORFOLDER`
 
@@ -212,7 +262,7 @@ EXAMPLES
   $ crank run --use-ssl /path/to/scenario-folder
 ```
 
-_See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.2.3/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.3.0/src/commands/run.ts)_
 
 ## `crank update [CHANNEL]`
 
