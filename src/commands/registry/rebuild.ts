@@ -8,7 +8,7 @@ import {CogManager} from '../../services/cog-manager'
 import {CogRegistryEntry} from '../../services/registries'
 
 export class Rebuild extends RegistryAwareCommand {
-  static description = 'Rebuild the cog registry (not unlike blowing on an old video game cartridge)'
+  static description = 'Rebuild the Cog registry (not unlike blowing on an old video game cartridge)'
   static examples = [
     '$ crank registry:rebuild',
   ]

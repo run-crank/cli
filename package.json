@@ -71,13 +71,13 @@
     "commands": "./lib/commands",
     "topics": {
       "cog": {
-        "description": "Install, uninstall, test, and authenticate Automaton cogs."
+        "description": "Install, uninstall, test, and authenticate Automaton Cogs."
       },
       "help": {
         "description": "Display help for Crank."
       },
       "registry": {
-        "description": "Utility commands for the crank CLI."
+        "description": "List installed Cogs, available steps, etc."
       },
       "update": {
         "description": "Update the Crank CLI."

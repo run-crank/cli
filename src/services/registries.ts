@@ -11,6 +11,14 @@ export interface CogRegistryEntry {
   _runConfig?: CogConfig
 }
 
+export interface StepRegistryEntry {
+  stepId: string
+  name: string
+  expression: string
+  expectedFieldsList: any[]
+  _cog: string
+}
+
 export interface AuthRegistryEntry {
   cog: string
   auth: any
@@ -20,7 +28,7 @@ export class Registries {
   private static instance: Registries
 
   protected cacheDir: string
-  protected stepRegistry: object[] = []
+  protected stepRegistry: StepRegistryEntry[] = []
   protected cogRegistry: CogRegistryEntry[] = []
   private authRegistry: AuthRegistryEntry[] = []
 
@@ -34,7 +42,7 @@ export class Registries {
     Registries.instance = this
   }
 
-  public buildStepRegistry() {
+  public buildStepRegistry(): StepRegistryEntry[] {
     if (this.stepRegistry.length > 0) {
       return this.stepRegistry
     }
