@@ -167,6 +167,7 @@ export class CogManager {
   public stopAllCogs() {
     if (this.cogProcesses) {
       this.cogProcesses.forEach((cog: ChildProcess) => {
+        cog.kill('SIGINT')
         cog.kill()
         cog.unref()
       })
