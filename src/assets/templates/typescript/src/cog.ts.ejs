@@ -32,11 +32,6 @@ export class Cog implements ICogServiceServer {
         this.stepMap[stepInstance.getId()] = step;
         return stepInstance;
       });
-
-    // Used only for testing...
-    if (stepMap.length > 0) {
-      this.stepMap = stepMap;
-    }
   }
 
   /**
