@@ -1,7 +1,7 @@
 {
   "name": "crank",
   "description": "Test automation for integrated SaaS, by Automaton.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Automaton Inc",
   "bin": {
     "crank": "./bin/run"
