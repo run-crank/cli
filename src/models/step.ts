@@ -5,10 +5,12 @@ import {CogServiceClient} from '../proto/cog_grpc_pb'
 import {RunStepRequest, RunStepResponse, Step as ProtoStep} from '../proto/cog_pb'
 import {Registries} from '../services/registries'
 
+/* tslint:disable:no-unused */
+
 interface StepConstructorArgs {
   cog: string
   protoSteps: ProtoStep | ProtoStep[]
-  stepText: string
+  stepText: string | string[]
   client?: CogServiceClient
   registries: Registries
 }
@@ -16,7 +18,7 @@ interface StepConstructorArgs {
 export class Step {
   public cog: string
   public protoSteps: ProtoStep[]
-  public stepText: string
+  public stepText: string | string[]
   public client?: CogServiceClient
 
   private readonly auth: any = {}
@@ -63,6 +65,7 @@ export class Step {
 
   public async runSteps(): Promise<RunStepResponse[]> {
     let hadFailure = false
+    let responses: RunStepResponse[] = []
 
     if (!this.client) {
       return Promise.reject('No client initialized.')
@@ -71,22 +74,26 @@ export class Step {
     const meta = this.getAuthMeta()
     const stream: grpc.ClientDuplexStream<RunStepRequest, RunStepResponse> = this.client.runSteps(meta)
 
-    const responses: RunStepResponse[] = await Bluebird.mapSeries(this.protoSteps, protoStep => {
-      return new Promise(resolve => {
-        // Listen (only once) for data from the server.
-        stream.once('data', (data: RunStepResponse) => {
-          if (data.getOutcome() !== RunStepResponse.Outcome.PASSED) {
-            hadFailure = true
-          }
-          resolve(data)
-        })
+    try {
+      await Bluebird.mapSeries(this.protoSteps, protoStep => {
+        return new Promise((resolve, reject) => {
+          // Listen (only once) for data from the server.
+          stream.once('data', (data: RunStepResponse) => {
+            responses.push(data)
+            if (data.getOutcome() !== RunStepResponse.Outcome.PASSED) {
+              hadFailure = true
+              reject()
+            }
+            resolve()
+          })
 
-        // Write the step request onto the stream.
-        const request = new RunStepRequest()
-        request.setStep(protoStep)
-        stream.write(request)
+          // Write the step request onto the stream.
+          const request = new RunStepRequest()
+          request.setStep(protoStep)
+          stream.write(request)
+        })
       })
-    })
+    } catch (e) {}
 
     return new Promise((resolve, reject) => {
       stream.end()

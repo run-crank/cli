@@ -10,12 +10,12 @@ export class Timer {
     this.testStartTime = Date.now()
   }
 
-  public addPassedStep() {
-    this.passedSteps++
+  public addPassedStep(thisMany = 1) {
+    this.passedSteps += thisMany
   }
 
-  public addFailedStep() {
-    this.failedSteps++
+  public addFailedStep(thisMany = 1) {
+    this.failedSteps += thisMany
   }
 
   public addSkippedStep() {

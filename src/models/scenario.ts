@@ -16,6 +16,7 @@ export class Scenario {
   public name: string
   public description: string
   public steps: RunnerStep[]
+  public optimizedSteps: (RunnerStep | RunnerStep[])[]
 
   private readonly registries: Registries
 
@@ -29,6 +30,7 @@ export class Scenario {
     this.name = scenario.scenario
     this.description = scenario.description
     this.steps = steps
+    this.optimizedSteps = this.optimizeSteps(steps)
   }
 
   protected getRunnerStepForStep(step: any): RunnerStep {
@@ -69,6 +71,33 @@ export class Scenario {
       stepText: step.step || stepDefName || stepDefExpression || stepDefId,
       registries: this.registries,
     })
+  }
 
+  protected optimizeSteps(steps: RunnerStep[]): (RunnerStep | RunnerStep[])[] {
+    let optimized: RunnerStep[][] = []
+    let currentIndex = 0
+
+    for (let i = 0; i < steps.length; i++) {
+      if (i === 0) {
+        optimized[currentIndex] = [steps[i]]
+      } else {
+        if (optimized[currentIndex][0].cog === steps[i].cog) {
+          optimized[currentIndex].push(steps[i])
+        } else {
+          currentIndex++
+          optimized[currentIndex] = [steps[i]]
+        }
+      }
+    }
+
+    const optimizedSteps: (RunnerStep | RunnerStep[])[] = optimized.map(elem => {
+      if (elem.length === 1) {
+        return elem[0]
+      } else {
+        return elem
+      }
+    })
+
+    return optimizedSteps
   }
 }

@@ -11,6 +11,7 @@ import {CogRegistryEntry} from './services/registries'
 
 interface PrintStepArgs {
   step: StepRunner
+  stepIndex?: number
   stepResponse: RunStepResponse
   indent: number
   printStepText: boolean
@@ -44,16 +45,19 @@ export default abstract class extends RegistryAwareCommand {
 
   protected async runSteps(stepRunner: StepRunner, indentBy = 0, shouldPrintStepText = true, shouldPrintSuccessMessage = false): Promise<RunStepResponse[]> {
     let responses: RunStepResponse[] = []
+    let hasErrors = false
 
     try {
       responses = await stepRunner.runSteps()
     } catch (responsesWithErrors) {
       responses = responsesWithErrors
+      hasErrors = true
     }
 
-    responses.forEach(response => {
+    responses.forEach((response, i) => {
       this.printStepResult({
         step: stepRunner,
+        stepIndex: i,
         stepResponse: response,
         indent: indentBy,
         printMessage: shouldPrintSuccessMessage,
@@ -61,18 +65,24 @@ export default abstract class extends RegistryAwareCommand {
       })
     })
 
-    return responses
+    if (hasErrors) {
+      throw responses
+    } else {
+      return responses
+    }
   }
 
-  protected printStepResult({step, stepResponse, indent, printStepText, printMessage}: PrintStepArgs): void {
+  protected printStepResult({step, stepIndex, stepResponse, indent, printStepText, printMessage}: PrintStepArgs): void {
     const passed = stepResponse.getOutcome() === RunStepResponse.Outcome.PASSED
     const color = passed ? chalk.green : chalk.red
     const symbol = passed ? '\u2713' : '\u2718'
     let prefix = ' '.repeat(indent)
     let stepTextPrinted = false
+    let stepText: any
 
     if (printStepText && step.stepText) {
-      this.log(`${prefix}${color(`${symbol} ${step.stepText}`)}`)
+      stepText = stepIndex === undefined ? step.stepText : step.stepText[stepIndex]
+      this.log(`${prefix}${color(`${symbol} ${stepText}`)}`)
       stepTextPrinted = true
       if (!passed) {
         prefix += '  '
