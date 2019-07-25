@@ -2,6 +2,7 @@ import {flags} from '@oclif/command'
 import {IConfig} from '@oclif/config'
 import {Promise as Bluebird} from 'bluebird'
 import chalk from 'chalk'
+import * as debug from 'debug'
 
 import {Scenario} from '../models/scenario'
 import {Step as RunnerStep} from '../models/step'
@@ -22,14 +23,27 @@ export default class Run extends StepAwareCommand {
       char: 's',
       description: 'Use SSL to secure communications between crank and all cogs (useful for testing SSL support for cogs you are building).'
     }),
+    debug: flags.boolean({
+      description: 'More verbose output to aid in diagnosing issues using Crank',
+    }),
   }
   static args = [{name: 'fileOrFolder', required: true}]
 
   protected cogManager: CogManager
+  protected logDebug: debug.Debugger
 
   constructor(argv: string[], config: IConfig) {
     super(argv, config)
     this.cogManager = new CogManager({registries: this.registry})
+    this.logDebug = debug('crank:run')
+  }
+
+  async init() {
+    const {flags} = this.parse(Run)
+    if (flags.debug) {
+      debug.enable('crank:*')
+      this.cogManager.setDebug(true)
+    }
   }
 
   async run() {
@@ -37,7 +51,9 @@ export default class Run extends StepAwareCommand {
     let scenario: Scenario
 
     try {
+      this.logDebug('Parsing scenario file %', args.fileOrFolder)
       scenario = new Scenario({registries: this.registry, fromFile: args.fileOrFolder})
+      this.logDebug('Starting Cogs needed to run scenario %s', args.fileOrFolder)
       await this.cogManager.decorateStepsWithClients(scenario.steps, flags['use-ssl'])
     } catch (e) {
       this.log(chalk.red('Error running scenario:'))

@@ -1,9 +1,12 @@
+import * as retry from 'async-retry'
 import {Promise as BlueBird} from 'bluebird'
 import {ChildProcess, spawn, spawnSync} from 'child_process'
+import * as debug from 'debug'
 import * as grpc from 'grpc'
 
 import {Step} from '../models/step'
 import {CogServiceClient} from '../proto/cog_grpc_pb'
+import {ManifestRequest} from '../proto/cog_pb'
 
 import {Registries} from './registries'
 import {Ssl} from './ssl'
@@ -25,6 +28,8 @@ interface CogManagerConstructorArgs {
 export class CogManager {
   private static instance: CogManager
 
+  protected debug = false
+  protected logDebug: debug.Debugger
   protected cogProcesses: ChildProcess[] = []
   private readonly dockerImageNames: string[] = []
   private readonly clientCache: any = {}
@@ -37,6 +42,7 @@ export class CogManager {
   constructor({ssl, registries}: CogManagerConstructorArgs) {
     this.ssl = ssl || new Ssl()
     this.registries = registries
+    this.logDebug = debug('crank:cogManager')
 
     if (CogManager.instance) {
       return CogManager.instance
@@ -46,7 +52,12 @@ export class CogManager {
     privateInstance = this
   }
 
+  public setDebug(to: boolean) {
+    this.debug = to
+  }
+
   public async startCogAndGetClient(cogConfig: CogConfig, useSsl: boolean): Promise<CogServiceClient> {
+    const cogIdentifier: string = cogConfig.dockerImage || cogConfig.cwd || ''
     let clientCredentials: grpc.ChannelCredentials
     let sslConfigs = null
     const cogPort = this.lastPort + 1
@@ -65,19 +76,33 @@ export class CogManager {
 
     this.startCog(this.host, cogPort, cogConfig, sslConfigs)
 
-    return new Promise((resolve, reject) => {
-      const client = new CogServiceClient(`${this.host}:${cogPort}`, clientCredentials)
-      client.waitForReady(Date.now() + 10000, err => {
-        if (err) {
-          reject(err)
-          return
-        }
+    this.logDebug('Attempting to establish connection with Cog %s', cogIdentifier)
+    return retry(async () => {
+      const client: CogServiceClient = await new Promise((resolve, reject) => {
+        const client = new CogServiceClient(`${this.host}:${cogPort}`, clientCredentials)
+        client.waitForReady(Date.now() + 10000, err => {
+          if (err) {
+            reject(err)
+            return
+          }
 
-        // gRPC client sometimes seems to say it's ready before it really is :(
-        setTimeout(() => {
-          resolve(client)
-        }, 600)
+          // Validate it's actually ready by attempting to get its manifest.
+          client.getManifest(new ManifestRequest(), err => {
+            if (err) {
+              reject(err)
+              return
+            }
+            this.logDebug('Established connection with Cog %s', cogIdentifier)
+            resolve(client)
+          })
+        })
       })
+      return client
+    }, {
+      retries: 5,
+      onRetry: err => {
+        this.logDebug('Re-attempting Cog connection establishment with %s: %s', cogIdentifier, err.toString())
+      }
     })
   }
 
@@ -106,13 +131,14 @@ export class CogManager {
         }
       })
       args.push(dockerImage)
+      this.logDebug('Running `docker %s`', args.join(' '))
       cogProc = spawn('docker', args, {
         env: {
           PATH: process.env.PATH,
           HOME: process.env.HOME,
         },
         cwd: config.cwd || process.cwd(),
-        stdio: 'ignore',
+        stdio: this.debug ? 'inherit' : 'ignore',
         detached: true,
       })
       this.dockerImageNames.push(dockerName)
@@ -126,10 +152,11 @@ export class CogManager {
         HOST: cogHost,
       }, sslEnv)
       const cmdParts = cmd.split(' ')
+      this.logDebug('Running `%s`', cmdParts.join(' '))
       cogProc = spawn(cmdParts.shift() || cmd, cmdParts, {
         env: cogEnv,
         cwd: config.cwd || process.cwd(),
-        stdio: 'ignore',
+        stdio: this.debug ? 'inherit' : 'ignore',
         detached: true,
       })
       this.cogProcesses.push(cogProc)
@@ -167,6 +194,7 @@ export class CogManager {
   public stopAllCogs() {
     if (this.cogProcesses) {
       this.cogProcesses.forEach((cog: ChildProcess) => {
+        this.logDebug('Sending SIGINT to process %s', cog.pid)
         cog.kill('SIGINT')
         cog.kill()
         cog.unref()
@@ -174,6 +202,7 @@ export class CogManager {
     }
     if (this.dockerImageNames) {
       this.dockerImageNames.forEach((image: string) => {
+        this.logDebug('Running `docker kill %s`', image)
         spawnSync('docker', ['kill', image])
       })
     }

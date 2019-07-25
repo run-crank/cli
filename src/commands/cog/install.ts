@@ -2,6 +2,7 @@ import {IConfig} from '@oclif/config'
 import {flags} from '@oclif/parser'
 import {Promise as Bluebird} from 'bluebird'
 import * as cp from 'child_process'
+import * as debug from 'debug'
 import {ServiceError} from 'grpc'
 import * as inquirer from 'inquirer'
 
@@ -31,6 +32,9 @@ export default class Install extends RegistryAwareCommand {
     }),
     'ignore-auth': flags.boolean({
       description: 'Suppress prompts for cog auth details'
+    }),
+    debug: flags.boolean({
+      description: 'More verbose output to aid in diagnosing issues using Crank',
     })
   }
 
@@ -40,10 +44,20 @@ export default class Install extends RegistryAwareCommand {
   }]
 
   protected cogManager: CogManager
+  protected logDebug: debug.Debugger
 
   constructor(argv: string[], config: IConfig) {
     super(argv, config)
     this.cogManager = new CogManager({registries: this.registry})
+    this.logDebug = debug('crank:install')
+  }
+
+  async init() {
+    const {flags} = this.parse(Install)
+    if (flags.debug) {
+      debug.enable('crank:*')
+      this.cogManager.setDebug(true)
+    }
   }
 
   async run() {
@@ -60,6 +74,7 @@ export default class Install extends RegistryAwareCommand {
 
       // Download from docker hub...
       this.log(`Attempting to pull ${args.cogName} from docker hub`)
+      this.logDebug('Running `docker pull %s`', args.cogName)
       const dockerPullProc = cp.spawnSync('docker', ['pull', args.cogName], {
         stdio: 'inherit'
       })
@@ -90,7 +105,9 @@ export default class Install extends RegistryAwareCommand {
     }
 
     try {
+      this.logDebug('Starting Cog %s', args.cogName)
       const client = await this.cogManager.startCogAndGetClient(cogConfig, false)
+      this.logDebug('Adding Cog %s to registry', args.cogName)
       const cogRegEntry: CogRegistryEntry = await this.installCog(client, cogConfig, flags.force)
       const cogName = cogRegEntry.name || ''
       this.log(`Successfully installed ${cogName} cog.`)
@@ -107,6 +124,7 @@ export default class Install extends RegistryAwareCommand {
         })
       })
 
+      this.logDebug('Installing Cog %s authentication details', args.cogName)
       await this.installCogAuth(cogName, authFields)
     } catch (e) {
       this.log(`There was a problem installing the Cog: ${e && e.message ? e.message : 'unknown error'}`)
