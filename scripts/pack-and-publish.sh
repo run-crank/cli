@@ -1,16 +1,12 @@
 #!/bin/bash
+set -e
 
 npm pack
 rm crank-*.tgz
 
 ./node_modules/.bin/oclif-dev pack
-./node_modules/.bin/oclif-dev pack:macos
-
-# There appears to be a bug in the pack:win command that prevents successful
-# packing if a previous pack is still in tmp/cache. We should fix upstream...
-# @see https://github.com/oclif/dev-cli/issues/32
-rm -rf ./tmp/windows-x64-installer && rm -rf ./tmp/windows-x86-installer
-./node_modules/.bin/oclif-dev pack:win
+./scripts/build-release.sh darwin
+./scripts/build-release.sh win32
 
 ./node_modules/.bin/oclif-dev publish
 ./node_modules/.bin/oclif-dev publish:macos
