@@ -1,7 +1,6 @@
-import { BaseStep, Field, StepInterface } from '../base-step';
+import { BaseStep, Field, StepInterface } from '../core/base-step';
 import { Step, RunStepResponse, FieldDefinition } from '../proto/cog_pb';
 import { Value } from 'google-protobuf/google/protobuf/struct_pb';
-import { NeedleResponse } from 'needle';
 
 export class UserFieldEqualsStep extends BaseStep implements StepInterface {
 
@@ -37,7 +36,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   }];
 
   async executeStep(step: Step): Promise<RunStepResponse> {
-    let apiRes: NeedleResponse;
+    let apiRes: any;
     const stepData: any = step.getData().toJavaScript();
     const email: string = stepData.email;
     const field: string = stepData.field;
@@ -46,7 +45,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
 
     // Search JSON Placeholder API for user with given email.
     try {
-      apiRes = await this.apiClient(`https://jsonplaceholder.typicode.com/users?email=${email}`);
+      apiRes = await this.client.getUserByEmail(email);
     } catch (e) {
       response.setOutcome(RunStepResponse.Outcome.ERROR);
       response.setMessageFormat('There was a problem connecting to JSON Placeholder.');

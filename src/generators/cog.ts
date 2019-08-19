@@ -81,16 +81,20 @@ class CogGenerator extends Generator {
     // Copy scripts files.
     this.fs.copy(this.templatePath('scripts'), this.destinationPath('scripts'))
 
-    // Copy src files.
-    this.fs.copy(this.templatePath('src/grpc-server.ts'), this.destinationPath('src/grpc-server.ts'))
-    this.fs.copy(this.templatePath('src/base-step.ts'), this.destinationPath('src/base-step.ts'))
-    this.fs.copyTpl(this.templatePath('src/cog.ts.ejs'), this.destinationPath('src/cog.ts'), this)
+    // Copy core files.
+    this.fs.copy(this.templatePath('src/core/grpc-server.ts'), this.destinationPath('src/core/grpc-server.ts'))
+    this.fs.copy(this.templatePath('src/core/base-step.ts'), this.destinationPath('src/core/base-step.ts'))
+    this.fs.copy(this.templatePath('src/core/cog.ts'), this.destinationPath('src/core/cog.ts'))
+
+    // Copy client files.
+    this.fs.copy(this.templatePath('src/client/client-wrapper.ts'), this.destinationPath('src/client/client-wrapper.ts'))
 
     // Copy proto files (all of them, because this CLI is also written in TS).
     this.fs.copy(this.templatePath('../../../proto'), this.destinationPath('src/proto'))
 
-    // Copy test files.
-    this.fs.copyTpl(this.templatePath('test/cog.ts.ejs'), this.destinationPath('test/cog.ts'), this)
+    // Copy primary test files.
+    this.fs.copyTpl(this.templatePath('test/core/cog.ts.ejs'), this.destinationPath('test/core/cog.ts'), this)
+    this.fs.copy(this.templatePath('test/client'), this.destinationPath('test/client'))
 
     // If sample steps were requested, add them!
     if (this.options['include-example-step']) {

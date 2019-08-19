@@ -4,9 +4,9 @@ import { default as sinon } from 'ts-sinon';
 import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
-import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse, RunStepRequest } from '../src/proto/cog_pb';
-import { Cog } from '../src/cog';
-import { CogManifest } from '../src/proto/cog_pb';
+import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse, RunStepRequest } from '../../src/proto/cog_pb';
+import { Cog } from '../../src/core/cog';
+import { CogManifest } from '../../src/proto/cog_pb';
 import { Metadata } from 'grpc';
 import { Duplex } from 'stream';
 
@@ -82,18 +82,6 @@ describe('Cog:RunStep', () => {
     cogUnderTest = new Cog(apiClientStub);
   });
 
-  it('authenticates api client with call metadata', (done) => {
-    // Construct grpc metadata and assert the client was authenticated.
-    const expectedCallArgs = {user_agent: 'Some/UserAgent String'};
-    grpcUnaryCall.metadata = new Metadata();
-    grpcUnaryCall.metadata.add('userAgent', expectedCallArgs.user_agent);
-
-    cogUnderTest.runStep(grpcUnaryCall, (err, response: RunStepResponse) => {
-      expect(apiClientStub.defaults).to.have.been.calledWith(expectedCallArgs);
-      done();
-    })
-  });
-
   it('responds with error when called with unknown stepId', (done) => {
     protoStep.setStepId('NotRealStep');
 
@@ -157,18 +145,6 @@ describe('Cog:RunSteps', () => {
     apiClientStub = sinon.stub();
     apiClientStub.defaults = sinon.stub();
     cogUnderTest = new Cog(apiClientStub);
-  });
-
-  it('authenticates api client with call metadata', () => {
-    runStepRequest.setStep(protoStep);
-
-    // Construct grpc metadata and assert the client was authenticated.
-    const expectedCallArgs = {user_agent: 'Some/UserAgent String'};
-    grpcDuplexStream.metadata.add('userAgent', expectedCallArgs.user_agent);
-
-    cogUnderTest.runSteps(grpcDuplexStream);
-    grpcDuplexStream.emit('data', runStepRequest);
-    expect(apiClientStub.defaults).to.have.been.calledWith(expectedCallArgs);
   });
 
   it('responds with error when called with unknown stepId', (done) => {

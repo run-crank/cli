@@ -46,8 +46,26 @@ as appropriate.
 Modify code in `src/steps` and validate your changes by running
 `crank cog:step <%= options.machineName %>` and selecting your step.
 
-To add new steps, create new step classes in `src/steps`. You will need to run
+To add new steps, create new step classes in `src/steps`. Use existing steps as
+a starting point for your new step(s). Note that you will need to run
 `crank registry:rebuild` in order for your new steps to be recognized.
+
+Always add tests for your steps in the `test/steps` folder. Use existing tests
+as a guide.
+
+### Modifying the API Client or Authentication Details
+Modify the ClientWrapper class at `src/client/client-wrapper.ts`.
+
+- If you need to add or modify authentication details, see the
+  `expectedAuthFields` static property.
+- If you need to expose additional logic from the wrapped API client, add a new
+  ublic method to the wrapper class, which can then be called in any step.
+- It's also possible to swap out the wrapped API client completely. You should
+  only have to modify code within this clase to achieve that.
+
+Note that you will need to run `crank registry:rebuild` in order for any
+changes to authentication fields to be reflected. Afterward, you can
+re-authenticate this cog by running `crank cog:auth <%= options.machineName %>`
 
 ### Tests and Housekeeping
 Tests can be found in the `test` directory and run like this: `npm test`.

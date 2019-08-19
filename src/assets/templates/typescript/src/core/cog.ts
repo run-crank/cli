@@ -4,31 +4,24 @@ import * as fs from 'fs';
 
 import { Field, StepInterface } from './base-step';
 
-import { ICogServiceServer } from './proto/cog_grpc_pb';
+import { ClientWrapper } from '../client/client-wrapper';
+import { ICogServiceServer } from '../proto/cog_grpc_pb';
 import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition,
-  StepDefinition } from './proto/cog_pb';
+  StepDefinition } from '../proto/cog_pb';
 
 export class Cog implements ICogServiceServer {
 
-  private cogName: string = '<%= options.machineName %>';
-  private cogVersion: string = JSON.parse(fs.readFileSync('package.json').toString('utf8')).version;
-  private authFields: Field[] = [{
-    field: 'userAgent',
-    type: FieldDefinition.Type.STRING,
-    description: 'Arbitrary string to pass as a User Agent on all API requests.',
-  }];
-
   private steps: StepInterface[];
 
-  constructor (private apiClient, private stepMap: any = {}) {
+  constructor (private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
     // corresponding step classes available on this.steps and this.stepMap.
-    this.steps = fs.readdirSync(`${__dirname}/steps`, { withFileTypes: true })
+    this.steps = fs.readdirSync(`${__dirname}/../steps`, { withFileTypes: true })
       .filter((file: fs.Dirent) => {
         return file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'));
       }).map((file: fs.Dirent) => {
-        const step = require(`${__dirname}/steps/${file.name}`).Step;
-        const stepInstance: StepInterface = new step();
+        const step = require(`${__dirname}/../steps/${file.name}`).Step;
+        const stepInstance: StepInterface = new step(clientWrapperClass);
         this.stepMap[stepInstance.getId()] = step;
         return stepInstance;
       });
@@ -44,15 +37,18 @@ export class Cog implements ICogServiceServer {
     callback: grpc.sendUnaryData<CogManifest>,
   ) {
     const manifest: CogManifest = new CogManifest();
+    const pkgJson: Record<string, any> = JSON.parse(
+      fs.readFileSync('package.json').toString('utf8'),
+    );
     const stepDefinitions: StepDefinition[] = this.steps.map((step: StepInterface) => {
       return step.getDefinition();
     });
 
-    manifest.setName(this.cogName);
-    manifest.setVersion(this.cogVersion);
+    manifest.setName(pkgJson.cog.name);
+    manifest.setVersion(pkgJson.version);
     manifest.setStepDefinitionsList(stepDefinitions);
 
-    this.authFields.forEach((field: Field) => {
+    ClientWrapper.expectedAuthFields.forEach((field: Field) => {
       const authField: FieldDefinition = new FieldDefinition();
       authField.setKey(field.field);
       authField.setOptionality(FieldDefinition.Optionality.REQUIRED);
@@ -140,18 +136,10 @@ export class Cog implements ICogServiceServer {
   }
 
   /**
-   * This is a contrived example to demonstrate what it might look like for you
-   * to pass API credentials to an API client, which you could then pass into
-   * your steps. Obviously a user agent is not a great example of an auth field,
-   * but you get the idea.
-   *
-   * @see this.authFields to define alternate/real authentication fields
+   * Helper method to instantiate an API client wrapper for this Cog.
    */
   private instantiateClient(auth: grpc.Metadata) {
-    // @see this.authFields to define additional/alternate authentication field requirements
-    const ua: string = auth.get('userAgent').toString();
-    this.apiClient.defaults({ user_agent: ua });
-    return this.apiClient;
+    return new this.clientWrapperClass(auth);
   }
 
 }

@@ -18,4 +18,4 @@ COPY --from=build /app .
 COPY . .
 EXPOSE 28866
 LABEL com.automatoninc.cog-for="<%= options.name %>"
-ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "node", "build/grpc-server.js"]
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "node", "build/core/grpc-server.js"]

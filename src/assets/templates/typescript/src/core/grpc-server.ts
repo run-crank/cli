@@ -1,7 +1,7 @@
 import * as grpc from 'grpc';
-import * as needle from 'needle';
-import { CogServiceService as CogService } from './proto/cog_grpc_pb';
+import { CogServiceService as CogService } from '../proto/cog_grpc_pb';
 import { Cog } from './cog';
+import { ClientWrapper } from '../client/client-wrapper';
 
 const server = new grpc.Server();
 const port = process.env.PORT || 28866;
@@ -20,7 +20,7 @@ if (process.env.USE_SSL) {
   credentials = grpc.ServerCredentials.createInsecure();
 }
 
-server.addService(CogService, new Cog(needle));
+server.addService(CogService, new Cog(ClientWrapper));
 server.bind(`${host}:${port}`, credentials);
 server.start();
 console.log(`Server started, listening: ${host}:${port}`);
