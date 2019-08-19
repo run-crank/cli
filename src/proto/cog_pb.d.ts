@@ -27,6 +27,9 @@ export class CogManifest extends jspb.Message {
     getName(): string;
     setName(value: string): void;
 
+    getLabel(): string;
+    setLabel(value: string): void;
+
     getVersion(): string;
     setVersion(value: string): void;
 
@@ -54,6 +57,7 @@ export class CogManifest extends jspb.Message {
 export namespace CogManifest {
     export type AsObject = {
         name: string,
+        label: string,
         version: string,
         stepDefinitionsList: Array<StepDefinition.AsObject>,
         authFieldsList: Array<FieldDefinition.AsObject>,
@@ -66,6 +70,9 @@ export class StepDefinition extends jspb.Message {
 
     getName(): string;
     setName(value: string): void;
+
+    getType(): StepDefinition.Type;
+    setType(value: StepDefinition.Type): void;
 
     getExpression(): string;
     setExpression(value: string): void;
@@ -90,9 +97,16 @@ export namespace StepDefinition {
     export type AsObject = {
         stepId: string,
         name: string,
+        type: StepDefinition.Type,
         expression: string,
         expectedFieldsList: Array<FieldDefinition.AsObject>,
     }
+
+    export enum Type {
+    ACTION = 0,
+    VALIDATION = 1,
+    }
+
 }
 
 export class FieldDefinition extends jspb.Message { 
@@ -141,6 +155,7 @@ export namespace FieldDefinition {
     DATETIME = 5,
     EMAIL = 6,
     PHONE = 7,
+    URL = 10,
     ANYNONSCALAR = 8,
     MAP = 9,
     }

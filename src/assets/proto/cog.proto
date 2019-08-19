@@ -98,6 +98,14 @@ message CogManifest {
   string name = 1;
 
   /**
+   * A human-friendly label for your Cog. Should most likely be the name of the
+   * underlying system that your Cog connects to.
+   * <br><br>
+   * **An Example**: `My System`
+   */
+  string label = 5;
+
+  /**
    * The version of your Cog. Should adhere to semenatic versioning standards.
    * <br><Br>
    * **An example**: `1.0.0`
@@ -129,6 +137,14 @@ message CogManifest {
 message StepDefinition {
 
   /**
+   * A step's type.
+   */
+   enum Type {
+    ACTION = 0; /// This step performs an action.
+    VALIDATION = 1; /// This step performs a validation (e.g. an assertion).
+  }
+
+  /**
    * A unique identifier representing this step. This will be passed back as
    * the Step.step_id on the Step passed to your RunStep(s) implementation. Use
    * it to dispatch step-specific logic in response to a RunStepRequest.
@@ -149,6 +165,14 @@ message StepDefinition {
    * **An example**: `Assert the Value of a  Field`
    */
   string name = 2;
+
+  /**
+   * Categorizes this step as (for now) either an action or a validation. An
+   * action is generally assumed to have no FAILED state, only PASSED and ERROR
+   * states. A validation is generally assumed to be idempotent and can result
+   * in a PASSED, FAILED, or ERROR state.
+   */
+  Type type = 5;
 
   /**
    * A string that can be evaluated as an ECMAScript-compatible regular
@@ -217,6 +241,7 @@ message FieldDefinition {
     DATETIME = 5; /// This field represents a date/time.
     EMAIL = 6; /// This field represents an email address.
     PHONE = 7; /// This field represents a phone number.
+    URL = 10; /// This field represents a URL
     ANYNONSCALAR = 8; /// This field represents any non-scalar value.
     MAP = 9; /// This field represents a map/dictionary/associative array/arbitrary key-value pair (conceptually like a JSON object)
   }
