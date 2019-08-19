@@ -25,6 +25,11 @@ class CogGenerator extends Generator {
     // Always copy the cog.proto into the same location, regardless of language.
     this.fs.copy(this.templatePath('../../proto/cog.proto'), this.destinationPath('proto/cog.proto'))
 
+    // If configured, copy the license file into the same location as well.
+    if (this.options['include-mit-license']) {
+      this.fs.copyTpl(this.templatePath('../LICENSE.mit.ejs'), this.destinationPath('LICENSE'), this)
+    }
+
     switch (this.options.language) {
     case 'typescript':
       this._writingTypescript()

@@ -6,6 +6,8 @@ export interface CogGeneratorArgs {
   language: string | undefined
   'output-directory': string | undefined
   'include-example-step': boolean
+  'include-mit-license': boolean
+  'copyright-holder'?: string
   packageSafeName?: string
   machineName?: string
 }
