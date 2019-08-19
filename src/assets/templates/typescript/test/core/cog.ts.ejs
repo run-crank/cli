@@ -26,6 +26,7 @@ describe('Cog:GetManifest', () => {
     const version: string = JSON.parse(fs.readFileSync('package.json').toString('utf8')).version;
     cogUnderTest.getManifest(null, (err, manifest: CogManifest) => {
       expect(manifest.getName()).to.equal('<%= options.machineName %>');
+      expect(manifest.getLabel()).to.equal('<%= options.name %>');
       expect(manifest.getVersion()).to.equal(version);
       done();
     });

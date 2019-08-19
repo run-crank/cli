@@ -28,6 +28,7 @@ describe('UserFieldEqualsStep', () => {
     expect(stepDef.getStepId()).to.equal('UserFieldEqualsStep');
     expect(stepDef.getName()).to.equal('Assert that a field on a JSON Placeholder user has a given value');
     expect(stepDef.getExpression()).to.equal('the (?<field>.+) field on JSON Placeholder user (?<email>.+) has value (?<expectedValue>.+)');
+    expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
   });
 
   it('should return expected step fields', () => {

@@ -19,6 +19,7 @@ export class Cogs extends RegistryAwareCommand {
     const registry = this.registry.buildCogRegistry()
 
     cli.table(registry, {
+      label: {},
       name: {
         minWidth: 30,
       },

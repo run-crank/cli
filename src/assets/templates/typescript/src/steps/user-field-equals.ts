@@ -1,5 +1,5 @@
 import { BaseStep, Field, StepInterface } from '../core/base-step';
-import { Step, RunStepResponse, FieldDefinition } from '../proto/cog_pb';
+import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../proto/cog_pb';
 import { Value } from 'google-protobuf/google/protobuf/struct_pb';
 
 export class UserFieldEqualsStep extends BaseStep implements StepInterface {
@@ -8,6 +8,11 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
    * The name of this step: used when identifying this step to humans.
    */
   protected stepName: string = 'Assert that a field on a JSON Placeholder user has a given value';
+
+  /**
+   * Type of step (either Action or Validation).
+   */
+  protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
 
   /**
    * A string that can be evaluated as an ECMAScript-compatible regular expression. This is used to
