@@ -1,4 +1,4 @@
-import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse } from './proto/cog_pb';
+import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse } from '../proto/cog_pb';
 
 export interface StepInterface {
   getId(): string;
@@ -18,7 +18,7 @@ export abstract class BaseStep {
   protected stepExpression: string;
   protected expectedFields: Field[];
 
-  constructor(protected apiClient) {}
+  constructor(protected client) {}
 
   getId(): string {
     return this.constructor.name;

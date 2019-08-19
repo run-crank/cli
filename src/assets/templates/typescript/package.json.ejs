@@ -2,12 +2,15 @@
   "name": "cog-<%= options.packageSafeName %>",
   "version": "0.1.0",
   "description": "Automaton cog for <%= options.name %>",
+  "cog": {
+    "name": "<%= options.machineName %>"
+  },
   "scripts": {
     "build-docker": "docker build -t <%= options.machineName %>:$npm_package_version -t <%= options.machineName %>:latest .",
     "build-proto": "scripts/build-proto.sh",
     "build-ts": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "ts-node src/grpc-server.ts",
+    "start": "ts-node src/core/grpc-server.ts",
     "test": "nyc mocha -r ts-node/register test/*.ts test/**/*.ts"
   },
   "nyc": {
@@ -18,7 +21,7 @@
       "**/*.d.ts",
       "test/**/*.ts",
       "**/*.js",
-      "src/grpc-server.ts"
+      "src/core/grpc-server.ts"
     ],
     "reporter": [
       "html",

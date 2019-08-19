@@ -18,6 +18,7 @@ describe('UserFieldEqualsStep', () => {
   beforeEach(() => {
     // An example of how you can stub/mock API client methods.
     apiClientStub = sinon.stub();
+    apiClientStub.getUserByEmail = sinon.stub();
     stepUnderTest = new Step(apiClientStub);
     protoStep = new ProtoStep();
   });
@@ -54,7 +55,7 @@ describe('UserFieldEqualsStep', () => {
   it('should respond with pass if API client resolves expected data', async () => {
     // Stub a response that matches expectations.
     const expectedUser: any = {someField: 'Expected Value'};
-    apiClientStub.resolves({body: [expectedUser]})
+    apiClientStub.getUserByEmail.resolves({body: [expectedUser]})
 
     // Set step data corresponding to expectations
     protoStep.setData(Struct.fromJavaScript({
@@ -70,7 +71,7 @@ describe('UserFieldEqualsStep', () => {
   it('should respond with fail if API client resolves unexpected data', async () => {
     // Stub a response that does not match expectations.
     const expectedUser: any = {someField: 'Expected Value'};
-    apiClientStub.resolves({body: [expectedUser]});
+    apiClientStub.getUserByEmail.resolves({body: [expectedUser]});
 
     // Set step data corresponding to expectations
     protoStep.setData(Struct.fromJavaScript({
@@ -85,7 +86,7 @@ describe('UserFieldEqualsStep', () => {
 
   it('should respond with error if API client resolves no results', async () => {
     // Stub a response with no results in the body.
-    apiClientStub.resolves({body: []});
+    apiClientStub.getUserByEmail.resolves({body: []});
     protoStep.setData(Struct.fromJavaScript({
       field: 'anyField',
       expectedValue: 'Any Value',
@@ -99,7 +100,7 @@ describe('UserFieldEqualsStep', () => {
   it('should respond with error if resolved user does not contain given field', async () => {
     // Stub a response with valid response, but no expected field.
     const expectedUser: any = {someField: 'Expected Value'};
-    apiClientStub.resolves({body: [expectedUser]});
+    apiClientStub.getUserByEmail.resolves({body: [expectedUser]});
     protoStep.setData(Struct.fromJavaScript({
       field: 'someOtherField',
       expectedValue: 'Any Value',
@@ -112,7 +113,7 @@ describe('UserFieldEqualsStep', () => {
 
   it('should respond with error if API client throws error', async () => {
     // Stub a response that throws any exception.
-    apiClientStub.throws();
+    apiClientStub.getUserByEmail.throws();
     protoStep.setData(Struct.fromJavaScript({}));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
