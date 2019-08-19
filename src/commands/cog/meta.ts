@@ -42,7 +42,8 @@ class MetaCogService implements ICogServiceServer {
     // Set basic cog details.
     const manifest: CogManifest = new CogManifest()
     manifest.setName('automatoninc/metacog')
-    manifest.setVersion('0.1.0')
+    manifest.setLabel('Meta Cog')
+    manifest.setVersion('0.0.0')
 
     // Declare a "password" authentication field.
     const authField: FieldDefinition = new FieldDefinition()
@@ -57,6 +58,7 @@ class MetaCogService implements ICogServiceServer {
     stepDefinition.setStepId(this.onlyKnownStepId)
     stepDefinition.setName('Assert Text Equals Zounds!')
     stepDefinition.setExpression('the text (?<moreThanText>.*) should equal Zounds!')
+    stepDefinition.setType(StepDefinition.Type.VALIDATION)
     const textField: FieldDefinition = new FieldDefinition()
     textField.setKey('moreThanText')
     textField.setDescription('The text whose value is expected to be "Zounds!"')

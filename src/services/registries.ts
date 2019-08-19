@@ -5,6 +5,7 @@ import {CogConfig} from './cog-manager'
 
 export interface CogRegistryEntry {
   name?: string
+  label?: string
   version?: string
   stepDefinitionsList?: any[]
   authFieldsList?: any[]
@@ -14,6 +15,7 @@ export interface CogRegistryEntry {
 export interface StepRegistryEntry {
   stepId: string
   name: string
+  type: number
   expression: string
   expectedFieldsList: any[]
   _cog: string
@@ -51,6 +53,7 @@ export class Registries {
     const stepsNested = cogRegistry.map((cog: any) => {
       return cog.stepDefinitionsList.map((def: any) => {
         def._cog = cog.name
+        def._cogLabel = cog.label
         return def
       })
     })

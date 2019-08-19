@@ -15,10 +15,20 @@ export class Steps extends RegistryAwareCommand {
 
   async run() {
     const {flags} = this.parse(Steps)
-    flags.sort = flags.sort || flags.extended ? 'cog' : 'expression'
+    flags.sort = flags.sort || flags.extended ? 'cog' : 'system'
     const registry = this.registry.buildStepRegistry()
 
     cli.table(registry, {
+      _cogLabel: {
+        header: 'System'
+      },
+      expression: {
+        minWidth: 50,
+      },
+      type: {
+        get: row => row.type === 0 ? 'Action' : 'Validation',
+        extended: true,
+      },
       _cog: {
         header: 'Cog',
         extended: true,
@@ -35,9 +45,6 @@ export class Steps extends RegistryAwareCommand {
         header: 'Expected Fields',
         extended: true,
         get: row => row.expectedFieldsList && row.expectedFieldsList.map(f => f.key).join('\n')
-      },
-      expression: {
-        minWidth: 50,
       },
     }, {
       printLine: this.log,

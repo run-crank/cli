@@ -15,6 +15,7 @@
     - [FieldDefinition.Optionality](#automaton.cog.FieldDefinition.Optionality)
     - [FieldDefinition.Type](#automaton.cog.FieldDefinition.Type)
     - [RunStepResponse.Outcome](#automaton.cog.RunStepResponse.Outcome)
+    - [StepDefinition.Type](#automaton.cog.StepDefinition.Type)
   
   
     - [CogService](#automaton.cog.CogService)
@@ -63,6 +64,7 @@ interact with your Cog.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The globally unique name of your Cog. Should match this Cog&#39;s docker image name if you intend to distribute it on docker hub. <br><br> **An example**: `myorg/my-system-cog` |
+| label | [string](#string) |  | A human-friendly label for your Cog. Should most likely be the name of the underlying system that your Cog connects to. <br><br> **An Example**: `My System` |
 | version | [string](#string) |  | The version of your Cog. Should adhere to semenatic versioning standards. <br><Br> **An example**: `1.0.0` |
 | step_definitions | [StepDefinition](#automaton.cog.StepDefinition) | repeated | A list of steps your Cog can run, including descriptions of data required by each step to run. Order does not matter. |
 | auth_fields | [FieldDefinition](#automaton.cog.FieldDefinition) | repeated | A list of fields your Cog expects to be passed as metadata on each RunStep or RunSteps call. Order does not matter. |
@@ -172,6 +174,7 @@ The details provided on a StepDefinition are used by Cog clients (like
 | ----- | ---- | ----- | ----------- |
 | step_id | [string](#string) |  | A unique identifier representing this step. This will be passed back as the Step.step_id on the Step passed to your RunStep(s) implementation. Use it to dispatch step-specific logic in response to a RunStepRequest. <br><br> Note: Once defined, this should almost never be modified; if modified, the change should be accompanied by a major-version change on your CogManifest.version. <br><br> **An example**: `AssertValueOfMySytemField` |
 | name | [string](#string) |  | A human-readable name for this step. This may be used as a way to represent this step to users in a UI or CLI, and may be shown in step run logs. <br><br> **An example**: `Assert the Value of a Field` |
+| type | [StepDefinition.Type](#automaton.cog.StepDefinition.Type) |  | Categorizes this step as (for now) either an action or a validation. An action is generally assumed to have no FAILED state, only PASSED and ERROR states. A validation is generally assumed to be idempotent and can result in a PASSED, FAILED, or ERROR state. |
 | expression | [string](#string) |  | A string that can be evaluated as an ECMAScript-compatible regular expression. This is used to identify and evaluate this step in cucumber-like scenario files. <br><br> You should ensure that this expression is globally unique, and would not be ambiguous with step expressions from other Cogs. An easy way to do this is to include the system/service your Cog integrates with in the expression text. <br><br> You are encouraged to use named regex capturing groups whose names correspond to keys on the expected_fields field definitions defined on this step. <br><br> Note: Once defined, this should almost never be modified; if modified, the change should be accompanied by an appropriate change to your CogManifest.version. <br><br> **An example**: `the MySystem (?<fieldName>.+) field should have value (?<expectedValue>.+)` <br><br> Which would be matched by a step in a scenario file like: `Then the MySystem emailAddress field should have value test@example.com` <br><br> And which would result in Step.data on a RunStepRequest looking like: `{ "fieldName": "emailAddress", "expectedValue": "test@example.com" }` |
 | expected_fields | [FieldDefinition](#automaton.cog.FieldDefinition) | repeated | A list of field definitions that this step needs in order to run. The key of each expected field will be used as a key on the map/dictionary passed in on Step.data on a RunStepRequest. |
 
@@ -209,6 +212,7 @@ A field&#39;s type.
 | DATETIME | 5 | This field represents a date/time. |
 | EMAIL | 6 | This field represents an email address. |
 | PHONE | 7 | This field represents a phone number. |
+| URL | 10 | This field represents a URL |
 | ANYNONSCALAR | 8 | This field represents any non-scalar value. |
 | MAP | 9 | This field represents a map/dictionary/associative array/arbitrary key-value pair (conceptually like a JSON object) |
 
@@ -224,6 +228,18 @@ The status of a completed step.
 | PASSED | 0 | Means this step completed successfully. |
 | FAILED | 1 | Means this step completed, but did not meet expectations. |
 | ERROR | 2 | Means this step could not be completed due to an error. |
+
+
+
+<a name="automaton.cog.StepDefinition.Type"></a>
+
+### StepDefinition.Type
+A step&#39;s type.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ACTION | 0 | This step performs an action. |
+| VALIDATION | 1 | This step performs a validation (e.g. an assertion). |
 
 
  

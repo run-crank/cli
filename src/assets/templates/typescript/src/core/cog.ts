@@ -45,6 +45,7 @@ export class Cog implements ICogServiceServer {
     });
 
     manifest.setName(pkgJson.cog.name);
+    manifest.setLabel(pkgJson.cog.label);
     manifest.setVersion(pkgJson.version);
     manifest.setStepDefinitionsList(stepDefinitions);
 
