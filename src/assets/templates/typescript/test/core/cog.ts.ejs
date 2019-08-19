@@ -15,11 +15,11 @@ chai.use(sinonChai);
 describe('Cog:GetManifest', () => {
   const expect = chai.expect;
   let cogUnderTest: Cog;
-  let apiClientStub: any;
+  let clientWrapperStub: any;
 
   beforeEach(() => {
-    apiClientStub = sinon.stub();
-    cogUnderTest = new Cog(apiClientStub);
+    clientWrapperStub = sinon.stub();
+    cogUnderTest = new Cog(clientWrapperStub);
   });
 
   it('should return expected cog metadata', (done) => {
@@ -70,7 +70,7 @@ describe('Cog:RunStep', () => {
   let protoStep: ProtoStep;
   let grpcUnaryCall: any = {};
   let cogUnderTest: Cog;
-  let apiClientStub: any;
+  let clientWrapperStub: any;
 
   beforeEach(() => {
     protoStep = new ProtoStep();
@@ -78,9 +78,19 @@ describe('Cog:RunStep', () => {
       getStep: function () {return protoStep},
       metadata: null
     };
-    apiClientStub = sinon.stub();
-    apiClientStub.defaults = sinon.stub();
-    cogUnderTest = new Cog(apiClientStub);
+    clientWrapperStub = sinon.stub();
+    cogUnderTest = new Cog(clientWrapperStub);
+  });
+
+  it('authenticates client wrapper with call metadata', (done) => {
+    // Construct grpc metadata and assert the client was authenticated.
+    grpcUnaryCall.metadata = new Metadata();
+    grpcUnaryCall.metadata.add('anythingReally', 'some-value');
+
+    cogUnderTest.runStep(grpcUnaryCall, (err, response: RunStepResponse) => {
+      expect(clientWrapperStub).to.have.been.calledWith(grpcUnaryCall.metadata);
+      done();
+    })
   });
 
   it('responds with error when called with unknown stepId', (done) => {
@@ -100,7 +110,7 @@ describe('Cog:RunStep', () => {
     const mockTestStepMap: any = {TestStepId: sinon.stub()}
     mockTestStepMap.TestStepId.returns(mockStepExecutor);
 
-    cogUnderTest = new Cog(apiClientStub, mockTestStepMap);
+    cogUnderTest = new Cog(clientWrapperStub, mockTestStepMap);
     protoStep.setStepId('TestStepId');
 
     cogUnderTest.runStep(grpcUnaryCall, (err, response: RunStepResponse) => {
@@ -117,7 +127,7 @@ describe('Cog:RunStep', () => {
     const mockTestStepMap: any = {TestStepId: sinon.stub()}
     mockTestStepMap.TestStepId.returns(mockStepExecutor);
 
-    cogUnderTest = new Cog(apiClientStub, mockTestStepMap);
+    cogUnderTest = new Cog(clientWrapperStub, mockTestStepMap);
     protoStep.setStepId('TestStepId');
 
     cogUnderTest.runStep(grpcUnaryCall, (err, response: RunStepResponse) => {
@@ -134,7 +144,7 @@ describe('Cog:RunSteps', () => {
   let runStepRequest: RunStepRequest;
   let grpcDuplexStream: any;
   let cogUnderTest: Cog;
-  let apiClientStub: any;
+  let clientWrapperStub: any;
 
   beforeEach(() => {
     protoStep = new ProtoStep();
@@ -143,9 +153,19 @@ describe('Cog:RunSteps', () => {
     grpcDuplexStream._write = sinon.stub().callsArg(2);
     grpcDuplexStream._read = sinon.stub();
     grpcDuplexStream.metadata = new Metadata();
-    apiClientStub = sinon.stub();
-    apiClientStub.defaults = sinon.stub();
-    cogUnderTest = new Cog(apiClientStub);
+    clientWrapperStub = sinon.stub();
+    cogUnderTest = new Cog(clientWrapperStub);
+  });
+
+  it('authenticates client wrapper with call metadata', () => {
+    runStepRequest.setStep(protoStep);
+
+    // Construct grpc metadata and assert the client was authenticated.
+    grpcDuplexStream.metadata.add('anythingReally', 'some-value');
+
+    cogUnderTest.runSteps(grpcDuplexStream);
+    grpcDuplexStream.emit('data', runStepRequest);
+    expect(clientWrapperStub).to.have.been.calledWith(grpcDuplexStream.metadata);
   });
 
   it('responds with error when called with unknown stepId', (done) => {
@@ -173,7 +193,7 @@ describe('Cog:RunSteps', () => {
     mockStepExecutor.executeStep.resolves(expectedResponse);
     const mockTestStepMap: any = {TestStepId: sinon.stub()}
     mockTestStepMap.TestStepId.returns(mockStepExecutor);
-    cogUnderTest = new Cog(apiClientStub, mockTestStepMap);
+    cogUnderTest = new Cog(clientWrapperStub, mockTestStepMap);
     protoStep.setStepId('TestStepId');
     runStepRequest.setStep(protoStep);
 
@@ -196,7 +216,7 @@ describe('Cog:RunSteps', () => {
     mockStepExecutor.executeStep.throws()
     const mockTestStepMap: any = {TestStepId: sinon.stub()}
     mockTestStepMap.TestStepId.returns(mockStepExecutor);
-    cogUnderTest = new Cog(apiClientStub, mockTestStepMap);
+    cogUnderTest = new Cog(clientWrapperStub, mockTestStepMap);
     protoStep.setStepId('TestStepId');
     runStepRequest.setStep(protoStep);
 
