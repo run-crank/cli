@@ -1,6 +1,7 @@
+/*tslint:disable:no-else-after-return*/
+
 import { BaseStep, Field, StepInterface } from '../core/base-step';
 import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../proto/cog_pb';
-import { Value } from 'google-protobuf/google/protobuf/struct_pb';
 
 export class UserFieldEqualsStep extends BaseStep implements StepInterface {
 
@@ -46,45 +47,35 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     const email: string = stepData.email;
     const field: string = stepData.field;
     const expectedValue: string = stepData.expectedValue;
-    const response: RunStepResponse = new RunStepResponse();
 
     // Search JSON Placeholder API for user with given email.
     try {
       apiRes = await this.client.getUserByEmail(email);
     } catch (e) {
-      response.setOutcome(RunStepResponse.Outcome.ERROR);
-      response.setMessageFormat('There was a problem connecting to JSON Placeholder.');
-      return response;
+      return this.error('There was a problem connecting to JSON Placeholder.');
     }
 
     if (apiRes.body.length === 0) {
       // If no results were found, return an error.
-      response.setOutcome(RunStepResponse.Outcome.ERROR);
-      response.setMessageFormat('No user found for email %s');
-      response.addMessageArgs(Value.fromJavaScript(email));
+      return this.error('No user found for email %s', [email]);
     } else if (!apiRes.body[0].hasOwnProperty(field)) {
       // If the given field does not exist on the user, return an error.
-      response.setOutcome(RunStepResponse.Outcome.ERROR);
-      response.setMessageFormat('The %s field does not exist on user %s');
-      response.addMessageArgs(Value.fromJavaScript(field));
-      response.addMessageArgs(Value.fromJavaScript(email));
+      return this.error('The %s field does not exist on user %s', [field, email]);
       // tslint:disable-next-line:triple-equals
     } else if (apiRes.body[0][field] == expectedValue) {
       // If the value of the field matches expectations, pass.
-      response.setOutcome(RunStepResponse.Outcome.PASSED);
-      response.setMessageFormat('The %s field was set to %s, as expected');
-      response.addMessageArgs(Value.fromJavaScript(field));
-      response.addMessageArgs(Value.fromJavaScript(apiRes.body[0][field]));
+      return this.pass('The %s field was set to %s, as expected', [
+        field,
+        apiRes.body[0][field],
+      ]);
     } else {
       // If the value of the field does not match expectations, fail.
-      response.setOutcome(RunStepResponse.Outcome.FAILED);
-      response.setMessageFormat('Expected %s field to be %s, but it was actually %s');
-      response.addMessageArgs(Value.fromJavaScript(field));
-      response.addMessageArgs(Value.fromJavaScript(expectedValue));
-      response.addMessageArgs(Value.fromJavaScript(apiRes.body[0][field]));
+      return this.fail('Expected %s field to be %s, but it was actually %s', [
+        field,
+        expectedValue,
+        apiRes.body[0][field],
+      ]);
     }
-
-    return response;
   }
 
 }
