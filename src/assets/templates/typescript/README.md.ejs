@@ -11,7 +11,7 @@ validate the state and behavior of your <%= options.name %> instance.
 
 Ensure you have the `crank` CLI and `docker` installed and running locally,
 then run the following.  You'll be prompted to enter your <%= options.name %>
-credentials once the cog is successfully installed.
+credentials once the Cog is successfully installed.
 
 ```bash
 crank cog:install <%= options.machineName %>
@@ -42,11 +42,11 @@ as appropriate.
 1. Install node.js (v12.x+ recommended)
 2. Clone this repository.
 3. Install dependencies via `npm install`
-4. Run `npm start` to validate the cog works locally (`ctrl+c` to kill it)
+4. Run `npm start` to validate the Cog works locally (`ctrl+c` to kill it)
 5. Run `crank cog:install --source=local --local-start-command="npm start"` to
-   register your local instance of this cog. You may need to append a `--force`
+   register your local instance of this Cog. You may need to append a `--force`
    flag or run `crank cog:uninstall <%= options.machineName %>` if you've already
-   installed the distributed version of this cog.
+   installed the distributed version of this Cog.
 
 ### Adding/Modifying Steps
 Modify code in `src/steps` and validate your changes by running
@@ -71,7 +71,7 @@ Modify the ClientWrapper class at `src/client/client-wrapper.ts`.
 
 Note that you will need to run `crank registry:rebuild` in order for any
 changes to authentication fields to be reflected. Afterward, you can
-re-authenticate this cog by running `crank cog:auth <%= options.machineName %>`
+re-authenticate this Cog by running `crank cog:auth <%= options.machineName %>`
 
 ### Tests and Housekeeping
 Tests can be found in the `test` directory and run like this: `npm test`.
