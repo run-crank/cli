@@ -48,6 +48,8 @@ class CogGenerator extends Generator {
 
     this._printStepBanner(`$ crank cog:install --source=local --local-start-command="${startCommand}"`)
     this._crankInstallCog(this.options.machineName || '', startCommand)
+    this._printStepBanner(`$ crank cog:readme ${this.options.machineName || ''}`)
+    this._crankUpdateReadme(this.options.machineName || '')
   }
 
   end() {
@@ -71,6 +73,11 @@ class CogGenerator extends Generator {
   private _crankInstallCog(cogName: string, startCommand: string): void {
     this.log()
     this.spawnCommandSync('crank', ['cog:install', '--source=local', cogName, '--local-start-command', startCommand])
+  }
+
+  private _crankUpdateReadme(cogName: string): void {
+    this.log()
+    this.spawnCommandSync('crank', ['cog:readme', cogName])
   }
 
   private _writingTypescript() {

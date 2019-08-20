@@ -12,7 +12,8 @@
     "build-ts": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "ts-node src/core/grpc-server.ts",
-    "test": "nyc mocha -r ts-node/register test/*.ts test/**/*.ts"
+    "test": "nyc mocha -r ts-node/register test/*.ts test/**/*.ts",
+    "version": "crank cog:readme <%= options.machineName %> && git add README.md"
   },
   "nyc": {
     "extension": [
