@@ -1,7 +1,9 @@
 {
   "name": "cog-<%= options.packageSafeName %>",
   "version": "0.1.0",
-  "description": "<%= options.name %> Cog for use with Crank",
+  "description": "<%= options.name %> Cog for use with Crank",<% if (options['include-mit-license']) { %>
+  "license": "MIT",
+<% } %>
   "cog": {
     "name": "<%= options.machineName %>",
     "label": "<%= options.name %>",
