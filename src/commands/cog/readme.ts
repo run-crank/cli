@@ -70,7 +70,7 @@ The readme must have any of the following tags inside of it for it to be replace
 
         if (manifestObj.authFieldsList.length) {
           const authMdPrefix = 'You will be asked for the following authentication details on installation.'
-          const authMdSuffix = `\`\`\`bash\n# Re-authenticate by running this\ncrank cog:auth ${manifestObj.name}\n\`\`\``
+          const authMdSuffix = `\`\`\`shell-session\n# Re-authenticate by running this\n$ crank cog:auth ${manifestObj.name}\n\`\`\``
           authMd = manifestObj.authFieldsList
             .map(this.authFieldsAsMarkdown.bind(this))
             .join('\n').trim()
