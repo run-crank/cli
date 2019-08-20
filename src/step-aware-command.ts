@@ -103,7 +103,7 @@ export default abstract class extends RegistryAwareCommand {
 
   protected async gatherStepInput(cogConfig: CogRegistryEntry, stepId: string): Promise<ProtoStep> {
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
-      this.log(`Couldn't find a cog named ${cogConfig.name}`)
+      this.log(`Couldn't find a Cog named ${cogConfig.name}`)
       process.exitCode = 1
       throw new Error('Cog not found')
     }

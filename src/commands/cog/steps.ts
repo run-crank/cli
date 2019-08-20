@@ -14,7 +14,7 @@ import {Timer} from '../../services/timer'
 import StepAwareCommand from '../../step-aware-command'
 
 export default class Step extends StepAwareCommand {
-  static description = 'Run multiple cog steps interactively.'
+  static description = 'Run multiple Cog steps interactively.'
   static examples = [
     '$ crank cog:steps MyCog',
   ]
@@ -22,7 +22,7 @@ export default class Step extends StepAwareCommand {
   static flags = {
     'use-ssl': flags.boolean({
       char: 's',
-      description: 'Use SSL when invoking all cogs (useful for testing SSL support for cogs you are building).'
+      description: 'Use SSL when invoking all Cogs (useful for testing SSL support for Cogs you are building).'
     }),
     step: flags.string({
       description: 'The stepId of the step you wish to run. Provide multiple steps by passing this flag multiple times.',
@@ -45,7 +45,7 @@ export default class Step extends StepAwareCommand {
     let cogClient: CogServiceClient
 
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
-      this.log(`Couldn't find a cog named ${args.cogName}`)
+      this.log(`Couldn't find a Cog named ${args.cogName}`)
       process.exitCode = 1
       return
     }
@@ -70,7 +70,7 @@ export default class Step extends StepAwareCommand {
     try {
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
-      this.log(`There was a problem starting cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
+      this.log(`There was a problem starting Cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
       this.log('You may need to reinstall it')
       process.exitCode = 1
       return

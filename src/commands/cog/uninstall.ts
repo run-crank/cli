@@ -7,7 +7,7 @@ import * as inquirer from 'inquirer'
 import registryAwareCommand from '../../registry-aware-command'
 
 export default class Uninstall extends registryAwareCommand {
-  static description = 'Uninstall an Automaton cog from this system.'
+  static description = 'Uninstall a Cog from this system.'
   static examples = [
     '$ crank uninstall automatoninc/my-cog',
   ]
@@ -85,7 +85,7 @@ export default class Uninstall extends registryAwareCommand {
     if (!flags['ignore-auth']) {
       this.logDebug('Removing Cog auth entry from cache')
       this.registry.removeAuthFromRegistry(args.cogName)
-      this.log(`Removed ${args.cogName} cog authentication details.`)
+      this.log(`Removed ${args.cogName} Cog authentication details.`)
     }
   }
 

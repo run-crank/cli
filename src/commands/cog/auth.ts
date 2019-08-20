@@ -6,7 +6,7 @@ import RegistryAwareCommand from '../../registry-aware-command'
 import {CogManager} from '../../services/cog-manager'
 
 export class Auth extends RegistryAwareCommand {
-  static description = '(Re-)Authenticate an installed cog.'
+  static description = '(Re-)Authenticate an installed Cog.'
   static examples = [
     '$ crank cog:auth MyCog',
   ]
@@ -14,7 +14,7 @@ export class Auth extends RegistryAwareCommand {
   static args = [{
     name: 'cogName',
     required: true,
-    description: 'The name/version of the cog to authenticate.',
+    description: 'The name/version of the Cog to authenticate.',
   }]
 
   protected cogManager: CogManager
@@ -29,7 +29,7 @@ export class Auth extends RegistryAwareCommand {
     const cogRegEntry = this.registry.getCogConfigFromRegistry(args.cogName)
     if (!cogRegEntry || !cogRegEntry.authFieldsList) {
       process.exitCode = 1
-      this.log(`No cog found named ${args.cogName}`)
+      this.log(`No Cog found named ${args.cogName}`)
       return
     }
 

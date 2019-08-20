@@ -10,7 +10,7 @@ import {CogManager} from '../../services/cog-manager'
 import StepAwareCommand from '../../step-aware-command'
 
 export default class Step extends StepAwareCommand {
-  static description = 'Run a single cog step interactively.'
+  static description = 'Run a single Cog step interactively.'
   static examples = [
     '$ crank cog:step MyCog',
     '$ crank cog:step MyCog --step=MyStepId'
@@ -40,7 +40,7 @@ export default class Step extends StepAwareCommand {
     const cogConfig = this.registry.getCogConfigFromRegistry(args.cogName)
     let cogClient: CogServiceClient
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
-      this.log(`Couldn't find a cog named ${args.cogName}`)
+      this.log(`Couldn't find a Cog named ${args.cogName}`)
       process.exitCode = 1
       return
     }
@@ -63,7 +63,7 @@ export default class Step extends StepAwareCommand {
     try {
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
-      this.log(`There was a problem starting cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
+      this.log(`There was a problem starting Cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
       this.log('You may need to reinstall it')
       process.exitCode = 1
       return

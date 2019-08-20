@@ -81,7 +81,7 @@ export class Ssl {
       value: 'Seattle'
     }, {
       name: 'organizationName',
-      value: 'Automaton Local'
+      value: 'Crank Local'
     }, {
       shortName: 'OU',
       value: orgUnit

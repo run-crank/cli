@@ -1,7 +1,8 @@
 # <%= options.name %> Cog
 
-This is an Automaton Cog for <%= options.name %>, providing steps and assertions for you to
-validate the state and behavior of your <%= options.name %> instance.
+This is a [Crank][what-is-crank] Cog for <%= options.name %>, providing
+steps and assertions for you to validate the state and behavior of your
+<%= options.name %> instance.
 
 * [Installation](#installation)
 * [Usage](#usage)
@@ -76,3 +77,5 @@ re-authenticate this Cog by running `crank cog:auth <%= options.machineName %>`
 ### Tests and Housekeeping
 Tests can be found in the `test` directory and run like this: `npm test`.
 Ensure your code meets standards by running `npm run lint`.
+
+[what-is-crank]: https://crank.run?utm_medium=readme&utm_source=<%= encodeURIComponent(options.machineName) %>

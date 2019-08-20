@@ -13,25 +13,25 @@ import {CogConfig, CogManager} from '../../services/cog-manager'
 import {CogRegistryEntry} from '../../services/registries'
 
 export default class Install extends RegistryAwareCommand {
-  static description = 'Install an Automaton cog on this system.'
+  static description = 'Install a Cog on this system.'
   static examples = [
     '$ crank install --source=local',
   ]
 
   static flags = {
     source: flags.string({
-      description: 'Use if you are installing a locally developed cog',
+      description: 'Use if you are installing a locally developed Cog',
       default: 'docker',
     }),
     'local-start-command': flags.string({
-      description: 'Command to start the local cog (used in combo with --source=local)',
+      description: 'Command to start the local Cog (used in combo with --source=local)',
     }),
     force: flags.boolean({
       char: 'f',
-      description: 'Install this cog over any preexisting installation with the same name'
+      description: 'Install this Cog over any preexisting installation with the same name'
     }),
     'ignore-auth': flags.boolean({
-      description: 'Suppress prompts for cog auth details'
+      description: 'Suppress prompts for Cog auth details'
     }),
     debug: flags.boolean({
       description: 'More verbose output to aid in diagnosing issues using Crank',
@@ -65,7 +65,7 @@ export default class Install extends RegistryAwareCommand {
     let cogConfig
 
     if (flags.source === 'docker') {
-      // Check that a cog name was passed.
+      // Check that a Cog name was passed.
       if (!args.cogName) {
         this.log('You must specify the Cog to install.')
         process.exitCode = 1

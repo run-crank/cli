@@ -1,31 +1,24 @@
 crank
 =====
 
-Developer SDK for Automaton.
+BDD test automation for integrated SaaS, by Automaton.
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/crank.svg)](https://npmjs.org/package/crank)
-[![Downloads/week](https://img.shields.io/npm/dw/crank.svg)](https://npmjs.org/package/crank)
-[![License](https://img.shields.io/npm/l/crank.svg)](https://github.com/the-automaton/crank/blob/master/package.json)
-
-<!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
-<!-- tocstop -->
+
 # Usage
-<!-- usage -->
 ```sh-session
-$ npm install -g crank
+$ curl -s https://get.crank.run/install.sh | sh
 $ crank COMMAND
 running command...
 $ crank (-v|--version|version)
-crank/0.4.2 darwin-x64 node-v10.13.0
+crank/x.y.z darwin-x64 node-vA.B.C
 $ crank --help [COMMAND]
 USAGE
   $ crank COMMAND
 ...
 ```
-<!-- usagestop -->
+
 # Commands
 <!-- commands -->
 * [`crank cog:auth COGNAME`](#crank-cogauth-cogname)
@@ -60,7 +53,7 @@ _See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blo
 
 ## `crank cog:install [COGNAME]`
 
-Install an Automaton cog on this system.
+Install a Crank Cog on this system.
 
 ```
 USAGE

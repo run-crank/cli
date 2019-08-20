@@ -5,7 +5,7 @@ import * as inquirer from 'inquirer'
 import {CogGenerator} from '../../services/cog-generator'
 
 export class Scaffold extends Command {
-  static description = 'Generate boilerplate code for a new cog in a language of your choice.'
+  static description = 'Generate boilerplate code for a new Cog in a language of your choice.'
   static examples = [
     '$ crank cog:scaffold',
   ]

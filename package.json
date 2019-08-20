@@ -1,12 +1,12 @@
 {
   "name": "crank",
-  "description": "Test automation for integrated SaaS, by Automaton.",
+  "description": "BDD test automation for integrated SaaS, by Automaton.",
   "version": "0.4.2",
-  "author": "Automaton Inc",
+  "author": "Automaton Marketing, Inc",
   "bin": {
     "crank": "./bin/run"
   },
-  "bugs": "https://github.com/the-automaton/crank/issues",
+  "bugs": "https://github.com/run-crank/cli/issues",
   "dependencies": {
     "@oclif/command": "^1.5.14",
     "@oclif/config": "^1.13.0",
@@ -65,7 +65,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/the-automaton/crank",
+  "homepage": "https://github.com/run-crank/cli",
   "keywords": [
     "oclif"
   ],
@@ -75,7 +75,7 @@
     "commands": "./lib/commands",
     "topics": {
       "cog": {
-        "description": "Install, uninstall, test, and authenticate Automaton Cogs."
+        "description": "Install, uninstall, test, and authenticate Cogs."
       },
       "help": {
         "description": "Display help for Crank."
@@ -96,14 +96,14 @@
       "s3": {
         "xz": true,
         "bucket": "crank-cli",
-        "host": "https://crank-assets.automatoninc.com"
+        "host": "https://get.crank.run"
       }
     },
     "macos": {
       "identifier": "com.automatoninc.crank"
     }
   },
-  "repository": "the-automaton/crank",
+  "repository": "run-crank/cli",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json && rm -f tsconfig.tsbuildinfo",
     "posttest": "tslint -p test -t stylish",

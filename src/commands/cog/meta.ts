@@ -39,7 +39,7 @@ class MetaCogService implements ICogServiceServer {
 
   /* tslint:disable:no-unused */
   getManifest(call: grpc.ServerUnaryCall<ManifestRequest>, callback: grpc.sendUnaryData<CogManifest>) {
-    // Set basic cog details.
+    // Set basic Cog details.
     const manifest: CogManifest = new CogManifest()
     manifest.setName('automatoninc/metacog')
     manifest.setLabel('Meta Cog')

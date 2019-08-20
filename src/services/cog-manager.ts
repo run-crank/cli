@@ -182,10 +182,10 @@ export class CogManager {
             steps[index].client = this.clientCache[matches[0].name]
             resolve()
           } catch (e) {
-            reject(`Unable to start cog corresponding to "${step.stepText}": ${e && e.message ? e.message : 'unknown error'}`)
+            reject(`Unable to start Cog corresponding to "${step.stepText}": ${e && e.message ? e.message : 'unknown error'}`)
           }
         } else {
-          reject(`Unable to find cog corresponding to ${step.stepText}`)
+          reject(`Unable to find Cog corresponding to ${step.stepText}`)
         }
       })
     })
