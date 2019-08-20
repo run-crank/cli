@@ -166,7 +166,11 @@ describe('Cog:RunSteps', () => {
     cogUnderTest.runSteps(grpcDuplexStream);
     grpcDuplexStream.emit('data', runStepRequest);
     expect(clientWrapperStub).to.have.been.calledWith(grpcDuplexStream.metadata);
-  });
+
+    // Does not attempt to reinstantiate client.
+    grpcDuplexStream.emit('data', runStepRequest);
+    return expect(clientWrapperStub).to.have.been.calledOnce;
+});
 
   it('responds with error when called with unknown stepId', (done) => {
     // Construct step request

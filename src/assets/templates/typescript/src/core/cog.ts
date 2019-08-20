@@ -74,6 +74,8 @@ export class Cog implements ICogServiceServer {
    * order of step responses sent corresponds at all with the order of step requests received.
    */
   runSteps(call: grpc.ServerDuplexStream<RunStepRequest, RunStepResponse>) {
+    // Instantiate a single client for all step requests.
+    const client = this.instantiateClient(call.metadata);
     let processing = 0;
     let clientEnded = false;
 
@@ -81,7 +83,7 @@ export class Cog implements ICogServiceServer {
       processing = processing + 1;
 
       const step: Step = runStepRequest.getStep();
-      const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
+      const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
       call.write(response);
 
       processing = processing - 1;
@@ -120,8 +122,13 @@ export class Cog implements ICogServiceServer {
    * Helper method to dispatch a given step to its corresponding step class and handle error
    * scenarios. Always resolves to a RunStepResponse, regardless of any underlying errors.
    */
-  private async dispatchStep(step: Step, metadata: grpc.Metadata): Promise<RunStepResponse> {
-    const client = this.instantiateClient(metadata);
+  private async dispatchStep(
+    step: Step,
+    metadata: grpc.Metadata,
+    clientWrapper: ClientWrapper = null,
+  ): Promise<RunStepResponse> {
+    // Use the provided client wrapper if given, or instantiate a new one.
+    const client = clientWrapper || this.instantiateClient(metadata);
     const stepId = step.getStepId();
     let response: RunStepResponse = new RunStepResponse();
 
@@ -146,7 +153,7 @@ export class Cog implements ICogServiceServer {
   /**
    * Helper method to instantiate an API client wrapper for this Cog.
    */
-  private instantiateClient(auth: grpc.Metadata) {
+  private instantiateClient(auth: grpc.Metadata): ClientWrapper {
     return new this.clientWrapperClass(auth);
   }
 
