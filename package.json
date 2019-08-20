@@ -69,7 +69,7 @@
   "keywords": [
     "oclif"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
