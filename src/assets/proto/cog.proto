@@ -1,18 +1,14 @@
 /**
  * ### Background
- * **Automaton** is a platform that brings quality and reliability tools to
- * end-users of complex SaaS tech stacks, especially sales and marketing
- * technology ecosystems.
+ * **Crank** is a BDD test automation framework for integrated SaaS. It's a CLI
+ * for scaffolding, testing, and independently running Cogs. Technically,
+ * `crank` (or portions of it) is just a grpc client that knows how to
+ * instantiate and communicate with Cog grpc servers.
  *
  * **Cogs** are like composable assertion libraries, each exposing steps and
  * assertions for a particular platform or technology. Technically, a Cog is
  * just a [grpc service](https://grpc.io/docs/guides/concepts/) that
  * implements the `CogService` found in this documentation.
- *
- * **Crank** is the Automaton Developer SDK: a CLI for scaffolding, testing,
- * and independently running Cogs. Technically, `crank` (or portions of it)
- * is just a grpc client that knows how to instantiate and communicate with
- * Cog grpc servers.
  *
  * Below, you will find API reference documentation for Cogs (meaning, the grpc
  * service and all of the underlying protocol buffer message definitions).
