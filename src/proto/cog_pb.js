@@ -197,10 +197,12 @@ proto.automaton.cog.CogManifest.toObject = function(includeInstance, msg) {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     label: jspb.Message.getFieldWithDefault(msg, 5, ""),
     version: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    homepage: jspb.Message.getFieldWithDefault(msg, 6, ""),
     stepDefinitionsList: jspb.Message.toObjectList(msg.getStepDefinitionsList(),
     proto.automaton.cog.StepDefinition.toObject, includeInstance),
     authFieldsList: jspb.Message.toObjectList(msg.getAuthFieldsList(),
-    proto.automaton.cog.FieldDefinition.toObject, includeInstance)
+    proto.automaton.cog.FieldDefinition.toObject, includeInstance),
+    authHelpUrl: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -249,6 +251,10 @@ proto.automaton.cog.CogManifest.deserializeBinaryFromReader = function(msg, read
       var value = /** @type {string} */ (reader.readString());
       msg.setVersion(value);
       break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHomepage(value);
+      break;
     case 3:
       var value = new proto.automaton.cog.StepDefinition;
       reader.readMessage(value,proto.automaton.cog.StepDefinition.deserializeBinaryFromReader);
@@ -258,6 +264,10 @@ proto.automaton.cog.CogManifest.deserializeBinaryFromReader = function(msg, read
       var value = new proto.automaton.cog.FieldDefinition;
       reader.readMessage(value,proto.automaton.cog.FieldDefinition.deserializeBinaryFromReader);
       msg.addAuthFields(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAuthHelpUrl(value);
       break;
     default:
       reader.skipField();
@@ -309,6 +319,13 @@ proto.automaton.cog.CogManifest.serializeBinaryToWriter = function(message, writ
       f
     );
   }
+  f = message.getHomepage();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
   f = message.getStepDefinitionsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
@@ -323,6 +340,13 @@ proto.automaton.cog.CogManifest.serializeBinaryToWriter = function(message, writ
       4,
       f,
       proto.automaton.cog.FieldDefinition.serializeBinaryToWriter
+    );
+  }
+  f = message.getAuthHelpUrl();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
+      f
     );
   }
 };
@@ -370,6 +394,21 @@ proto.automaton.cog.CogManifest.prototype.getVersion = function() {
 /** @param {string} value */
 proto.automaton.cog.CogManifest.prototype.setVersion = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string homepage = 6;
+ * @return {string}
+ */
+proto.automaton.cog.CogManifest.prototype.getHomepage = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.CogManifest.prototype.setHomepage = function(value) {
+  jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -432,6 +471,21 @@ proto.automaton.cog.CogManifest.prototype.addAuthFields = function(opt_value, op
 
 proto.automaton.cog.CogManifest.prototype.clearAuthFieldsList = function() {
   this.setAuthFieldsList([]);
+};
+
+
+/**
+ * optional string auth_help_url = 7;
+ * @return {string}
+ */
+proto.automaton.cog.CogManifest.prototype.getAuthHelpUrl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.CogManifest.prototype.setAuthHelpUrl = function(value) {
+  jspb.Message.setProto3StringField(this, 7, value);
 };
 
 

@@ -33,6 +33,9 @@ export class CogManifest extends jspb.Message {
     getVersion(): string;
     setVersion(value: string): void;
 
+    getHomepage(): string;
+    setHomepage(value: string): void;
+
     clearStepDefinitionsList(): void;
     getStepDefinitionsList(): Array<StepDefinition>;
     setStepDefinitionsList(value: Array<StepDefinition>): void;
@@ -42,6 +45,9 @@ export class CogManifest extends jspb.Message {
     getAuthFieldsList(): Array<FieldDefinition>;
     setAuthFieldsList(value: Array<FieldDefinition>): void;
     addAuthFields(value?: FieldDefinition, index?: number): FieldDefinition;
+
+    getAuthHelpUrl(): string;
+    setAuthHelpUrl(value: string): void;
 
 
     serializeBinary(): Uint8Array;
@@ -59,8 +65,10 @@ export namespace CogManifest {
         name: string,
         label: string,
         version: string,
+        homepage: string,
         stepDefinitionsList: Array<StepDefinition.AsObject>,
         authFieldsList: Array<FieldDefinition.AsObject>,
+        authHelpUrl: string,
     }
 }
 

@@ -1,6 +1,7 @@
 import {Promise as Bluebird} from 'bluebird'
 import * as grpc from 'grpc'
 
+import {AuthenticationError} from '../errors/authentication-error'
 import {CogServiceClient} from '../proto/cog_grpc_pb'
 import {RunStepRequest, RunStepResponse, Step as ProtoStep} from '../proto/cog_pb'
 import {Registries} from '../services/registries'
@@ -29,12 +30,32 @@ export class Step {
     this.stepText = stepText
     this.client = client
 
-    const matchingAuth: any = registries.buildAuthRegistry().filter((a: any) => {
-      return a.cog === cog
-    })
-    if (matchingAuth.length === 1) {
-      this.auth = matchingAuth[0].auth
+    const matchingReg = registries.buildCogRegistry().filter(a => a.name === cog)[0]
+    const matchingAuth = registries.buildAuthRegistry().filter(a => a.cog === cog)
+
+    // If this Cog does not expect any authentication details, then we are done.
+    if (matchingReg && matchingReg.authFieldsList && matchingReg.authFieldsList.length === 0) {
+      return
     }
+
+    // If there is literally no auth registry entry, throw an error.
+    if (matchingAuth.length !== 1) {
+      this.throwAuthenticationError(
+        `No authentication details found for ${cog}. Please run \`crank cog:auth ${cog}\` and try again`,
+        matchingReg.authHelpUrl || matchingReg.homepage,
+      )
+    }
+
+    // If every value on the auth registry entry is empty, throw an error.
+    if (!this.checkRegistryAuthIsValid(matchingAuth[0].auth)) {
+      this.throwAuthenticationError(
+        `It looks like ${cog} isn't properly authenticated yet. Please run \`crank cog:auth ${cog}\` and try again`,
+        matchingReg.authHelpUrl || matchingReg.homepage,
+      )
+    }
+
+    // Otherwise, set the auth details!
+    this.auth = matchingAuth[0].auth
   }
 
   public async runStep(): Promise<RunStepResponse> {
@@ -112,4 +133,26 @@ export class Step {
     })
     return meta
   }
+
+  private checkRegistryAuthIsValid(authDetails: Record<string, any>): boolean {
+    let emptyProps: string[] = []
+    Object.keys(authDetails).forEach(prop => {
+      if (authDetails.hasOwnProperty(prop)) {
+        if (!authDetails[prop]) {
+          emptyProps.push(prop)
+        }
+      }
+    })
+
+    return emptyProps.length < Object.keys(authDetails).length
+  }
+
+  private throwAuthenticationError(message: string, helpUrl = '') {
+    const err = new AuthenticationError(message)
+    if (helpUrl) {
+      err.helpUrl = helpUrl
+    }
+    throw err
+  }
+
 }

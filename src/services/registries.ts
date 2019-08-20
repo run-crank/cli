@@ -7,6 +7,8 @@ export interface CogRegistryEntry {
   name?: string
   label?: string
   version?: string
+  homepage?: string
+  authHelpUrl?: string
   stepDefinitionsList?: any[]
   authFieldsList?: any[]
   _runConfig?: CogConfig

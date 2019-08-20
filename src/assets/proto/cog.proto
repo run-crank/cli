@@ -107,10 +107,18 @@ message CogManifest {
 
   /**
    * The version of your Cog. Should adhere to semenatic versioning standards.
-   * <br><Br>
+   * <br><br>
    * **An example**: `1.0.0`
    */
   string version = 2;
+
+  /**
+   * An optional URL representing the homepage for this Cog. Can be the Cog's
+   * GitHub or other source control page, Docker Hub page, etc.
+   * <br><br>
+   * **An Example**: `https://github.com/your-org/your-cog`
+   */
+  string homepage = 6;
 
   /**
    * A list of steps your Cog can run, including descriptions of data required
@@ -124,6 +132,11 @@ message CogManifest {
    */
   repeated FieldDefinition auth_fields = 4;
 
+  /**
+   * An optional documentation URL where users can find further details about
+   * how to authenticate this Cog.
+   */
+  string auth_help_url = 7;
 }
 
 /**

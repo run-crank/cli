@@ -47,6 +47,13 @@ export class Cog implements ICogServiceServer {
     manifest.setName(pkgJson.cog.name);
     manifest.setLabel(pkgJson.cog.label);
     manifest.setVersion(pkgJson.version);
+    if (pkgJson.cog.homepage) {
+      manifest.setHomepage(pkgJson.cog.homepage);
+    }
+    if (pkgJson.cog.authHelpUrl) {
+      manifest.setAuthHelpUrl(pkgJson.cog.authHelpUrl);
+    }
+
     manifest.setStepDefinitionsList(stepDefinitions);
 
     ClientWrapper.expectedAuthFields.forEach((field: Field) => {

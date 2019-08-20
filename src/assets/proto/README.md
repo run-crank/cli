@@ -65,9 +65,11 @@ interact with your Cog.
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The globally unique name of your Cog. Should match this Cog&#39;s docker image name if you intend to distribute it on docker hub. <br><br> **An example**: `myorg/my-system-cog` |
 | label | [string](#string) |  | A human-friendly label for your Cog. Should most likely be the name of the underlying system that your Cog connects to. <br><br> **An Example**: `My System` |
-| version | [string](#string) |  | The version of your Cog. Should adhere to semenatic versioning standards. <br><Br> **An example**: `1.0.0` |
+| version | [string](#string) |  | The version of your Cog. Should adhere to semenatic versioning standards. <br><br> **An example**: `1.0.0` |
+| homepage | [string](#string) |  | An optional URL representing the homepage for this Cog. Can be the Cog&#39;s GitHub or other source control page, Docker Hub page, etc. <br><br> **An Example**: `https://github.com/your-org/your-cog` |
 | step_definitions | [StepDefinition](#automaton.cog.StepDefinition) | repeated | A list of steps your Cog can run, including descriptions of data required by each step to run. Order does not matter. |
 | auth_fields | [FieldDefinition](#automaton.cog.FieldDefinition) | repeated | A list of fields your Cog expects to be passed as metadata on each RunStep or RunSteps call. Order does not matter. |
+| auth_help_url | [string](#string) |  | An optional documentation URL where users can find further details about how to authenticate this Cog. |
 
 
 

@@ -2,8 +2,10 @@ import {flags} from '@oclif/command'
 import {IConfig} from '@oclif/config'
 import {Promise as Bluebird} from 'bluebird'
 import chalk from 'chalk'
+import {cli} from 'cli-ux'
 import * as debug from 'debug'
 
+import {AuthenticationError} from '../errors/authentication-error'
 import {Scenario} from '../models/scenario'
 import {Step as RunnerStep} from '../models/step'
 import {RunStepResponse} from '../proto/cog_pb'
@@ -56,8 +58,17 @@ export default class Run extends StepAwareCommand {
       this.logDebug('Starting Cogs needed to run scenario %s', args.fileOrFolder)
       await this.cogManager.decorateStepsWithClients(scenario.steps, flags['use-ssl'])
     } catch (e) {
+      this.log()
       this.log(chalk.red('Error running scenario:'))
       this.log(chalk.red(`  ${e}`))
+
+      // Provide friendlier authentication help/documentation.
+      if (e instanceof AuthenticationError && e.helpUrl) {
+        this.log()
+        this.log('Relevant authentication docs for your reference:')
+        await cli.url(e.helpUrl, e.helpUrl)
+      }
+
       process.exitCode = 1
       return
     }
