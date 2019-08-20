@@ -21,7 +21,7 @@ export class ClientWrapper {
   public static expectedAuthFields: Field[] = [{
     field: 'userAgent',
     type: FieldDefinition.Type.STRING,
-    description: 'Arbitrary string to pass as a User Agent on all API requests.',
+    description: 'User Agent String',
   }];
 
   /**

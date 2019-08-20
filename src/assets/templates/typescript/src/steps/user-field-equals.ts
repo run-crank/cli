@@ -1,14 +1,19 @@
 /*tslint:disable:no-else-after-return*/
+/*tslint:disable:triple-equals*/
 
 import { BaseStep, Field, StepInterface } from '../core/base-step';
 import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../proto/cog_pb';
 
+/**
+ * Note: the class name here becomes this step's stepId.
+ * @see BaseStep.getId()
+ */
 export class UserFieldEqualsStep extends BaseStep implements StepInterface {
 
   /**
    * The name of this step: used when identifying this step to humans.
    */
-  protected stepName: string = 'Assert that a field on a JSON Placeholder user has a given value';
+  protected stepName: string = 'Check a field on a JSON Placeholder user';
 
   /**
    * Type of step (either Action or Validation).
@@ -21,7 +26,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
    * named regex capturing groups that correspond to the expected fields below.
    */
   // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) has value (?<expectedValue>.+)';
+  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should be (?<expectedValue>.+)';
 
   /**
    * An array of Fields that this step expects to be passed via step data. The value of "field"
@@ -30,15 +35,15 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   protected expectedFields: Field[] = [{
     field: 'email',
     type: FieldDefinition.Type.EMAIL,
-    description: 'The email address of the user to test',
+    description: "User's email address",
   }, {
     field: 'field',
     type: FieldDefinition.Type.STRING,
-    description: 'The user field to inspect (e.g. "username")',
+    description: 'Field name to check',
   }, {
     field: 'expectedValue',
     type: FieldDefinition.Type.ANYSCALAR,
-    description: 'The expected value of the given field',
+    description: 'Expected field value',
   }];
 
   async executeStep(step: Step): Promise<RunStepResponse> {
@@ -61,7 +66,6 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     } else if (!apiRes.body[0].hasOwnProperty(field)) {
       // If the given field does not exist on the user, return an error.
       return this.error('The %s field does not exist on user %s', [field, email]);
-      // tslint:disable-next-line:triple-equals
     } else if (apiRes.body[0][field] == expectedValue) {
       // If the value of the field matches expectations, pass.
       return this.pass('The %s field was set to %s, as expected', [
@@ -80,4 +84,6 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
 
 }
 
+// Exports a duplicate of this class, aliased as "Step"
+// See the constructor in src/core/cog.ts to understand why.
 export { UserFieldEqualsStep as Step };
