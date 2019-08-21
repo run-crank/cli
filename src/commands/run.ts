@@ -6,6 +6,7 @@ import {cli} from 'cli-ux'
 import * as debug from 'debug'
 
 import {AuthenticationError} from '../errors/authentication-error'
+import {MissingStepError} from '../errors/missing-step-error'
 import {Scenario} from '../models/scenario'
 import {Step as RunnerStep} from '../models/step'
 import {RunStepResponse} from '../proto/cog_pb'
@@ -67,6 +68,13 @@ export default class Run extends StepAwareCommand {
         this.log()
         this.log('Relevant authentication docs for your reference:')
         await cli.url(e.helpUrl, e.helpUrl)
+      }
+
+      // Provide friendlier missing step help
+      if (e instanceof MissingStepError) {
+        this.log()
+        this.log('Run the following to list available steps')
+        this.log('  crank registry:steps')
       }
 
       process.exitCode = 1

@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
 import * as YAML from 'yaml'
 
+import {MissingStepError} from '../errors/missing-step-error'
 import {Step} from '../proto/cog_pb'
 import {Registries} from '../services/registries'
 
@@ -62,7 +63,7 @@ export class Scenario {
     })
 
     if (!protoStep.getStepId()) {
-      throw new Error(`Missing step definition for ${step.step}`)
+      throw new MissingStepError(`Missing step definition for ${step.step}`)
     }
 
     return new RunnerStep({
