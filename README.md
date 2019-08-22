@@ -23,37 +23,38 @@ USAGE
 <!-- commands -->
 * [`crank cog:auth COGNAME`](#crank-cogauth-cogname)
 * [`crank cog:install [COGNAME]`](#crank-coginstall-cogname)
+* [`crank cog:readme [COGNAME]`](#crank-cogreadme-cogname)
 * [`crank cog:scaffold`](#crank-cogscaffold)
 * [`crank cog:step COGNAME`](#crank-cogstep-cogname)
 * [`crank cog:steps COGNAME`](#crank-cogsteps-cogname)
 * [`crank cog:uninstall COGNAME`](#crank-coguninstall-cogname)
 * [`crank help [COMMAND]`](#crank-help-command)
 * [`crank registry:cogs`](#crank-registrycogs)
-* [`crank registry:rebuild`](#crank-registryrebuild)
+* [`crank registry:rebuild [COGNAME]`](#crank-registryrebuild-cogname)
 * [`crank registry:steps`](#crank-registrysteps)
 * [`crank run FILEORFOLDER`](#crank-run-fileorfolder)
 * [`crank update [CHANNEL]`](#crank-update-channel)
 
 ## `crank cog:auth COGNAME`
 
-(Re-)Authenticate an installed cog.
+(Re-)Authenticate an installed Cog.
 
 ```
 USAGE
   $ crank cog:auth COGNAME
 
 ARGUMENTS
-  COGNAME  The name/version of the cog to authenticate.
+  COGNAME  The name/version of the Cog to authenticate.
 
 EXAMPLE
   $ crank cog:auth MyCog
 ```
 
-_See code: [src/commands/cog/auth.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/auth.ts)_
+_See code: [src/commands/cog/auth.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/auth.ts)_
 
 ## `crank cog:install [COGNAME]`
 
-Install a Crank Cog on this system.
+Install a Cog on this system.
 
 ```
 USAGE
@@ -63,21 +64,42 @@ ARGUMENTS
   COGNAME  The name:version of the Cog to install (e.g. org-name/cog-name:1.0.0)
 
 OPTIONS
-  -f, --force                                Install this cog over any preexisting installation with the same name
+  -f, --force                                Install this Cog over any preexisting installation with the same name
   --debug                                    More verbose output to aid in diagnosing issues using Crank
-  --ignore-auth                              Suppress prompts for cog auth details
-  --local-start-command=local-start-command  Command to start the local cog (used in combo with --source=local)
-  --source=source                            [default: docker] Use if you are installing a locally developed cog
+  --ignore-auth                              Suppress prompts for Cog auth details
+  --local-start-command=local-start-command  Command to start the local Cog (used in combo with --source=local)
+  --source=source                            [default: docker] Use if you are installing a locally developed Cog
 
 EXAMPLE
   $ crank install --source=local
 ```
 
-_See code: [src/commands/cog/install.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/install.ts)_
+_See code: [src/commands/cog/install.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/install.ts)_
+
+## `crank cog:readme [COGNAME]`
+
+Adds usage instructions to README.md in current directory
+
+```
+USAGE
+  $ crank cog:readme [COGNAME]
+
+ARGUMENTS
+  COGNAME  The name of the Cog the README.md represents
+
+DESCRIPTION
+  The readme must have any of the following tags inside of it for it to be replaced or else it will do nothing:
+  ### Authentication
+  <!-- authenticationDetails -->
+  ### Steps
+  <!-- stepDetails -->
+```
+
+_See code: [src/commands/cog/readme.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/readme.ts)_
 
 ## `crank cog:scaffold`
 
-Generate boilerplate code for a new cog in a language of your choice.
+Generate boilerplate code for a new Cog in a language of your choice.
 
 ```
 USAGE
@@ -87,8 +109,13 @@ OPTIONS
   -o, --output-directory=output-directory  [default: /Users/eapeterson/Sites/automaton/crank] The directory where
                                            scaffolded code will be placed (defaults to the current working directory).
 
+  --copyright-owner=copyright-owner        Name of the copyright owner to include in the license file, if specified.
+
   --[no-]include-example-step              Scaffolded code will include an example step and tests (prepend with --no- to
                                            negate)
+
+  --[no-]include-mit-license               Scaffolded code will include MIT license text in LICENSE file at the project
+                                           root.
 
   --language=typescript                    The programming language you want to use to build your cog.
 
@@ -100,11 +127,11 @@ EXAMPLE
   $ crank cog:scaffold
 ```
 
-_See code: [src/commands/cog/scaffold.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/scaffold.ts)_
+_See code: [src/commands/cog/scaffold.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/scaffold.ts)_
 
 ## `crank cog:step COGNAME`
 
-Run a single cog step interactively.
+Run a single Cog step interactively.
 
 ```
 USAGE
@@ -121,29 +148,29 @@ EXAMPLES
   $ crank cog:step MyCog --step=MyStepId
 ```
 
-_See code: [src/commands/cog/step.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/step.ts)_
+_See code: [src/commands/cog/step.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/step.ts)_
 
 ## `crank cog:steps COGNAME`
 
-Run multiple cog steps interactively.
+Run multiple Cog steps interactively.
 
 ```
 USAGE
   $ crank cog:steps COGNAME
 
 OPTIONS
-  -s, --use-ssl  Use SSL when invoking all cogs (useful for testing SSL support for cogs you are building).
+  -s, --use-ssl  Use SSL when invoking all Cogs (useful for testing SSL support for Cogs you are building).
   --step=step    The stepId of the step you wish to run. Provide multiple steps by passing this flag multiple times.
 
 EXAMPLE
   $ crank cog:steps MyCog
 ```
 
-_See code: [src/commands/cog/steps.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/steps.ts)_
+_See code: [src/commands/cog/steps.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/steps.ts)_
 
 ## `crank cog:uninstall COGNAME`
 
-Uninstall an Automaton cog from this system.
+Uninstall a Cog from this system.
 
 ```
 USAGE
@@ -159,7 +186,7 @@ EXAMPLE
   $ crank uninstall automatoninc/my-cog
 ```
 
-_See code: [src/commands/cog/uninstall.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/cog/uninstall.ts)_
+_See code: [src/commands/cog/uninstall.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/cog/uninstall.ts)_
 
 ## `crank help [COMMAND]`
 
@@ -200,21 +227,25 @@ EXAMPLES
   $ crank registry:cogs --extended --no-truncate
 ```
 
-_See code: [src/commands/registry/cogs.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/registry/cogs.ts)_
+_See code: [src/commands/registry/cogs.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/registry/cogs.ts)_
 
-## `crank registry:rebuild`
+## `crank registry:rebuild [COGNAME]`
 
 Rebuild the Cog registry (not unlike blowing on an old video game cartridge)
 
 ```
 USAGE
-  $ crank registry:rebuild
+  $ crank registry:rebuild [COGNAME]
 
-EXAMPLE
+ARGUMENTS
+  COGNAME  The name of a specific Cog whose registry entry should be rebuilt
+
+EXAMPLES
   $ crank registry:rebuild
+  $ crank registry:rebuild my-org/my-cog
 ```
 
-_See code: [src/commands/registry/rebuild.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/registry/rebuild.ts)_
+_See code: [src/commands/registry/rebuild.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/registry/rebuild.ts)_
 
 ## `crank registry:steps`
 
@@ -238,7 +269,7 @@ EXAMPLES
   $ crank registry:steps --extended --no-truncate
 ```
 
-_See code: [src/commands/registry/steps.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/registry/steps.ts)_
+_See code: [src/commands/registry/steps.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/registry/steps.ts)_
 
 ## `crank run FILEORFOLDER`
 
@@ -259,7 +290,7 @@ EXAMPLES
   $ crank run --use-ssl /path/to/scenario-folder
 ```
 
-_See code: [src/commands/run.ts](https://github.com/the-automaton/crank/blob/v0.4.2/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/run-crank/cli/blob/v0.5.0/src/commands/run.ts)_
 
 ## `crank update [CHANNEL]`
 
