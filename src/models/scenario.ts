@@ -43,24 +43,34 @@ export class Scenario {
     let data: any = step.data ? step.data : {}
     const stepRegistry = this.registries.buildStepRegistry()
 
-    stepRegistry.forEach((stepDef: any) => {
-      const StepRegex: RegExp = new RegExp(stepDef.expression, 'i')
-      let matches
-      if (matches = StepRegex.exec(step.step)) {
-        protoStep.setStepId(stepDef.stepId)
+    // If all necessary details were provided, sweet.
+    if (!step.step && step.stepId && step.cog) {
+      protoStep.setStepId(step.stepId)
+      protoStep.setData(Struct.fromJavaScript(step.data))
+      cogName = step.cog
+      stepDefId = step.stepId
+    } else {
+      // Otherwise, try and match this step expression against the registry.
+      stepRegistry.forEach((stepDef: any) => {
+        const StepRegex: RegExp = new RegExp(stepDef.expression, 'i')
+        let matches
 
-        if (matches.hasOwnProperty('groups')) {
-          /* tslint:disable:prefer-object-spread */
-          data = Object.assign(data, matches.groups)
+        if (matches = StepRegex.exec(step.step)) {
+          protoStep.setStepId(stepDef.stepId)
+
+          if (matches.hasOwnProperty('groups')) {
+            /* tslint:disable:prefer-object-spread */
+            data = Object.assign(data, matches.groups)
+          }
+
+          protoStep.setData(Struct.fromJavaScript(data))
+          cogName = stepDef._cog
+          stepDefExpression = stepDef.expression
+          stepDefId = stepDef.stepId
+          stepDefName = stepDef.name
         }
-
-        protoStep.setData(Struct.fromJavaScript(data))
-        cogName = stepDef._cog
-        stepDefExpression = stepDef.expression
-        stepDefId = stepDef.stepId
-        stepDefName = stepDef.name
-      }
-    })
+      })
+    }
 
     if (!protoStep.getStepId()) {
       throw new MissingStepError(`Missing step definition for ${step.step}`)
