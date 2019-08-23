@@ -89,6 +89,7 @@ class CogGenerator extends Generator {
     this.fs.copyTpl(this.templatePath('package.json.ejs'), this.destinationPath('package.json'), this)
     this.fs.copyTpl(this.templatePath('Dockerfile.ejs'), this.destinationPath('Dockerfile'), this)
     this.fs.copyTpl(this.templatePath('README.md.ejs'), this.destinationPath('README.md'), this)
+    this.fs.copyTpl(this.templatePath('.circleci/config.yml.ejs'), this.destinationPath('.circleci/config.yml'), this)
 
     // Copy scripts files.
     this.fs.copy(this.templatePath('scripts'), this.destinationPath('scripts'))
