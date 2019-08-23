@@ -193,17 +193,20 @@ export class CogManager {
 
   public stopAllCogs() {
     if (this.cogProcesses) {
-      this.cogProcesses.forEach((cog: ChildProcess) => {
+      this.cogProcesses.forEach((cog: ChildProcess, i) => {
         this.logDebug('Sending SIGINT to process %s', cog.pid)
-        cog.kill('SIGINT')
-        cog.kill()
+        try {
+          process.kill(-cog.pid, 'SIGINT')
+        } catch (e) {}
         cog.unref()
+        delete this.cogProcesses[i]
       })
     }
     if (this.dockerImageNames) {
-      this.dockerImageNames.forEach((image: string) => {
+      this.dockerImageNames.forEach((image: string, i) => {
         this.logDebug('Running `docker kill %s`', image)
         spawnSync('docker', ['kill', image])
+        delete this.dockerImageNames[i]
       })
     }
   }
