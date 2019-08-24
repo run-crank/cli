@@ -26,7 +26,8 @@ jobs:
             npm test
 
   pack-and-publish:
-    executor: docker-publisher
+    docker:
+      - image: circleci/node:10
     steps:
       - checkout
       - restore_cache:
