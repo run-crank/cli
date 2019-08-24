@@ -26,6 +26,9 @@ export PATH=./node_modules/.bin:$PATH
 export npm_config_platform=$TARGET_PLATFORM
 # Pick the target platform for node-pre-gyp:
 export npm_config_target_platform=$TARGET_PLATFORM
+# Required to actually hit a pre-built binary
+# https://console.cloud.google.com/storage/browser/node-precompiled-binaries.grpc.io/grpc
+export npm_config_target_libc=unknown
 
 TARGET=$TARGET_PLATFORM-$TARGET_ARCH
 
