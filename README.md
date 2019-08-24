@@ -1,6 +1,8 @@
 crank
 =====
 
+[![CircleCI](https://circleci.com/gh/run-crank/cli/tree/master.svg?style=svg)](https://circleci.com/gh/run-crank/cli/tree/master)
+
 BDD test automation for integrated SaaS, by Automaton.
 
 * [Usage](#usage)
