@@ -197,6 +197,7 @@ export class CogManager {
         this.logDebug('Sending SIGINT to process %s', cog.pid)
         try {
           process.kill(-cog.pid, 'SIGINT')
+          // tslint:disable-next-line:no-unused
         } catch (e) {}
         cog.unref()
         delete this.cogProcesses[i]
