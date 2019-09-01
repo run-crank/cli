@@ -40,7 +40,8 @@ export class Registries {
   constructor(cacheDir: string) {
     this.cacheDir = cacheDir
 
-    if (Registries.instance) {
+    // Don't behave as a singleton in automated tests...
+    if (!process.env.NYC_CONFIG && Registries.instance) {
       return Registries.instance
     }
 
