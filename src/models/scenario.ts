@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
-import * as substitute from 'token-substitute'
 import * as YAML from 'yaml'
 
 import {MissingStepError} from '../errors/missing-step-error'
@@ -8,6 +7,8 @@ import {Step} from '../proto/cog_pb'
 import {Registries} from '../services/registries'
 
 import {Step as RunnerStep} from './step'
+
+const substitute = require('token-substitute')
 
 // tslint:disable:prefer-object-spread
 // tslint:disable:no-console
