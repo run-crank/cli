@@ -38,7 +38,6 @@ export class Auth extends RegistryAwareCommand {
       return inquirer.prompt({
         name: authField.key,
         message: authField.description || authField.key,
-        type: 'password'
       })
     })
 
