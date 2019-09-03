@@ -15,10 +15,11 @@ import {Timer} from '../services/timer'
 import StepAwareCommand from '../step-aware-command'
 
 export default class Run extends StepAwareCommand {
-  static description = 'Run one or several scenario files or folders.'
+  static description = 'Run a scenario file.'
   static examples = [
     '$ crank run /path/to/scenario.yml',
     '$ crank run --use-ssl /path/to/scenario-folder',
+    '$ crank run scenario.yml --token utmSource=Email -t "utmCampaign=Test Campaign"'
   ]
 
   static flags = {
@@ -29,8 +30,13 @@ export default class Run extends StepAwareCommand {
     debug: flags.boolean({
       description: 'More verbose output to aid in diagnosing issues using Crank',
     }),
+    token: flags.string({
+      char: 't',
+      description: 'Set one or more contextual token values for this scenario; provide several by passing this flag multiple times.',
+      multiple: true,
+    }),
   }
-  static args = [{name: 'fileOrFolder', required: true}]
+  static args = [{name: 'file', required: true}]
 
   protected cogManager: CogManager
   protected logDebug: debug.Debugger
@@ -51,12 +57,17 @@ export default class Run extends StepAwareCommand {
 
   async run() {
     const {args, flags} = this.parse(Run)
+    const tokens = this.parseTokens(flags.token || [])
     let scenario: Scenario
 
     try {
-      this.logDebug('Parsing scenario file %', args.fileOrFolder)
-      scenario = new Scenario({registries: this.registry, fromFile: args.fileOrFolder})
-      this.logDebug('Starting Cogs needed to run scenario %s', args.fileOrFolder)
+      this.logDebug('Parsing scenario file %', args.file)
+      scenario = new Scenario({
+        registries: this.registry,
+        fromFile: args.file,
+        tokenOverrides: tokens
+      })
+      this.logDebug('Starting Cogs needed to run scenario %s', args.file)
       await this.cogManager.decorateStepsWithClients(scenario.steps, flags['use-ssl'])
     } catch (e) {
       this.log()
@@ -140,6 +151,27 @@ export default class Run extends StepAwareCommand {
 
   async finally() {
     this.cogManager.stopAllCogs()
+  }
+
+  /**
+   * Parses the raw input from token flag into a dictionary of token names
+   * to token values.
+   * @param tokensFromFlags - Raw value of --token flag
+   */
+  protected parseTokens(tokensFromFlags: string[]): Record<string, string> {
+    let tokens: Record<string, any> = {}
+
+    tokensFromFlags.forEach(token => {
+      // Note, token-substitute npm package takes care of substituting vars in
+      // when they represent nested objects (e.g. foo.bar=baz), so no need to
+      // split/regex that out here.
+      const splat = token.split('=', 2)
+      if (splat[0] && splat[1]) {
+        tokens[splat[0]] = splat[1]
+      }
+    })
+
+    return tokens
   }
 
 }
