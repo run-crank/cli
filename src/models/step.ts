@@ -97,10 +97,14 @@ export class Step {
                 if (this.shouldRetryStep(startedAt)) {
                   keepTrying(response)
                 } else {
-                  let originalResponse = response.getMessageFormat()
-                  originalResponse += ' (after %s)'
-                  response.setMessageFormat(originalResponse)
-                  response.addMessageArgs(Value.fromJavaScript(`${Math.ceil((Date.now() - startedAt) / 1000)}s`))
+                  // If configured to retry and we still failed, append helpful
+                  // error text indicating how long we tried before giving up.
+                  if (this.failAfter[0]) {
+                    let originalResponse = response.getMessageFormat()
+                    originalResponse += ' (after %s)'
+                    response.setMessageFormat(originalResponse)
+                    response.addMessageArgs(Value.fromJavaScript(`${Math.ceil((Date.now() - startedAt) / 1000)}s`))
+                  }
                   rejectResponse(response)
                   bail(new Error('Ran out of time before getting a satisfactory response.'))
                 }
@@ -149,10 +153,14 @@ export class Step {
                       keepTrying({})
                     } else {
                       hadFailure = true
-                      let originalResponse = data.getMessageFormat()
-                      originalResponse += ' (after %s)'
-                      data.setMessageFormat(originalResponse)
-                      data.addMessageArgs(Value.fromJavaScript(`${Math.ceil((Date.now() - startedAt) / 1000)}s`))
+                      // If configured to retry and we still failed, append helpful
+                      // error text indicating how long we tried before giving up.
+                      if (this.failAfter[stepNumber]) {
+                        let originalResponse = data.getMessageFormat()
+                        originalResponse += ' (after %s)'
+                        data.setMessageFormat(originalResponse)
+                        data.addMessageArgs(Value.fromJavaScript(`${Math.ceil((Date.now() - startedAt) / 1000)}s`))
+                      }
                       responses.push(data)
                       rejectResponse()
                       bail(new Error('Ran out of time before getting a satisfactory response.'))
