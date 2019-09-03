@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
+import * as substitute from 'token-substitute'
 import * as YAML from 'yaml'
 
 import {MissingStepError} from '../errors/missing-step-error'
@@ -8,9 +9,13 @@ import {Registries} from '../services/registries'
 
 import {Step as RunnerStep} from './step'
 
+// tslint:disable:prefer-object-spread
+// tslint:disable:no-console
+
 interface ScenarioConstructorArgs {
   registries: Registries
   fromFile: string
+  tokenOverrides: Record<string, any>
 }
 
 export class Scenario {
@@ -21,17 +26,18 @@ export class Scenario {
 
   private readonly registries: Registries
 
-  constructor({registries, fromFile}: ScenarioConstructorArgs) {
+  constructor({registries, fromFile, tokenOverrides}: ScenarioConstructorArgs) {
     this.registries = registries
 
     const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
-    let steps = scenario.steps.map((step: any) => {
-      return this.getRunnerStepForStep(step)
-    })
+    const combinedTokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
+    let rawSteps = this.applyTokens(scenario.steps, combinedTokens)
     this.name = scenario.scenario
     this.description = scenario.description
-    this.steps = steps
-    this.optimizedSteps = this.optimizeSteps(steps)
+    this.steps = rawSteps.map((step: any) => {
+      return this.getRunnerStepForStep(step)
+    })
+    this.optimizedSteps = this.optimizeSteps(this.steps)
   }
 
   protected getRunnerStepForStep(step: any): RunnerStep {
@@ -59,7 +65,6 @@ export class Scenario {
           protoStep.setStepId(stepDef.stepId)
 
           if (matches.hasOwnProperty('groups')) {
-            /* tslint:disable:prefer-object-spread */
             data = Object.assign(data, matches.groups)
           }
 
@@ -84,6 +89,21 @@ export class Scenario {
       waitFor: step.waitFor || 0,
       failAfter: step.failAfter || 0,
     })
+  }
+
+  protected applyTokens(steps: any[], tokens: Record<string, any>) {
+    try {
+      return substitute(steps, {
+        tokens,
+        prefix: '{{',
+        suffix: '}}',
+        preserveUnknownTokens: true,
+      })
+      // tslint:disable-next-line:no-unused
+    } catch (e) {
+      console.error('Error substituting token values, but continuing. Check your tokens')
+      return steps
+    }
   }
 
   protected optimizeSteps(steps: RunnerStep[]): (RunnerStep | RunnerStep[])[] {

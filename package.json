@@ -23,6 +23,7 @@
     "inquirer": "^6.3.1",
     "node-forge": "^0.8.4",
     "rxjs": "^6.5.2",
+    "token-substitute": "^1.2.0",
     "tslib": "^1.10.0",
     "yaml": "^1.6.0",
     "yeoman-environment": "^2.3.4",
