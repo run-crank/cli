@@ -94,6 +94,8 @@ export default class Run extends StepAwareCommand {
               stepText: step.map(s => s.stepText instanceof Array ? s.stepText[0] : s.stepText),
               client: step[0].client,
               registries: this.registry,
+              waitFor: step.map(s => s.waitFor[0]),
+              failAfter: step.map(s => s.failAfter[0]),
             })
             await this.runSteps(stepRunner, 2, true, false)
             timer.addPassedStep(step.length)
