@@ -81,6 +81,8 @@ export class Scenario {
       protoSteps: protoStep,
       stepText: step.step || stepDefName || stepDefExpression || stepDefId,
       registries: this.registries,
+      waitFor: step.waitFor || 0,
+      failAfter: step.failAfter || 0,
     })
   }
 
