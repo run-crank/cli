@@ -1,6 +1,7 @@
 import {IConfig} from '@oclif/config'
 import {flags} from '@oclif/parser'
 import cli from 'cli-ux'
+import * as debug from 'debug'
 import * as inquirer from 'inquirer'
 
 import {Step as StepRunner} from '../../models/step'
@@ -23,16 +24,29 @@ export default class Step extends StepAwareCommand {
     }),
     step: flags.string({
       description: 'The stepId of the step you wish to run'
+    }),
+    debug: flags.boolean({
+      description: 'More verbose output to aid in diagnosing issues using Crank',
     })
   }
 
   static args = [{name: 'cogName', required: true}]
 
   protected cogManager: CogManager
+  protected logDebug: debug.Debugger
 
   constructor(argv: string[], config: IConfig) {
     super(argv, config)
     this.cogManager = new CogManager({registries: this.registry})
+    this.logDebug = debug('crank:step')
+  }
+
+  async init() {
+    const {flags} = this.parse(Step)
+    if (flags.debug) {
+      debug.enable('crank:*')
+      this.cogManager.setDebug(true)
+    }
   }
 
   async run() {
@@ -47,6 +61,7 @@ export default class Step extends StepAwareCommand {
 
     let stepId = flags.step || ''
     if (!stepId) {
+      this.logDebug('Prompting for step name')
       const stepResponse: any = await inquirer.prompt({
         name: 'step',
         message: 'Step',
@@ -58,9 +73,11 @@ export default class Step extends StepAwareCommand {
       stepId = stepResponse.step
     }
 
+    this.logDebug('Building protobuffer step for %s', stepId)
     const protoStep: ProtoStep = await this.gatherStepInput(cogConfig, stepId)
 
     try {
+      this.logDebug('Attempting to start Cog')
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
       this.log(`There was a problem starting Cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
