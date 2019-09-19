@@ -69,11 +69,11 @@ export class Scenario {
             data = Object.assign(data, matches.groups)
 
             // Allow for optional fields.
-            Object.keys(data).forEach((dataKey) => {
-              if (typeof data[dataKey] === 'undefined') {
+            Object.keys(data).forEach(dataKey => {
+              if (data[dataKey] === 'undefined') {
                 delete data[dataKey]
               }
-            });
+            })
           }
 
           protoStep.setData(Struct.fromJavaScript(data))
