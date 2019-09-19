@@ -2,6 +2,7 @@ import {IConfig} from '@oclif/config'
 import {flags} from '@oclif/parser'
 import {Promise as Bluebird} from 'bluebird'
 import cli from 'cli-ux'
+import * as debug from 'debug'
 import * as inquirer from 'inquirer'
 import {Subject} from 'rxjs'
 
@@ -27,16 +28,29 @@ export default class Step extends StepAwareCommand {
     step: flags.string({
       description: 'The stepId of the step you wish to run. Provide multiple steps by passing this flag multiple times.',
       multiple: true
+    }),
+    debug: flags.boolean({
+      description: 'More verbose output to aid in diagnosing issues using Crank',
     })
   }
 
   static args = [{name: 'cogName', required: true}]
 
   protected cogManager: CogManager
+  protected logDebug: debug.Debugger
 
   constructor(argv: string[], config: IConfig) {
     super(argv, config)
     this.cogManager = new CogManager({registries: this.registry})
+    this.logDebug = debug('crank:steps')
+  }
+
+  async init() {
+    const {flags} = this.parse(Step)
+    if (flags.debug) {
+      debug.enable('crank:*')
+      this.cogManager.setDebug(true)
+    }
   }
 
   async run() {
@@ -50,11 +64,19 @@ export default class Step extends StepAwareCommand {
       return
     }
 
-    const stepIds: string[] = flags.step ? flags.step : await this.gatherStepIds(cogConfig)
+    let stepIds: string[]
+    if (!flags.step) {
+      this.logDebug('Prompting for step names')
+      stepIds = await this.gatherStepIds(cogConfig)
+    } else {
+      stepIds = flags.step
+    }
+
     let steps: ProtoStep[]
     try {
       steps = await Bluebird.mapSeries(stepIds, async stepId => {
         try {
+          this.logDebug('Building protobuffer step for %s', stepId)
           return await this.gatherStepInput(cogConfig, stepId)
         } catch (e) {
           return e ? Promise.reject() : Promise.reject()
@@ -68,6 +90,7 @@ export default class Step extends StepAwareCommand {
     cli.action.start('Running')
 
     try {
+      this.logDebug('Attempting to start Cog')
       cogClient = await this.cogManager.startCogAndGetClient(cogConfig._runConfig, flags['use-ssl'])
     } catch (e) {
       this.log(`There was a problem starting Cog ${args.cogName}: ${e && e.message ? e.message : 'unknown error'}`)
