@@ -52,7 +52,7 @@ EXAMPLE
   $ crank cog:auth MyCog
 ```
 
-_See code: [src/commands/cog/auth.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/auth.ts)_
+_See code: [src/commands/cog/auth.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/auth.ts)_
 
 ## `crank cog:install [COGNAME]`
 
@@ -76,7 +76,7 @@ EXAMPLE
   $ crank install --source=local
 ```
 
-_See code: [src/commands/cog/install.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/install.ts)_
+_See code: [src/commands/cog/install.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/install.ts)_
 
 ## `crank cog:readme [COGNAME]`
 
@@ -97,7 +97,7 @@ DESCRIPTION
   <!-- stepDetails -->
 ```
 
-_See code: [src/commands/cog/readme.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/readme.ts)_
+_See code: [src/commands/cog/readme.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/readme.ts)_
 
 ## `crank cog:scaffold`
 
@@ -129,7 +129,7 @@ EXAMPLE
   $ crank cog:scaffold
 ```
 
-_See code: [src/commands/cog/scaffold.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/scaffold.ts)_
+_See code: [src/commands/cog/scaffold.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/scaffold.ts)_
 
 ## `crank cog:step COGNAME`
 
@@ -143,6 +143,8 @@ OPTIONS
   -s, --use-ssl  Use SSL to secure communications between crank and all cogs (useful for testing SSL support for cogs
                  you are building).
 
+  --debug        More verbose output to aid in diagnosing issues using Crank
+
   --step=step    The stepId of the step you wish to run
 
 EXAMPLES
@@ -150,7 +152,7 @@ EXAMPLES
   $ crank cog:step MyCog --step=MyStepId
 ```
 
-_See code: [src/commands/cog/step.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/step.ts)_
+_See code: [src/commands/cog/step.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/step.ts)_
 
 ## `crank cog:steps COGNAME`
 
@@ -162,13 +164,14 @@ USAGE
 
 OPTIONS
   -s, --use-ssl  Use SSL when invoking all Cogs (useful for testing SSL support for Cogs you are building).
+  --debug        More verbose output to aid in diagnosing issues using Crank
   --step=step    The stepId of the step you wish to run. Provide multiple steps by passing this flag multiple times.
 
 EXAMPLE
   $ crank cog:steps MyCog
 ```
 
-_See code: [src/commands/cog/steps.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/steps.ts)_
+_See code: [src/commands/cog/steps.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/steps.ts)_
 
 ## `crank cog:uninstall COGNAME`
 
@@ -188,7 +191,7 @@ EXAMPLE
   $ crank uninstall automatoninc/my-cog
 ```
 
-_See code: [src/commands/cog/uninstall.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/cog/uninstall.ts)_
+_See code: [src/commands/cog/uninstall.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/cog/uninstall.ts)_
 
 ## `crank help [COMMAND]`
 
@@ -229,7 +232,7 @@ EXAMPLES
   $ crank registry:cogs --extended --no-truncate
 ```
 
-_See code: [src/commands/registry/cogs.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/registry/cogs.ts)_
+_See code: [src/commands/registry/cogs.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/registry/cogs.ts)_
 
 ## `crank registry:rebuild [COGNAME]`
 
@@ -247,7 +250,7 @@ EXAMPLES
   $ crank registry:rebuild my-org/my-cog
 ```
 
-_See code: [src/commands/registry/rebuild.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/registry/rebuild.ts)_
+_See code: [src/commands/registry/rebuild.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/registry/rebuild.ts)_
 
 ## `crank registry:steps`
 
@@ -271,7 +274,7 @@ EXAMPLES
   $ crank registry:steps --extended --no-truncate
 ```
 
-_See code: [src/commands/registry/steps.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/registry/steps.ts)_
+_See code: [src/commands/registry/steps.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/registry/steps.ts)_
 
 ## `crank run FILE`
 
@@ -296,7 +299,7 @@ EXAMPLES
   $ crank run scenario.yml --token utmSource=Email -t "utmCampaign=Test Campaign"
 ```
 
-_See code: [src/commands/run.ts](https://github.com/run-crank/cli/blob/v0.6.0/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/run-crank/cli/blob/v0.6.1/src/commands/run.ts)_
 
 ## `crank update [CHANNEL]`
 
