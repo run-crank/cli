@@ -33,13 +33,29 @@ export class Auth extends RegistryAwareCommand {
       return
     }
 
-    this.log('Please provide authentication details required by the cog:')
-    const authFields = await Bluebird.mapSeries(cogRegEntry.authFieldsList, async (authField): Promise<inquirer.Answer> => {
-      return inquirer.prompt({
-        name: authField.key,
-        message: authField.description || authField.key,
-      })
+    if (!cogRegEntry.authFieldsList || cogRegEntry.authFieldsList.length === 0) {
+      this.log("This Cog doesn't require authentication")
+      return
+    }
+
+    // Check environment for supplied authentication details in the form of
+    // CRANK_COG_NAME__AUTHFIELDKEY (all caps, where non-alphanum chars are
+    // replaced with underscores).
+    const envPrefix = `crank_${cogRegEntry.name}`.replace(/[^a-zA-Z0-9]+/g, '_')
+    let authFields: any = cogRegEntry.authFieldsList.map(field => {
+      const key = `${envPrefix}__${field.key.replace(/[^a-zA-Z0-9]+/g, '_')}`.toUpperCase()
+      return process.env[key] ? {[field.key]: process.env[key]} : undefined
     })
+
+    if (authFields.filter((a: any) => a === undefined).length) {
+      this.log('Please provide authentication details required by the cog:')
+      authFields = await Bluebird.mapSeries(cogRegEntry.authFieldsList, async (authField): Promise<inquirer.Answer> => {
+        return inquirer.prompt({
+          name: authField.key,
+          message: authField.description || authField.key,
+        })
+      })
+    }
 
     await this.installCogAuth(args.cogName, authFields)
     this.log(`Successfully updated authentication details for ${args.cogName}`)
