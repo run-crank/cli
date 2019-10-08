@@ -117,6 +117,10 @@ The readme must have any of the following tags inside of it for it to be replace
   }
 
   authFieldsAsMarkdown(authField: Record<string, any>): string {
-    return `- **${authField.key}**: ${authField.description}`
+    const {args} = this.parse(ReadMe)
+    const envPrefix = `crank_${args.cogName}`.replace(/[^a-zA-Z0-9]+/g, '_')
+    const key = `${envPrefix}__${authField.key.replace(/[^a-zA-Z0-9]+/g, '_')}`.toUpperCase()
+    return `- **${authField.key}**: ${authField.description}
+  - Set via environment variable \`${key}\``
   }
 }
