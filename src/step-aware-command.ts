@@ -242,4 +242,45 @@ export default abstract class extends RegistryAwareCommand {
     return protoStep
   }
 
+  protected coerceProtoStepTypes(protoStep: ProtoStep, cogName: string) {
+    const rawData = protoStep.getData()
+    const data: Record<string, any> = rawData ? rawData.toJavaScript() : {}
+    const stepRegistry = this.registry.buildStepRegistry()
+    const stepDef = stepRegistry.filter(step => {
+      return step.stepId === protoStep.getStepId() && step._cog === cogName
+    })[0]
+    stepDef.expectedFieldsList.forEach(field => {
+      // Only coerce values that are set.
+      if (data.hasOwnProperty(field.key)) {
+        // For boolean fields
+        if (field.type === FieldDefinition.Type.BOOLEAN) {
+          // Only coerce if the type is not already boolean
+          if (typeof data[field.key] !== 'boolean') {
+            data[field.key] = data[field.key] === 'true'
+          }
+        }
+
+        // For numeric fields
+        if (field.type === FieldDefinition.Type.NUMERIC) {
+          // Only coerce if the type is not already numeric and its parsed
+          // version is a real number.
+          if (typeof data[field.key] !== 'number' && !Number.isNaN(parseFloat(data[field.key]))) {
+            data[field.key] = parseFloat(data[field.key])
+          }
+        }
+
+        // For date fields
+        if (field.type === FieldDefinition.Type.DATE) {
+          data[field.key] = moment(data[field.key]).utc().format('YYYY-MM-DD')
+        }
+
+        // For datetime fields
+        if (field.type === FieldDefinition.Type.DATETIME) {
+          data[field.key] = moment(data[field.key]).utc().format('YYYY-MM-DDTHH:mm:ss')
+        }
+      }
+    })
+    protoStep.setData(Struct.fromJavaScript(data))
+  }
+
 }
