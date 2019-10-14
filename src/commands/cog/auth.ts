@@ -53,12 +53,19 @@ export class Auth extends RegistryAwareCommand {
         return inquirer.prompt({
           name: authField.key,
           message: authField.description || authField.key,
+          type: this.authFieldMayBeSensitive(authField.key) ? 'password' : 'input',
+          mask: this.authFieldMayBeSensitive(authField.key) ? '*' : undefined
         })
       })
     }
 
     await this.installCogAuth(args.cogName, authFields)
     this.log(`Successfully updated authentication details for ${args.cogName}`)
+  }
+
+  protected authFieldMayBeSensitive(key: string): boolean {
+    const lkey = key.toLowerCase()
+    return lkey.includes('key') || lkey.includes('pass') || lkey.includes('secret')
   }
 
 }
