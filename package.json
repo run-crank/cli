@@ -1,7 +1,7 @@
 {
   "name": "crank",
   "description": "BDD test automation for integrated SaaS, by Automaton.",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "author": "Automaton Marketing, Inc",
   "bin": {
     "crank": "./bin/run"
