@@ -1,7 +1,9 @@
 import chalk from 'chalk'
 import {Struct, Value} from 'google-protobuf/google/protobuf/struct_pb'
 import * as inquirer from 'inquirer'
+import * as moment from 'moment'
 import {Subject} from 'rxjs'
+import {URL} from 'url'
 import * as util from 'util'
 
 import {Step as StepRunner} from './models/step'
@@ -193,7 +195,37 @@ export default abstract class extends RegistryAwareCommand {
           prompts.next({
             name: field.key,
             message: field.description || field.key,
-            type: 'input'
+            type: 'input',
+            validate: (input: any) => {
+              let isValid: boolean | string = true
+              if (field.type === FieldDefinition.Type.BOOLEAN) {
+                if (['true', 'false'].indexOf(input) === -1) {
+                  isValid = `Unable to parse ${input} as a boolean. Must be one of: true, false`
+                }
+              } else if (field.type === FieldDefinition.Type.DATE || field.type === FieldDefinition.Type.DATETIME) {
+                const parsedDate = moment(input)
+                if (parsedDate.isValid() === false) {
+                  isValid = `Unable to parse ${input} as a date${field.type === FieldDefinition.Type.DATETIME ? 'time' : ''}.`
+                }
+              } else if (field.type === FieldDefinition.Type.EMAIL) {
+                const emailRegexIsh = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                if (!emailRegexIsh.test(input)) {
+                  isValid = `Unable to parse ${input} as an email. Please enter a valid email address`
+                }
+              } else if (field.type === FieldDefinition.Type.NUMERIC) {
+                if (!(!isNaN(parseFloat(input)) && isFinite(input))) {
+                  isValid = `Unable to parse ${input} as a number. Please enter a numeric value`
+                }
+              } else if (field.type === FieldDefinition.Type.URL) {
+                try {
+                  new URL(input)
+                  // tslint:disable-next-line:no-unused
+                } catch (e) {
+                  isValid = `Unable to parse ${input} as a URL. Please enter a valid URL, including protocol.`
+                }
+              }
+              return isValid
+            }
           })
         }
       })
