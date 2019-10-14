@@ -130,7 +130,8 @@ export default class Install extends RegistryAwareCommand {
           return inquirer.prompt({
             name: authField.key,
             message: authField.description || authField.key,
-            type: 'password'
+            type: this.authFieldMayBeSensitive(authField.key) ? 'password' : 'input',
+            mask: this.authFieldMayBeSensitive(authField.key) ? '*' : undefined
           })
         })
       }
@@ -192,6 +193,10 @@ export default class Install extends RegistryAwareCommand {
           .catch(reject)
       })
     })
+  }
+
+  protected authFieldMayBeSensitive(key: string): boolean {
+    return key.includes('key') || key.includes('pass') || key.includes('secret')
   }
 
 }
