@@ -77,7 +77,9 @@ export default class Step extends StepAwareCommand {
       steps = await Bluebird.mapSeries(stepIds, async stepId => {
         try {
           this.logDebug('Building protobuffer step for %s', stepId)
-          return await this.gatherStepInput(cogConfig, stepId)
+          const protoStep = await this.gatherStepInput(cogConfig, stepId)
+          this.coerceProtoStepTypes(protoStep, args.cogName)
+          return protoStep
         } catch (e) {
           return e ? Promise.reject() : Promise.reject()
         }

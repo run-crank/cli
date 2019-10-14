@@ -75,6 +75,7 @@ export default class Step extends StepAwareCommand {
 
     this.logDebug('Building protobuffer step for %s', stepId)
     const protoStep: ProtoStep = await this.gatherStepInput(cogConfig, stepId)
+    this.coerceProtoStepTypes(protoStep, args.cogName)
 
     try {
       this.logDebug('Attempting to start Cog')

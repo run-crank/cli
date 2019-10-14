@@ -70,7 +70,7 @@ export class Scenario {
 
             // Allow for optional fields.
             Object.keys(data).forEach(dataKey => {
-              if (data[dataKey] === 'undefined') {
+              if (data[dataKey] === undefined) {
                 delete data[dataKey]
               }
             })

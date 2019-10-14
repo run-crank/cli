@@ -107,12 +107,6 @@ The readme must have any of the following tags inside of it for it to be replace
     // tslint:disable-next-line:no-this-assignment
     const self = this
     return `| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) | \`${stepDef.expression}\` | ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} |`
-    /*return `<h4 id="${stepDef.stepId}">${stepDef.name}</h4>
-
-- **Expression**: \`${stepDef.expression}\`
-- **Expected Data**:
-  ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()}
-- **Step ID**: \`${stepDef.stepId}\``*/
   }
 
   stepExpectedFieldsAsMarkdown(expectedFieldsList: Record<string, any>[]): string {

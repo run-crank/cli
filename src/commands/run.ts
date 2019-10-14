@@ -92,6 +92,16 @@ export default class Run extends StepAwareCommand {
       return
     }
 
+    // Coerce types on steps.
+    scenario.optimizedSteps.forEach(step => {
+      const runnerSteps = step instanceof Array ? step : [step]
+      runnerSteps.forEach(runnerStep => {
+        runnerStep.protoSteps.forEach(protoStep => {
+          this.coerceProtoStepTypes(protoStep, runnerStep.cog)
+        })
+      })
+    })
+
     // Run through steps.
     this.log(`\n${scenario.name}\n`)
     const timer: Timer = new Timer()
