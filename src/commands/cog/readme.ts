@@ -63,15 +63,19 @@ The readme must have any of the following tags inside of it for it to be replace
         let authMd = 'This Cog does not require any authentication details.'
 
         if (manifestObj.stepDefinitionsList.length) {
-          stepMd = manifestObj.stepDefinitionsList
+          stepMd = '| Name (ID) | Expression | Expected Data |\n'
+          stepMd += '| --- | --- | --- |\n'
+          stepMd += manifestObj.stepDefinitionsList
             .map(this.stepDefinitionAsMarkdown.bind(this))
-            .join('\n\n').trim()
+            .join('\n').trim()
         }
 
         if (manifestObj.authFieldsList.length) {
-          const authMdPrefix = 'You will be asked for the following authentication details on installation.'
+          const authMdPrefix = 'You will be asked for the following authentication details on installation. To avoid prompts in a CI/CD context, you can provide the same details as environment variables.'
           const authMdSuffix = `\`\`\`shell-session\n# Re-authenticate by running this\n$ crank cog:auth ${manifestObj.name}\n\`\`\``
-          authMd = manifestObj.authFieldsList
+          authMd = '| Field | Install-Time Environment Variable | Description |\n'
+          authMd += '| --- | --- | --- |\n'
+          authMd += manifestObj.authFieldsList
             .map(this.authFieldsAsMarkdown.bind(this))
             .join('\n').trim()
           authMd = `${authMdPrefix}\n\n${authMd}\n\n${authMdSuffix}`
@@ -102,25 +106,25 @@ The readme must have any of the following tags inside of it for it to be replace
   stepDefinitionAsMarkdown(stepDef: Record<string, any>): string {
     // tslint:disable-next-line:no-this-assignment
     const self = this
-    return `<h4 id="${stepDef.stepId}">${stepDef.name}</h4>
+    return `| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) | \`${stepDef.expression}\` | ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} |`
+    /*return `<h4 id="${stepDef.stepId}">${stepDef.name}</h4>
 
 - **Expression**: \`${stepDef.expression}\`
 - **Expected Data**:
   ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()}
-- **Step ID**: \`${stepDef.stepId}\``
+- **Step ID**: \`${stepDef.stepId}\``*/
   }
 
   stepExpectedFieldsAsMarkdown(expectedFieldsList: Record<string, any>[]): string {
     return expectedFieldsList.map(field => {
-      return `- \`${field.key}\`: ${field.description}`
-    }).join('\n  ')
+      return `- \`${field.key}\`: ${field.description} `
+    }).join('<br><br>')
   }
 
   authFieldsAsMarkdown(authField: Record<string, any>): string {
     const {args} = this.parse(ReadMe)
     const envPrefix = `crank_${args.cogName}`.replace(/[^a-zA-Z0-9]+/g, '_')
     const key = `${envPrefix}__${authField.key.replace(/[^a-zA-Z0-9]+/g, '_')}`.toUpperCase()
-    return `- **${authField.key}**: ${authField.description}
-  - Set via environment variable \`${key}\``
+    return `| **${authField.key}** | \`${key}\` | ${authField.description} |`
   }
 }
