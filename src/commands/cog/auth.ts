@@ -63,9 +63,4 @@ export class Auth extends RegistryAwareCommand {
     this.log(`Successfully updated authentication details for ${args.cogName}`)
   }
 
-  protected authFieldMayBeSensitive(key: string): boolean {
-    const lkey = key.toLowerCase()
-    return lkey.includes('key') || lkey.includes('pass') || lkey.includes('secret')
-  }
-
 }
