@@ -45,4 +45,9 @@ export default abstract class extends Command {
     })
   }
 
+  protected authFieldMayBeSensitive(key: string): boolean {
+    const lkey = key.toLowerCase()
+    return lkey.includes('key') || lkey.includes('pass') || lkey.includes('secret')
+  }
+
 }

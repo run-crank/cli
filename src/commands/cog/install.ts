@@ -195,8 +195,4 @@ export default class Install extends RegistryAwareCommand {
     })
   }
 
-  protected authFieldMayBeSensitive(key: string): boolean {
-    return key.includes('key') || key.includes('pass') || key.includes('secret')
-  }
-
 }
