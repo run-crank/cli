@@ -17,9 +17,9 @@ import StepAwareCommand from '../step-aware-command'
 export default class Run extends StepAwareCommand {
   static description = 'Run a scenario file.'
   static examples = [
-    '$ crank run /path/to/scenario.yml',
+    '$ crank run /path/to/scenario.crank.yml',
     '$ crank run --use-ssl /path/to/scenario-folder',
-    '$ crank run scenario.yml --token utmSource=Email -t "utmCampaign=Test Campaign"'
+    '$ crank run scenario.crank.yml --token utmSource=Email -t "utmCampaign=Test Campaign"'
   ]
 
   static flags = {

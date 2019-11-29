@@ -111,7 +111,12 @@ export default class Step extends StepAwareCommand {
 
     this.log('\nAd-hoc scenario\n')
     const timer: Timer = new Timer()
-    const responses: RunStepResponse[] = await this.runSteps(step, 2, false, true)
+    let responses: RunStepResponse[] = []
+    try {
+      responses = await this.runSteps(step, 2, false, true)
+    } catch (e) {
+      responses = e
+    }
     responses.forEach((response: RunStepResponse) => {
       if (response.getOutcome() === RunStepResponse.Outcome.PASSED) {
         timer.addPassedStep()
