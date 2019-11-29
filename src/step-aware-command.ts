@@ -106,6 +106,7 @@ export default abstract class extends RegistryAwareCommand {
   }
 
   protected async gatherStepInput(cogConfig: CogRegistryEntry, stepId: string): Promise<ProtoStep> {
+    const optionalMsg = 'Field is optional. Press enter to skip.'
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
       this.log(`Couldn't find a Cog named ${cogConfig.name}`)
       process.exitCode = 1
@@ -136,11 +137,25 @@ export default abstract class extends RegistryAwareCommand {
             parentKey = answer.name.replace('nonscalar.', '').replace('.key', '')
             lastDynamicKey = answer.answer
             lastParentKey = parentKey
-            response[parentKey] = response[parentKey] || {}
-            response[parentKey][answer.answer] = null
+
+            // Scrub out the optional message, don't even set a key.
+            if (answer.answer !== optionalMsg) {
+              try {
+                response[parentKey] = response[parentKey] || {}
+                response[parentKey][answer.answer] = null
+                // tslint:disable-next-line:no-unused
+              } catch (e) {}
+            }
           } else if (answer.name.indexOf('.value') === answer.name.length - 6) {
             parentKey = answer.name.replace('nonscalar.', '').replace('.value', '')
-            response[parentKey][lastDynamicKey] = answer.answer
+
+            // Scrub out the optional message, don't even set a key.
+            if (answer.answer !== optionalMsg) {
+              try {
+                response[parentKey][lastDynamicKey] = answer.answer
+                // tslint:disable-next-line:no-unused
+              } catch (e) {}
+            }
           }
         } else {
           if (answer.name === ':internal:confirm:') {
@@ -164,7 +179,10 @@ export default abstract class extends RegistryAwareCommand {
               prompts.complete()
             }
           } else {
-            response[answer.name] = answer.answer
+            // Scrub out the optional message, don't even set a key.
+            if (answer.answer !== optionalMsg) {
+              response[answer.name] = answer.answer
+            }
           }
         }
       }, () => {
@@ -179,11 +197,13 @@ export default abstract class extends RegistryAwareCommand {
             name: `nonscalar.${field.key}.key`,
             message: `${field.key} object key`,
             type: 'input',
+            default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
           })
           prompts.next({
             name: `nonscalar.${field.key}.value`,
             message: `${field.key} object value`,
             type: 'input',
+            default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
           })
           prompts.next({
             name: ':internal:confirm:',
@@ -196,7 +216,13 @@ export default abstract class extends RegistryAwareCommand {
             name: field.key,
             message: field.description || field.key,
             type: 'input',
+            default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
             validate: (input: any) => {
+              // Assume optional message text as valid; it's scrubbed out later.
+              if (input === optionalMsg) {
+                return true
+              }
+
               let isValid: boolean | string = true
               if (field.type === FieldDefinition.Type.BOOLEAN) {
                 if (['true', 'false'].indexOf(input) === -1) {
