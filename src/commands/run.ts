@@ -18,7 +18,7 @@ import {Timer} from '../services/timer'
 import StepAwareCommand from '../step-aware-command'
 
 export default class Run extends StepAwareCommand {
-  static description = 'Run a scenario file.'
+  static description = 'Run a .crank.yml scenario file or folder of files.'
   static examples = [
     '$ crank run /path/to/scenario.crank.yml',
     '$ crank run --use-ssl /path/to/scenario-folder',
