@@ -154,7 +154,7 @@ export default class Run extends StepAwareCommand {
         overallTimer.addPassedStep()
       }).catch(({stepIndex, innerIndex}) => {
         overallTimer.addFailedStep()
-        scenarios[0].optimizedSteps.slice(stepIndex).forEach(step => {
+        scenario.optimizedSteps.slice(stepIndex).forEach(step => {
           if (step instanceof Array) {
             step.slice(innerIndex).forEach(s => {
               this.log(`  ${chalk.gray(`✀  ${s.stepText}`)}`)
