@@ -3,6 +3,7 @@
 #
 # - On every branch except master:
 #   - Runs npm run lint and npm test
+#   - Builds the Cog docker image and attempts to install/uninstall it
 # - On master branch commits:
 #   - Run the above lint/tests
 #   - Build the docker image, tag it with dev-v[N], and push the tag
@@ -26,6 +27,11 @@ executors:
       IMAGE_NAME: <%= options.machineName %>
     docker:
       - image: circleci/buildpack-deps:stretch
+  docker-user:
+    environment:
+      IMAGE_NAME: automatoninc/web
+    machine:
+      image: circleci/classic:latest
 
 jobs:
   test:
@@ -72,6 +78,28 @@ jobs:
           root: .
           paths:
             - ./image.tar
+
+  install-built-cog:
+    executor: docker-user
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Install Crank and the built Cog
+          command: |
+            curl -s https://get.crank.run/install.sh | sh
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:local-test
+            crank cog:install $IMAGE_NAME:local-test --ignore-auth
+      - run:
+          name: List steps
+          command: crank registry:steps
+      - run:
+          name: Uninstall Cog
+          command: crank cog:uninstall $IMAGE_NAME --force
+
   publish-dev:
     executor: docker-publisher
     steps:
@@ -88,6 +116,7 @@ jobs:
             IMAGE_TAG="dev-v${CIRCLE_BUILD_NUM}"
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:$IMAGE_TAG
+
   publish-tag:
     executor: docker-publisher
     steps:
@@ -111,6 +140,23 @@ workflows:
   test-all-branches:
     jobs:
       - test:
+          filters:
+            branches:
+              ignore:
+                - master
+            tags:
+              ignore: /.*/
+      - build:
+          filters:
+            branches:
+              ignore:
+                - master
+            tags:
+              ignore: /.*/
+      - install-built-cog:
+          requires:
+            - test
+            - build
           filters:
             branches:
               ignore:
