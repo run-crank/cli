@@ -24,11 +24,13 @@ export class Scenario {
   public description: string
   public steps: RunnerStep[]
   public optimizedSteps: (RunnerStep | RunnerStep[])[]
+  public file: string
 
   private readonly registries: Registries
 
   constructor({registries, fromFile, tokenOverrides}: ScenarioConstructorArgs) {
     this.registries = registries
+    this.file = fromFile
 
     const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
     const combinedTokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
@@ -86,7 +88,7 @@ export class Scenario {
     }
 
     if (!protoStep.getStepId()) {
-      throw new MissingStepError(`Missing step definition for ${step.step}`)
+      throw new MissingStepError(`Missing step definition for "${step.step}" (${this.file})`)
     }
 
     return new RunnerStep({
