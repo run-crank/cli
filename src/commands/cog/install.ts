@@ -62,6 +62,7 @@ export default class Install extends RegistryAwareCommand {
 
   async run() {
     const {flags, args} = this.parse(Install)
+    let shouldPullDockerImage = true
     let cogConfig
 
     if (flags.source === 'docker') {
@@ -72,17 +73,33 @@ export default class Install extends RegistryAwareCommand {
         return
       }
 
-      // Download from docker hub...
-      this.log(`Attempting to pull ${args.cogName} from docker hub`)
-      this.logDebug('Running `docker pull %s`', args.cogName)
-      const dockerPullProc = cp.spawnSync('docker', ['pull', args.cogName], {
-        stdio: 'inherit'
-      })
+      // If the user specified a tag and the tag isn't latest, check for a local image.
+      if (args.cogName.includes(':') && args.cogName.substr(-7, 7) !== ':latest') {
+        this.logDebug(`Checking for local version of ${args.cogName} before pulling`)
+        const dockerInspectProc = cp.spawnSync('docker', ['inspect', '--type=image', args.cogName], {
+          stdio: 'ignore'
+        })
+        if (dockerInspectProc.status === 0) {
+          this.logDebug(`Local version of ${args.cogName} exists, cancelling docker pull`)
+          shouldPullDockerImage = false
+        } else {
+          this.logDebug(`No local version of ${args.cogName} was found`)
+        }
+      }
 
-      if (dockerPullProc.status !== 0) {
-        this.log('There was a problem pulling the Cog from docker hub.')
-        process.exitCode = 1
-        return
+      // Download from docker hub...
+      if (shouldPullDockerImage) {
+        this.log(`Attempting to pull ${args.cogName} from docker hub`)
+        this.logDebug('Running `docker pull %s`', args.cogName)
+        const dockerPullProc = cp.spawnSync('docker', ['pull', args.cogName], {
+          stdio: 'inherit'
+        })
+
+        if (dockerPullProc.status !== 0) {
+          this.log('There was a problem pulling the Cog from docker hub.')
+          process.exitCode = 1
+          return
+        }
       }
 
       cogConfig = {
