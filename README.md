@@ -7,6 +7,7 @@ BDD test automation for integrated SaaS, by Automaton.
 
 * [Usage](#usage)
 * [Commands](#commands)
+* [Development](#development)
 
 # Usage
 ```sh-session
@@ -312,3 +313,18 @@ USAGE
 
 _See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v1.3.9/src/commands/update.ts)_
 <!-- commandsstop -->
+
+# Development
+
+Contributions are welcome and encouraged. For any major changes or additions,
+please open up an issue first.
+
+1. Fork and clone this repository
+2. Run `npm install` to retrieve all packaged dependencies
+3. Run `npm test` to run any automated tests and check code style
+4. Modify commands and other code in the `src` folder (tests in `test`)
+5. Run modified commands by running `./bin/run` from the root of your cloned
+   project. For example, `./bin/run cog:step automatoninc/web` would run the
+   `cog:step` command modified within the repo, rather than the global
+   `crank cog:step` command. Confusingly `./bin/run run` is equivalent to
+   running `crank run`.
