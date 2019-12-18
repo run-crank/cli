@@ -47,7 +47,6 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   }, {
     field: 'operator',
     type: FieldDefinition.Type.STRING,
-    optionality: FieldDefinition.Optionality.OPTIONAL,
     description: 'Check Logic (be, not be, contain, not contain, be greater than, or be less than)',
   }, {
     field: 'expectedValue',
@@ -61,7 +60,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     const email: string = stepData.email;
     const field: string = stepData.field;
     const expectedValue: string = stepData.expectedValue;
-    const operator: string = stepData.operator || 'be'; // Default to 'be' or 'equal to'
+    const operator: string = stepData.operator.toLowerCase();
 
     // Search JSON Placeholder API for user with given email.
     try {
@@ -79,13 +78,13 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
         return this.error('The %s field does not exist on user %s', [field, email]);
       } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
         // If the value of the field matches expectations, pass.
-        return this.pass(this.operatorSuccessMessages[operator.replace(/\s/g, '').toLowerCase()], [
-          field, 
+        return this.pass(this.operatorSuccessMessages[operator], [
+          field,
           expectedValue,
         ]);
       } else {
         // If the value of the field does not match expectations, fail.
-        return this.fail(this.operatorFailMessages[operator.replace(/\s/g, '').toLowerCase()], [
+        return this.fail(this.operatorFailMessages[operator], [
           field,
           expectedValue,
           apiRes.body[0][field],
