@@ -1,10 +1,10 @@
 /*tslint:disable:no-else-after-return*/
 /*tslint:disable:triple-equals*/
 
-import { BaseStep, Field, StepInterface } from '../core/base-step';
-import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../proto/cog_pb';
+import { BaseStep, Field, StepInterface } from '../../core/base-step';
+import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../../proto/cog_pb';
 
-import { baseOperators } from './../client/constants/operators';
+import { baseOperators } from './../../client/constants/operators';
 import * as util from '@run-crank/utilities';
 
 
