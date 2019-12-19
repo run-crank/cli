@@ -78,13 +78,13 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
         return this.error('The %s field does not exist on user %s', [field, email]);
       } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
         // If the value of the field matches expectations, pass.
-        return this.pass(this.operatorSuccessMessages[operator], [
+        return this.pass(util.operatorSuccessMessages[operator], [
           field,
           expectedValue,
         ]);
       } else {
         // If the value of the field does not match expectations, fail.
-        return this.fail(this.operatorFailMessages[operator], [
+        return this.fail(util.operatorFailMessages[operator], [
           field,
           expectedValue,
           apiRes.body[0][field],

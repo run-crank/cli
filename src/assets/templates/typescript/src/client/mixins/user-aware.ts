@@ -1,4 +1,4 @@
-import * as grpc from 'grpc';
+
 import * as needle from 'needle';
 
 export class UserAwareMixin {
