@@ -23,13 +23,7 @@ export abstract class BaseStep {
   protected stepType: StepDefinition.Type;
   protected expectedFields: Field[];
 
-  public operatorFailMessages;
-  public operatorSuccessMessages;
-
-  constructor(protected client: ClientWrapper) {
-    this.operatorFailMessages = util.operatorFailMessages;
-    this.operatorSuccessMessages = util.operatorSuccessMessages;
-  }
+  constructor(protected client: ClientWrapper) { }
 
   getId(): string {
     return this.constructor.name;
