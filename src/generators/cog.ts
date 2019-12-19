@@ -100,7 +100,10 @@ class CogGenerator extends Generator {
     this.fs.copy(this.templatePath('src/core/cog.ts'), this.destinationPath('src/core/cog.ts'))
 
     // Copy client files.
-    this.fs.copy(this.templatePath('src/client/client-wrapper.ts'), this.destinationPath('src/client/client-wrapper.ts'))
+    // this.fs.copy(this.templatePath('src/client/client-wrapper.ts'), this.destinationPath('src/client/client-wrapper.ts'))
+    // this.fs.copy(this.templatePath('src/client/constants/operators.ts'), this.destinationPath('src/client/constants/operators.ts'))
+
+    this.fs.copy(this.templatePath('src/client'), this.destinationPath('src/client'))
 
     // Copy proto files (all of them, because this CLI is also written in TS).
     this.fs.copy(this.templatePath('../../../proto'), this.destinationPath('src/proto'))

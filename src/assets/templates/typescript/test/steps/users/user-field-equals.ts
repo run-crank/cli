@@ -4,8 +4,8 @@ import { default as sinon } from 'ts-sinon';
 import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
-import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse } from '../../src/proto/cog_pb';
-import { Step } from '../../src/steps/user-field-equals';
+import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse } from '../../../src/proto/cog_pb';
+import { Step } from '../../../src/steps/users/user-field-equals';
 
 chai.use(sinonChai);
 
@@ -27,7 +27,7 @@ describe('UserFieldEqualsStep', () => {
     const stepDef: StepDefinition = stepUnderTest.getDefinition();
     expect(stepDef.getStepId()).to.equal('UserFieldEqualsStep');
     expect(stepDef.getName()).to.equal('Check a field on a JSON Placeholder user');
-    expect(stepDef.getExpression()).to.equal('the (?<field>.+) field on JSON Placeholder user (?<email>.+) should be (?<expectedValue>.+)');
+    expect(stepDef.getExpression()).to.equal('the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be less than|be greater than|be|contain|not be|not contain) (?<expectedValue>.+)');
     expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
   });
 
@@ -63,6 +63,7 @@ describe('UserFieldEqualsStep', () => {
       field: 'someField',
       expectedValue: expectedUser.someField,
       email: 'anything@example.com',
+      operator: 'be',
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
@@ -79,6 +80,7 @@ describe('UserFieldEqualsStep', () => {
       field: 'someField',
       expectedValue: `Not ${expectedUser.someField}`,
       email: 'anything@example.com',
+      operator: 'be',
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
@@ -92,6 +94,7 @@ describe('UserFieldEqualsStep', () => {
       field: 'anyField',
       expectedValue: 'Any Value',
       email: 'anything@example.com',
+      operator: 'be',
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
@@ -106,6 +109,7 @@ describe('UserFieldEqualsStep', () => {
       field: 'someOtherField',
       expectedValue: 'Any Value',
       email: 'anything@example.com',
+      operator: 'be',
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
@@ -115,7 +119,9 @@ describe('UserFieldEqualsStep', () => {
   it('should respond with error if API client throws error', async () => {
     // Stub a response that throws any exception.
     apiClientStub.getUserByEmail.throws();
-    protoStep.setData(Struct.fromJavaScript({}));
+    protoStep.setData(Struct.fromJavaScript({
+      operator: 'be',
+    }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
     expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.ERROR);

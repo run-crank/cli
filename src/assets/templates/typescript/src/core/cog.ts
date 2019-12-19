@@ -16,15 +16,26 @@ export class Cog implements ICogServiceServer {
   constructor (private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
     // corresponding step classes available on this.steps and this.stepMap.
-    this.steps = fs.readdirSync(`${__dirname}/../steps`, { withFileTypes: true })
-      .filter((file: fs.Dirent) => {
-        return file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'));
-      }).map((file: fs.Dirent) => {
-        const step = require(`${__dirname}/../steps/${file.name}`).Step;
+    // tslint:disable-next-line:max-line-length
+    this.steps = [].concat(...Object.values(this.getSteps(`${__dirname}/../steps`, clientWrapperClass)));
+  }
+
+  private getSteps(dir: string, clientWrapperClass) {
+    const steps = fs.readdirSync(dir, { withFileTypes: true })
+    .map((file: fs.Dirent) => {
+      if (file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'))) {
+        const step = require(`${dir}/${file.name}`).Step;
         const stepInstance: StepInterface = new step(clientWrapperClass);
         this.stepMap[stepInstance.getId()] = step;
         return stepInstance;
-      });
+      } if (file.isDirectory()) {
+        return this.getSteps(`${__dirname}/../steps/${file.name}`, clientWrapperClass);
+      }
+    });
+
+    // Note: this filters out files that do not match the above (e.g. READMEs
+    // or .js.map files in built folder, etc).
+    return steps.filter(s => s !== undefined);
   }
 
   /**

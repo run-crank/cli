@@ -1,5 +1,7 @@
+import { ClientWrapper } from '../client/client-wrapper';
 import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse } from '../proto/cog_pb';
 import { Value } from 'google-protobuf/google/protobuf/struct_pb';
+import * as util from '@run-crank/utilities';
 
 export interface StepInterface {
   getId(): string;
@@ -21,7 +23,7 @@ export abstract class BaseStep {
   protected stepType: StepDefinition.Type;
   protected expectedFields: Field[];
 
-  constructor(protected client) {}
+  constructor(protected client: ClientWrapper) { }
 
   getId(): string {
     return this.constructor.name;
@@ -49,6 +51,10 @@ export abstract class BaseStep {
     });
 
     return stepDefinition;
+  }
+
+  compare(operator: string, actualValue: string, value:string): boolean {
+    return util.compare(operator, actualValue, value);
   }
 
   protected pass(message: string, messageArgs: any[] = []): RunStepResponse {
