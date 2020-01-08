@@ -7,7 +7,6 @@ import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../../pr
 import { baseOperators } from './../../client/constants/operators';
 import * as util from '@run-crank/utilities';
 
-
 /**
  * Note: the class name here becomes this step's stepId.
  * @see BaseStep.getId()
