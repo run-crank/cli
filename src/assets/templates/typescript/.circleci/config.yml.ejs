@@ -29,7 +29,7 @@ executors:
       - image: circleci/buildpack-deps:stretch
   docker-user:
     environment:
-      IMAGE_NAME: automatoninc/web
+      IMAGE_NAME: <%= options.machineName %>
     machine:
       image: circleci/classic:latest
 
@@ -174,11 +174,18 @@ workflows:
           filters:
             branches:
               only: master
+      - install-built-cog:
+          requires:
+            - test
+            - build
+          filters:
+            branches:
+              only: master
       - publish-dev:
           context: docker-creds-to-publish-cogs
           requires:
             - test
-            - build
+            - install-built-cog
           filters:
             branches:
               only: master
