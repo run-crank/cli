@@ -111,7 +111,7 @@ The readme must have any of the following tags inside of it for it to be replace
 
   stepExpectedFieldsAsMarkdown(expectedFieldsList: Record<string, any>[]): string {
     return expectedFieldsList.map(field => {
-      return `- \`${field.key}\`: ${field.description} `
+      return `- \`${field.key}\`: ${field.description.replace(/\|/g, '\\|')} `
     }).join('<br><br>')
   }
 
