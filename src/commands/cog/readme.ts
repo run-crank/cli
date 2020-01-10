@@ -106,7 +106,7 @@ The readme must have any of the following tags inside of it for it to be replace
   stepDefinitionAsMarkdown(stepDef: Record<string, any>): string {
     // tslint:disable-next-line:no-this-assignment
     const self = this
-    return `| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) | \`${stepDef.expression}\` | ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} |`
+    return `\| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) \| \`${stepDef.expression}\` \| ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} \|`
   }
 
   stepExpectedFieldsAsMarkdown(expectedFieldsList: Record<string, any>[]): string {
