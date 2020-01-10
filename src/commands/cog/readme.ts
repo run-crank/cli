@@ -106,12 +106,12 @@ The readme must have any of the following tags inside of it for it to be replace
   stepDefinitionAsMarkdown(stepDef: Record<string, any>): string {
     // tslint:disable-next-line:no-this-assignment
     const self = this
-    return `| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) | \`${stepDef.expression}\` | ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} |`
+    return `| **${stepDef.name}**<br>(\`${stepDef.stepId}\`) | \`${stepDef.expression.replace(/\|/g, '\\|')}\` | ${self.stepExpectedFieldsAsMarkdown(stepDef.expectedFieldsList).trim()} |`
   }
 
   stepExpectedFieldsAsMarkdown(expectedFieldsList: Record<string, any>[]): string {
     return expectedFieldsList.map(field => {
-      return `- \`${field.key}\`: ${field.description} `
+      return `- \`${field.key}\`: ${field.description.replace(/\|/g, '\\|')} `
     }).join('<br><br>')
   }
 
@@ -119,6 +119,6 @@ The readme must have any of the following tags inside of it for it to be replace
     const {args} = this.parse(ReadMe)
     const envPrefix = `crank_${args.cogName}`.replace(/[^a-zA-Z0-9]+/g, '_')
     const key = `${envPrefix}__${authField.key.replace(/[^a-zA-Z0-9]+/g, '_')}`.toUpperCase()
-    return `| **${authField.key}** | \`${key}\` | ${authField.description} |`
+    return `| **${authField.key}** | \`${key}\` | ${authField.description.replace(/\|/g, '\\|')} |`
   }
 }
