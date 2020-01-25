@@ -174,7 +174,6 @@ export default class Run extends StepAwareCommand {
             }
             process.exitCode = 1
 
-            // @todo: Also need to check that the fail was (or the last fail was) on a validation step.
             // If the next step/series of steps is or begins with a validation,
             // then resolve and let the next step be executed.
             if (scenario.optimizedSteps[index + 1]) {
