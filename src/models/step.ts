@@ -5,8 +5,8 @@ import * as grpc from 'grpc'
 
 import {AuthenticationError} from '../errors/authentication-error'
 import {CogServiceClient} from '../proto/cog_grpc_pb'
-import {RunStepRequest, RunStepResponse, Step as ProtoStep} from '../proto/cog_pb'
-import {Registries} from '../services/registries'
+import {RunStepRequest, RunStepResponse, Step as ProtoStep, StepDefinition} from '../proto/cog_pb'
+import {CogRegistryEntry, Registries, StepRegistryEntry} from '../services/registries'
 
 /* tslint:disable:no-unused */
 
@@ -16,6 +16,7 @@ interface StepConstructorArgs {
   stepText: string | string[]
   waitFor?: number | number[]
   failAfter?: number | number[]
+  priorFailure?: boolean
   client?: CogServiceClient
   registries: Registries
 }
@@ -27,19 +28,23 @@ export class Step {
   public client?: CogServiceClient
   public waitFor: number[]
   public failAfter: number[]
+  public priorFailure: boolean
 
   private readonly auth: any = {}
+  private readonly reg: CogRegistryEntry
 
-  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter}: StepConstructorArgs) {
+  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter, priorFailure = false}: StepConstructorArgs) {
     this.cog = cog
     this.protoSteps = protoSteps instanceof Array ? protoSteps : [protoSteps]
     this.stepText = stepText
     this.client = client
     this.waitFor = waitFor && waitFor instanceof Array ? waitFor : [(waitFor || 0)]
     this.failAfter = failAfter && failAfter instanceof Array ? failAfter : [(failAfter || 0)]
+    this.priorFailure = priorFailure
 
     const matchingReg = registries.buildCogRegistry().filter(a => a.name === cog)[0]
     const matchingAuth = registries.buildAuthRegistry().filter(a => a.cog === cog)
+    this.reg = matchingReg
 
     // If this Cog does not expect any authentication details, then we are done.
     if (matchingReg && matchingReg.authFieldsList && matchingReg.authFieldsList.length === 0) {
@@ -124,7 +129,7 @@ export class Step {
   }
 
   public async runSteps(): Promise<RunStepResponse[]> {
-    let hadFailure = false
+    let hadFailure = this.priorFailure
     let responses: RunStepResponse[] = []
 
     if (!this.client) {
@@ -162,12 +167,28 @@ export class Step {
                         data.addMessageArgs(Value.fromJavaScript(`${Math.ceil((Date.now() - startedAt) / 1000)}s`))
                       }
                       responses.push(data)
-                      rejectResponse()
-                      bail(new Error('Ran out of time before getting a satisfactory response.'))
+                      // If this is a validation step, and the next step is a
+                      // validation step, then resolve, allowing the next step
+                      // to execute. Otherwise, reject, preventing any further
+                      // step execution.
+                      if (this.isValidationStep(stepNumber) && !!this.protoSteps[stepNumber + 1] && this.isValidationStep(stepNumber + 1)) {
+                        doneTrying(returnResponse())
+                      } else {
+                        rejectResponse()
+                        bail(new Error('Ran out of time before getting a satisfactory response.'))
+                      }
                     }
                   } else {
                     responses.push(data)
-                    doneTrying(returnResponse())
+                    // If this is a validation step, and the next step isn't,
+                    // (or there is no next step) and a step has already failed,
+                    // then reject. Otherwise, carry on.
+                    if (hadFailure && this.isValidationStep(stepNumber) && (!this.protoSteps[stepNumber + 1] || !this.isValidationStep(stepNumber + 1))) {
+                      rejectResponse()
+                      bail(new Error('A prior consecutive validation step failed. Aborting before moving on to '))
+                    } else {
+                      doneTrying(returnResponse())
+                    }
                   }
                 })
 
@@ -195,6 +216,21 @@ export class Step {
         hadFailure ? reject(responses) : resolve(responses)
       })
     })
+  }
+
+  /**
+   * Returns whether or not the given step (identified by index) is of type
+   * `validation`.
+   *
+   * @param stepIndex - Step to check whether or not is of type validation.
+   */
+  public isValidationStep(stepIndex: number): boolean {
+    if (!this.reg.stepDefinitionsList) {
+      return false
+    }
+
+    const stepReg: StepRegistryEntry = this.reg.stepDefinitionsList.filter(s => s.stepId === this.protoSteps[stepIndex].getStepId())[0]
+    return stepReg.type === StepDefinition.Type.VALIDATION
   }
 
   protected async waitBeforeExecution(stepNumber = 0) {

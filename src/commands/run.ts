@@ -109,6 +109,8 @@ export default class Run extends StepAwareCommand {
     // Run through scenarios.
     const overallTimer = new Timer()
     await Bluebird.mapSeries(scenarios, async (scenario: Scenario) => {
+      let hasFailures = false
+
       // Run through steps.
       this.logDebug(`Running scenario in ${scenario.file}`)
       this.log(`\n${scenario.name}\n`)
@@ -125,17 +127,44 @@ export default class Run extends StepAwareCommand {
                 registries: this.registry,
                 waitFor: step.map(s => s.waitFor[0]),
                 failAfter: step.map(s => s.failAfter[0]),
+                priorFailure: hasFailures,
               })
               await this.runSteps(stepRunner, 2, true, false)
               timer.addPassedStep(step.length)
-              resolve()
             } else {
               await this.runStep(step, 2, true, false)
               timer.addPassedStep()
-              resolve()
             }
+
+            // If there has been a failure, and either the next step/series of
+            // steps is or begins with an action or there is no next step, then
+            // reject. Otherwise, continue on as usual.
+            if (hasFailures) {
+              const nextStep = scenario.optimizedSteps[index + 1]
+
+              if (!nextStep) {
+                // Decrement the failed step count because we're about to reject,
+                // which will erroneously inflate the fail count.
+                overallTimer.addFailedStep(-1)
+                return reject({innerIndex: 0, stepIndex: index + 1})
+              }
+
+              if (nextStep instanceof Array && !nextStep[0].isValidationStep(0)) {
+                overallTimer.addFailedStep(-1)
+                return reject({innerIndex: 0, stepIndex: index + 1})
+              }
+
+              if (!(nextStep instanceof Array) && !nextStep.isValidationStep(0)) {
+                overallTimer.addFailedStep(-1)
+                return reject({innerIndex: 0, stepIndex: index + 1})
+              }
+            }
+
+            resolve()
           } catch (e) {
             let failures: any
+            hasFailures = true
+
             if (e instanceof Array) {
               failures = e.filter((s: RunStepResponse) => s.getOutcome() !== RunStepResponse.Outcome.PASSED)
               timer.addPassedStep(e.length - failures.length)
@@ -144,6 +173,20 @@ export default class Run extends StepAwareCommand {
               timer.addFailedStep()
             }
             process.exitCode = 1
+
+            // @todo: Also need to check that the fail was (or the last fail was) on a validation step.
+            // If the next step/series of steps is or begins with a validation,
+            // then resolve and let the next step be executed.
+            if (scenario.optimizedSteps[index + 1]) {
+              const nextStep = scenario.optimizedSteps[index + 1]
+              if (nextStep instanceof Array && nextStep[0].isValidationStep(0)) {
+                return resolve()
+              } else if (!(nextStep instanceof Array) && nextStep.isValidationStep(0)) {
+                return resolve()
+              }
+            }
+
+            // Otherwise, reject as usual.
             reject({
               innerIndex: e instanceof Array ? e.length : 0,
               stepIndex: index
