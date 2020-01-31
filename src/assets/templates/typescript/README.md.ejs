@@ -66,9 +66,10 @@ Modify the ClientWrapper class at `src/client/client-wrapper.ts`.
 - If you need to add or modify authentication details, see the
   `expectedAuthFields` static property.
 - If you need to expose additional logic from the wrapped API client, add a new
-  ublic method to the wrapper class, which can then be called in any step.
+  public method to the wrapper class or mixins, which can then be called in any
+  step.
 - It's also possible to swap out the wrapped API client completely. You should
-  only have to modify code within this clase to achieve that.
+  only have to modify code within this class or mixins to achieve that.
 
 Note that you will need to run `crank registry:rebuild` in order for any
 changes to authentication fields to be reflected. Afterward, you can
