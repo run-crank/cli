@@ -1122,7 +1122,10 @@ proto.automaton.cog.RunStepRequest.prototype.toObject = function(opt_includeInst
  */
 proto.automaton.cog.RunStepRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    step: (f = msg.getStep()) && proto.automaton.cog.Step.toObject(includeInstance, f)
+    step: (f = msg.getStep()) && proto.automaton.cog.Step.toObject(includeInstance, f),
+    requestId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    scenarioId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    requestorId: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -1164,6 +1167,18 @@ proto.automaton.cog.RunStepRequest.deserializeBinaryFromReader = function(msg, r
       reader.readMessage(value,proto.automaton.cog.Step.deserializeBinaryFromReader);
       msg.setStep(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRequestId(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setScenarioId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRequestorId(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1201,6 +1216,27 @@ proto.automaton.cog.RunStepRequest.serializeBinaryToWriter = function(message, w
       proto.automaton.cog.Step.serializeBinaryToWriter
     );
   }
+  f = message.getRequestId();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getScenarioId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRequestorId();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
 };
 
 
@@ -1231,6 +1267,51 @@ proto.automaton.cog.RunStepRequest.prototype.clearStep = function() {
  */
 proto.automaton.cog.RunStepRequest.prototype.hasStep = function() {
   return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional string request_id = 2;
+ * @return {string}
+ */
+proto.automaton.cog.RunStepRequest.prototype.getRequestId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.RunStepRequest.prototype.setRequestId = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string scenario_id = 3;
+ * @return {string}
+ */
+proto.automaton.cog.RunStepRequest.prototype.getScenarioId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.RunStepRequest.prototype.setScenarioId = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string requestor_id = 4;
+ * @return {string}
+ */
+proto.automaton.cog.RunStepRequest.prototype.getRequestorId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.RunStepRequest.prototype.setRequestorId = function(value) {
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
