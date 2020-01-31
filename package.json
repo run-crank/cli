@@ -28,6 +28,7 @@
     "rxjs": "^6.5.2",
     "token-substitute": "^1.2.0",
     "tslib": "^1.10.0",
+    "uuid": "^3.4.0",
     "yaml": "^1.6.0",
     "yeoman-environment": "^2.3.4",
     "yeoman-generator": "^4.0.1"
@@ -49,6 +50,7 @@
     "@types/node-forge": "^0.8.3",
     "@types/protobufjs": "^5.0.31",
     "@types/rimraf": "^2.0.2",
+    "@types/uuid": "^3.4.7",
     "@types/yaml": "^1.0.2",
     "@types/yeoman-environment": "^2.3.1",
     "aws-sdk": "^2.488.0",
