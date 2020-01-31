@@ -3,6 +3,7 @@ import {flags} from '@oclif/parser'
 import cli from 'cli-ux'
 import * as debug from 'debug'
 import * as inquirer from 'inquirer'
+import * as uuidv4 from 'uuid/v4'
 
 import {Step as StepRunner} from '../../models/step'
 import {CogServiceClient} from '../../proto/cog_grpc_pb'
@@ -94,7 +95,8 @@ export default class Step extends StepAwareCommand {
       stepText: '',
       client: cogClient,
       registries: this.registry,
-      protoSteps: [protoStep]
+      protoSteps: [protoStep],
+      scenarioId: uuidv4(),
     })
 
     this.log()
