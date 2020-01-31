@@ -2,6 +2,7 @@
 // file: cog.proto
 
 /* tslint:disable */
+/* eslint-disable */
 
 import * as jspb from "google-protobuf";
 import * as google_protobuf_struct_pb from "google-protobuf/google/protobuf/struct_pb";
@@ -79,6 +80,9 @@ export class StepDefinition extends jspb.Message {
     getName(): string;
     setName(value: string): void;
 
+    getHelp(): string;
+    setHelp(value: string): void;
+
     getType(): StepDefinition.Type;
     setType(value: StepDefinition.Type): void;
 
@@ -105,6 +109,7 @@ export namespace StepDefinition {
     export type AsObject = {
         stepId: string,
         name: string,
+        help: string,
         type: StepDefinition.Type,
         expression: string,
         expectedFieldsList: Array<FieldDefinition.AsObject>,
@@ -130,6 +135,9 @@ export class FieldDefinition extends jspb.Message {
     getDescription(): string;
     setDescription(value: string): void;
 
+    getHelp(): string;
+    setHelp(value: string): void;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): FieldDefinition.AsObject;
@@ -147,6 +155,7 @@ export namespace FieldDefinition {
         optionality: FieldDefinition.Optionality,
         type: FieldDefinition.Type,
         description: string,
+        help: string,
     }
 
     export enum Optionality {

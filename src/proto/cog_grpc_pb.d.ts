@@ -2,6 +2,7 @@
 // file: cog.proto
 
 /* tslint:disable */
+/* eslint-disable */
 
 import * as grpc from "grpc";
 import * as cog_pb from "./cog_pb";

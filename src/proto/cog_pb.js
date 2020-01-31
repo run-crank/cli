@@ -545,6 +545,7 @@ proto.automaton.cog.StepDefinition.toObject = function(includeInstance, msg) {
   var f, obj = {
     stepId: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    help: jspb.Message.getFieldWithDefault(msg, 6, ""),
     type: jspb.Message.getFieldWithDefault(msg, 5, 0),
     expression: jspb.Message.getFieldWithDefault(msg, 3, ""),
     expectedFieldsList: jspb.Message.toObjectList(msg.getExpectedFieldsList(),
@@ -592,6 +593,10 @@ proto.automaton.cog.StepDefinition.deserializeBinaryFromReader = function(msg, r
     case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHelp(value);
       break;
     case 5:
       var value = /** @type {!proto.automaton.cog.StepDefinition.Type} */ (reader.readEnum());
@@ -646,6 +651,13 @@ proto.automaton.cog.StepDefinition.serializeBinaryToWriter = function(message, w
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getHelp();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -709,6 +721,21 @@ proto.automaton.cog.StepDefinition.prototype.getName = function() {
 /** @param {string} value */
 proto.automaton.cog.StepDefinition.prototype.setName = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string help = 6;
+ * @return {string}
+ */
+proto.automaton.cog.StepDefinition.prototype.getHelp = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.StepDefinition.prototype.setHelp = function(value) {
+  jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -823,7 +850,8 @@ proto.automaton.cog.FieldDefinition.toObject = function(includeInstance, msg) {
     key: jspb.Message.getFieldWithDefault(msg, 1, ""),
     optionality: jspb.Message.getFieldWithDefault(msg, 2, 0),
     type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    description: jspb.Message.getFieldWithDefault(msg, 4, "")
+    description: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    help: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -875,6 +903,10 @@ proto.automaton.cog.FieldDefinition.deserializeBinaryFromReader = function(msg, 
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setDescription(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHelp(value);
       break;
     default:
       reader.skipField();
@@ -930,6 +962,13 @@ proto.automaton.cog.FieldDefinition.serializeBinaryToWriter = function(message, 
   if (f.length > 0) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getHelp();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -1018,6 +1057,21 @@ proto.automaton.cog.FieldDefinition.prototype.getDescription = function() {
 /** @param {string} value */
 proto.automaton.cog.FieldDefinition.prototype.setDescription = function(value) {
   jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string help = 5;
+ * @return {string}
+ */
+proto.automaton.cog.FieldDefinition.prototype.getHelp = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/** @param {string} value */
+proto.automaton.cog.FieldDefinition.prototype.setHelp = function(value) {
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
