@@ -13,6 +13,7 @@ export interface Field {
   field: string;
   type: FieldDefinition.Type;
   description: string;
+  help?: string;
   optionality?: number;
 }
 
@@ -22,6 +23,7 @@ export abstract class BaseStep {
   protected stepExpression: string;
   protected stepType: StepDefinition.Type;
   protected expectedFields: Field[];
+  protected stepHelp?: string;
 
   constructor(protected client: ClientWrapper) { }
 
@@ -36,12 +38,20 @@ export abstract class BaseStep {
     stepDefinition.setType(this.stepType);
     stepDefinition.setExpression(this.stepExpression);
 
+    if (this.stepHelp) {
+      stepDefinition.setHelp(this.stepHelp);
+    }
+
     this.expectedFields.forEach((field: Field) => {
       const expectedField = new FieldDefinition();
       expectedField.setType(field.type);
       expectedField.setKey(field.field);
       expectedField.setDescription(field.description);
       stepDefinition.addExpectedFields(expectedField);
+
+      if (field.hasOwnProperty('help')) {
+        expectedField.setHelp(field.help);
+      }
 
       if (field.hasOwnProperty('optionality')) {
         expectedField.setOptionality(field.optionality);
