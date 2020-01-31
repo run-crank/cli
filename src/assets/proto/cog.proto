@@ -326,6 +326,38 @@ message RunStepRequest {
    */
   Step step = 1;
 
+  /**
+   * Represents a string identifier that your Cog or step execution code can
+   * use to help understand the context of a request or as part of a cache key.
+   * <br><br>
+   * For steps run via the `RunStep` (unary) method, this value will be
+   * different for every step. For steps run via the `RunSteps` (streaming)
+   * method, this value will be the same across all step requests for a single
+   * stream.
+   */
+  string request_id = 2;
+
+  /**
+   * Represents a string identifier that your Cog or step execution code can
+   * use to help understand the context of a request or as part of a cache key.
+   * <br><br>
+   * This value will be the same for every step on a single scenario run, but
+   * will differ across scenarios when run in the same session (e.g. when a
+   * folder of scenarios is run). If the same scenario is run twice, but via
+   * separate run invocations, this ID will be different for each run.
+   */
+  string scenario_id = 3;
+
+  /**
+   * Represents a string identifier that your Cog or step execution code can
+   * use to help understand the context of a request or as part of a cache key.
+   * <br><br>
+   * This value will be the same for every step on every scenario run by a
+   * given requestor. This value will be the same, even between separate run
+   * invocations.
+   */
+  string requestor_id = 4;
+
 }
 
 /**

@@ -186,6 +186,15 @@ export class RunStepRequest extends jspb.Message {
     getStep(): Step | undefined;
     setStep(value?: Step): void;
 
+    getRequestId(): string;
+    setRequestId(value: string): void;
+
+    getScenarioId(): string;
+    setScenarioId(value: string): void;
+
+    getRequestorId(): string;
+    setRequestorId(value: string): void;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): RunStepRequest.AsObject;
@@ -200,6 +209,9 @@ export class RunStepRequest extends jspb.Message {
 export namespace RunStepRequest {
     export type AsObject = {
         step?: Step.AsObject,
+        requestId: string,
+        scenarioId: string,
+        requestorId: string,
     }
 }
 

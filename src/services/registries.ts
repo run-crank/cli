@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as uuidv5 from 'uuid/v5'
 
 import {CogConfig} from './cog-manager'
 
@@ -189,6 +190,10 @@ export class Registries {
 
     this.authRegistry = registry
     fs.writeFileSync(path.join(this.cacheDir, 'default-profile.json'), JSON.stringify(registry))
+  }
+
+  public getRegistryRequestorId(): string {
+    return uuidv5(JSON.stringify(this.buildAuthRegistry()), 'bc2bd6f5-5f99-4433-a24e-7fdf52c15917')
   }
 
 }

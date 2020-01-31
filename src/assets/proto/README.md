@@ -117,6 +117,9 @@ request to your Cog to run a step.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | step | [Step](#automaton.cog.Step) |  | The step your Cog should run, identified by `step_id`, and including data as specified in your corresponding `StepDefinition`. |
+| request_id | [string](#string) |  | Represents a string identifier that your Cog or step execution code can use to help understand the context of a request or as part of a cache key. <br><br> For steps run via the `RunStep` (unary) method, this value will be different for every step. For steps run via the `RunSteps` (streaming) method, this value will be the same across all step requests for a single stream. |
+| scenario_id | [string](#string) |  | Represents a string identifier that your Cog or step execution code can use to help understand the context of a request or as part of a cache key. <br><br> This value will be the same for every step on a single scenario run, but will differ across scenarios when run in the same session (e.g. when a folder of scenarios is run). If the same scenario is run twice, but via separate run invocations, this ID will be different for each run. |
+| requestor_id | [string](#string) |  | Represents a string identifier that your Cog or step execution code can use to help understand the context of a request or as part of a cache key. <br><br> This value will be the same for every step on every scenario run by a given requestor. This value will be the same, even between separate run invocations. |
 
 
 

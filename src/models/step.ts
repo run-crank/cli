@@ -2,6 +2,7 @@ import * as retry from 'async-retry'
 import {Promise as Bluebird} from 'bluebird'
 import {Value} from 'google-protobuf/google/protobuf/struct_pb'
 import * as grpc from 'grpc'
+import * as uuidv4 from 'uuid/v4'
 
 import {AuthenticationError} from '../errors/authentication-error'
 import {CogServiceClient} from '../proto/cog_grpc_pb'
@@ -17,6 +18,7 @@ interface StepConstructorArgs {
   waitFor?: number | number[]
   failAfter?: number | number[]
   priorFailure?: boolean
+  scenarioId: string
   client?: CogServiceClient
   registries: Registries
 }
@@ -32,8 +34,11 @@ export class Step {
 
   private readonly auth: any = {}
   private readonly reg: CogRegistryEntry
+  private readonly requestId: string
+  private readonly scenarioId: string
+  private readonly requestorId: string
 
-  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter, priorFailure = false}: StepConstructorArgs) {
+  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter, scenarioId, priorFailure = false}: StepConstructorArgs) {
     this.cog = cog
     this.protoSteps = protoSteps instanceof Array ? protoSteps : [protoSteps]
     this.stepText = stepText
@@ -41,6 +46,9 @@ export class Step {
     this.waitFor = waitFor && waitFor instanceof Array ? waitFor : [(waitFor || 0)]
     this.failAfter = failAfter && failAfter instanceof Array ? failAfter : [(failAfter || 0)]
     this.priorFailure = priorFailure
+    this.requestId = uuidv4()
+    this.scenarioId = scenarioId
+    this.requestorId = registries.getRegistryRequestorId()
 
     const matchingReg = registries.buildCogRegistry().filter(a => a.name === cog)[0]
     const matchingAuth = registries.buildAuthRegistry().filter(a => a.cog === cog)
@@ -78,6 +86,9 @@ export class Step {
 
     const request = new RunStepRequest()
     request.setStep(this.protoSteps[0])
+    request.setRequestId(this.requestId)
+    request.setScenarioId(this.scenarioId)
+    request.setRequestorId(this.requestorId)
     const meta = this.getAuthMeta()
 
     // Well, this is getting quite unwieldy, isn't it?
@@ -195,6 +206,9 @@ export class Step {
                 // Write the step request onto the stream.
                 const request = new RunStepRequest()
                 request.setStep(protoStep)
+                request.setRequestId(this.requestId)
+                request.setScenarioId(this.scenarioId)
+                request.setRequestorId(this.requestorId)
                 stream.write(request)
               })
             }, {
