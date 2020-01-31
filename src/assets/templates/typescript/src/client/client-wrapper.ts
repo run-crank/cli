@@ -23,6 +23,7 @@ class ClientWrapper {
     field: 'userAgent',
     type: FieldDefinition.Type.STRING,
     description: 'User Agent String',
+    help: 'This is for demonstration purposes only. In an actual Cog, you would use this field to describe how to find this auth field in the underlying system.',
   }];
 
   /**

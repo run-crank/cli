@@ -73,6 +73,9 @@ export class Cog implements ICogServiceServer {
       authField.setOptionality(FieldDefinition.Optionality.REQUIRED);
       authField.setType(field.type);
       authField.setDescription(field.description);
+      if (field.help) {
+        authField.setHelp(field.help);
+      }
       manifest.addAuthFields(authField);
     });
 

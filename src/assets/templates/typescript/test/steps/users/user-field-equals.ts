@@ -27,6 +27,7 @@ describe('UserFieldEqualsStep', () => {
     const stepDef: StepDefinition = stepUnderTest.getDefinition();
     expect(stepDef.getStepId()).to.equal('UserFieldEqualsStep');
     expect(stepDef.getName()).to.equal('Check a field on a JSON Placeholder user');
+    expect(!!stepDef.getHelp()).to.equal(true);
     expect(stepDef.getExpression()).to.equal('the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be less than|be greater than|be|contain|not be|not contain) (?<expectedValue>.+)');
     expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
   });
@@ -46,6 +47,7 @@ describe('UserFieldEqualsStep', () => {
     const email: any = fields.filter(f => f.key === 'email')[0];
     expect(email.optionality).to.equal(FieldDefinition.Optionality.REQUIRED);
     expect(email.type).to.equal(FieldDefinition.Type.EMAIL);
+    expect(!!email.help).to.equal(true);
 
     // Expected Value field
     const expectedValue: any = fields.filter(f => f.key === 'expectedValue')[0];

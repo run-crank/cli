@@ -32,6 +32,11 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be less than|be greater than|be|contain|not be|not contain) (?<expectedValue>.+)';
 
   /**
+   * Extra help text describing how this step works: used in auto-generated docs.
+   */
+  protected stepHelp: string = "This step attempts to find a user on JSON Placeholder and check a field's value on that user.";
+
+  /**
    * An array of Fields that this step expects to be passed via step data. The value of "field"
    * will be used as the field value's key when passed over the step data Struct.
    */
@@ -39,6 +44,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     field: 'email',
     type: FieldDefinition.Type.EMAIL,
     description: "User's email address",
+    help: 'This email address is used to uniquely identify and find the JSON Placeholder user.',
   }, {
     field: 'field',
     type: FieldDefinition.Type.STRING,

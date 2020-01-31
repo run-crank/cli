@@ -171,9 +171,18 @@ message StepDefinition {
    * represent this step to users in a UI or CLI, and may be shown in step run
    * logs.
    * <br><br>
-   * **An example**: `Assert the Value of a  Field`
+   * **An example**: `Checks the Value of a Field`
    */
   string name = 2;
+
+  /**
+   * An optional-but-encouraged string describing, in plain language, what this
+   * step does, and how you can expect to use it. This value may be used when
+   * automatically generating documentation for your Cog.
+   * <br><br>
+   * **An example**: `This step loads the identified object from the system and checks the specified field's value.`
+   */
+  string help = 6;
 
   /**
    * Categorizes this step as (for now) either an action or a validation. An
@@ -292,6 +301,16 @@ message FieldDefinition {
    * **An example**: `Token used to authenticate to MySystem`
    */
   string description = 4;
+
+  /**
+   * An optional-but-encouraged string describing, in plain language, additional
+   * details about this field (like what it's used for, what format it might
+   * take, and where users might find it, depending on context). This value may
+   * be used when automatically generating documentation for your Cog.
+   * <br><br>
+   * **An example**: `This token can be found in your user settings under "API Tokens"`
+   */
+  string help = 5;
 
 }
 
