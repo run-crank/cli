@@ -42,6 +42,7 @@ describe('Cog:GetManifest', () => {
       const ua: any = authFields.filter(a => a.key === 'userAgent')[0];
       expect(ua.type).to.equal(FieldDefinition.Type.STRING);
       expect(ua.optionality).to.equal(FieldDefinition.Optionality.REQUIRED);
+      expect(!!ua.help).to.equal(true);
 
       done();
     });
