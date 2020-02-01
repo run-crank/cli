@@ -4,16 +4,21 @@
 ## Table of Contents
 
 - [cog.proto](#cog.proto)
+    - [BinaryRecord](#automaton.cog.BinaryRecord)
     - [CogManifest](#automaton.cog.CogManifest)
     - [FieldDefinition](#automaton.cog.FieldDefinition)
     - [ManifestRequest](#automaton.cog.ManifestRequest)
+    - [RecordDefinition](#automaton.cog.RecordDefinition)
     - [RunStepRequest](#automaton.cog.RunStepRequest)
     - [RunStepResponse](#automaton.cog.RunStepResponse)
     - [Step](#automaton.cog.Step)
     - [StepDefinition](#automaton.cog.StepDefinition)
+    - [StepRecord](#automaton.cog.StepRecord)
+    - [TableRecord](#automaton.cog.TableRecord)
   
     - [FieldDefinition.Optionality](#automaton.cog.FieldDefinition.Optionality)
     - [FieldDefinition.Type](#automaton.cog.FieldDefinition.Type)
+    - [RecordDefinition.Type](#automaton.cog.RecordDefinition.Type)
     - [RunStepResponse.Outcome](#automaton.cog.RunStepResponse.Outcome)
     - [StepDefinition.Type](#automaton.cog.StepDefinition.Type)
   
@@ -46,6 +51,23 @@ service and all of the underlying protocol buffer message definitions).
 You may want to start with [the service definition](#automaton.cog.CogService).
 
 ---
+
+
+<a name="automaton.cog.BinaryRecord"></a>
+
+### BinaryRecord
+Represents a type of structured data record that a `RunStepResponse` may
+include. This record type is useful for large, binary objects like images.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| data | [bytes](#bytes) |  | The binary data itself. |
+| mime_type | [string](#string) |  | A mime type that describes how the data can or should be rendered, e.g. `image/png`. |
+
+
+
+
 
 
 <a name="automaton.cog.CogManifest"></a>
@@ -107,6 +129,27 @@ This will always empty.
 
 
 
+<a name="automaton.cog.RecordDefinition"></a>
+
+### RecordDefinition
+Represents the definition of a `StepRecord`&#39;s schema. Metadata provided here
+informs Cog clients (like `crank`) of what records to expect and what form
+they will take. This metadata is used to improve step documentation and
+enable dynamic token hinting in the Scenario authoring process.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  | A unique identifier (alphanumeric and all lowercase) for this record. It should correspond to the id on the `StepRecord` that is provided on the `RunStepResponse` message. <br><br> **An example**: `lead` |
+| type | [RecordDefinition.Type](#automaton.cog.RecordDefinition.Type) |  | The type of structured data this record represents. |
+| guaranteed_fields | [FieldDefinition](#automaton.cog.FieldDefinition) | repeated | Represents a list of fields (`FieldDefinition` objects) whose keys are guaranteed to be included on the Record&#39;s key/value object or in every table row. This list should be reserved for fields which will always be included (e.g. the ID or creation date of a Lead object). <br><br> Note: only relevant for `StepRecord`s of type `KEYVALUE` or `TABLE`. |
+| may_have_more_fields | [bool](#bool) |  | Set this to `true` if the list of `guaranteed_fields` provided on this record definition is non-exhausitve (meaning: the record may contain additional fields, but their keys and types are unknowable until run-time). <br><br> Note: only relevant for `StepRecord`s of type `KEYVALUE` or `TABLE`. |
+
+
+
+
+
+
 <a name="automaton.cog.RunStepRequest"></a>
 
 ### RunStepRequest
@@ -138,7 +181,8 @@ finished running (on `RunStep` and `RunSteps` methods).
 | outcome | [RunStepResponse.Outcome](#automaton.cog.RunStepResponse.Outcome) |  | The outcome of this step. |
 | message_format | [string](#string) |  | A message format, similar to a string suitable for use in printf, that represents the outcome of this step. Acceptable replacement tokens are: <br><br> - `%s` for strings,<br> - `%d` for numeric values of any kind, and<br> - `%%` as a way to print a single percent sign. <br><br> This message (and supplied arguments below) may be used by Cog clients (like `crank`) in step run logs. You will most likely want to vary this message based on the outcome of this step. <br><br> **An example**: `Expected MySytem field %s to have value %s, but it was actually %s` |
 | message_args | [google.protobuf.Value](#google.protobuf.Value) | repeated | An optional list of arguments to be applied to the message_format. Will be used to replace tokens in the message_format, similar to printf. |
-| response_data | [google.protobuf.Struct](#google.protobuf.Struct) |  | Can be used to pass arbitrary data back to the Cog client. This may be used by Cog clients (like `crank`) to print additional data in logs to help users debug further. |
+| records | [StepRecord](#automaton.cog.StepRecord) | repeated | An optional list of structured data records that Cog clients (like `crank`) can render to help users diagnose failures and errors. A common example is to return a record representing the object being created or checked. <br><br> Note: Structured data in these records will be used to populate dynamic token values that Scenario authors can include in their Scenario definitions. Well-defined and expected record definitions should be defined on the `expected_records` field on the `StepDefinition` message. |
+| response_data | [google.protobuf.Struct](#google.protobuf.Struct) |  | This has no formal use in Cog clients and should be ignored. Use the records field instead. |
 
 
 
@@ -180,6 +224,49 @@ The details provided on a StepDefinition are used by Cog clients (like
 | type | [StepDefinition.Type](#automaton.cog.StepDefinition.Type) |  | Categorizes this step as (for now) either an action or a validation. An action is generally assumed to have no FAILED state, only PASSED and ERROR states. A validation is generally assumed to be idempotent and can result in a PASSED, FAILED, or ERROR state. |
 | expression | [string](#string) |  | A string that can be evaluated as an ECMAScript-compatible regular expression. This is used to identify and evaluate this step in cucumber-like scenario files. <br><br> You should ensure that this expression is globally unique, and would not be ambiguous with step expressions from other Cogs. An easy way to do this is to include the system/service your Cog integrates with in the expression text. <br><br> You are encouraged to use named regex capturing groups whose names correspond to keys on the expected_fields field definitions defined on this step. <br><br> Note: Once defined, this should almost never be modified; if modified, the change should be accompanied by an appropriate change to your CogManifest.version. <br><br> **An example**: `the MySystem (?<fieldName>.+) field should have value (?<expectedValue>.+)` <br><br> Which would be matched by a step in a scenario file like: `Then the MySystem emailAddress field should have value test@example.com` <br><br> And which would result in Step.data on a RunStepRequest looking like: `{ "fieldName": "emailAddress", "expectedValue": "test@example.com" }` |
 | expected_fields | [FieldDefinition](#automaton.cog.FieldDefinition) | repeated | A list of field definitions that this step needs in order to run. The key of each expected field will be used as a key on the map/dictionary passed in on Step.data on a RunStepRequest. |
+| expected_records | [RecordDefinition](#automaton.cog.RecordDefinition) | repeated | A list of record definitions that this step may respond with alongside other step response data. The definitions provided here are used by Cog clients (like `crank`) to auto-generate step documentation, as well as provide dynamic token value substitution hints during the Scenario authoring process. |
+
+
+
+
+
+
+<a name="automaton.cog.StepRecord"></a>
+
+### StepRecord
+Represents a piece of structured data that may be included on a Step
+Response. Cog clients (like `crank`) will render this structured data in
+order to help users diagnose failures or errors. This data also forms the
+basis for dynamic token value substitution.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  | A unique identifier (alphanumeric and all lowercase) for this record. It should correspond to the id on the corresponding `RecordDefinition` that you provide on the `StepDefinition` message. <br><br> **An example**: `lead` |
+| name | [string](#string) |  | Represents a human-readable name or description of this record, which may be displayed along with the record value by Cog clients (like `crank`). <br><br> **An example**: `The Lead Record That Was Checked` |
+| key_value | [google.protobuf.Struct](#google.protobuf.Struct) |  | Blargh. |
+| table | [TableRecord](#automaton.cog.TableRecord) |  | Blergh. |
+| binary | [BinaryRecord](#automaton.cog.BinaryRecord) |  |  |
+
+
+
+
+
+
+<a name="automaton.cog.TableRecord"></a>
+
+### TableRecord
+Represents a type of structured data record that a `RunStepResponse` may
+include. This record type is useful when you want to represent data which
+is multi-dimensional (e.g. has many rows/columns). In these situations, it&#39;s
+recommended to use this record type, rather than returning many instances of
+the Struct or Key/Value record type.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| headers | [google.protobuf.Struct](#google.protobuf.Struct) |  | A key/value map representing table headers. Each key should correspond to a key on each provided row, while the value represents the label shown to the user as the column header when rendered. |
+| rows | [google.protobuf.Struct](#google.protobuf.Struct) | repeated | Represents the actual table rows to be rendered. |
 
 
 
@@ -218,6 +305,19 @@ A field&#39;s type.
 | URL | 10 | This field represents a URL |
 | ANYNONSCALAR | 8 | This field represents any non-scalar value. |
 | MAP | 9 | This field represents a map/dictionary/associative array/arbitrary key-value pair (conceptually like a JSON object) |
+
+
+
+<a name="automaton.cog.RecordDefinition.Type"></a>
+
+### RecordDefinition.Type
+A response record&#39;s type.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| KEYVALUE | 0 |  |
+| TABLE | 1 |  |
+| BINARY | 2 |  |
 
 
 
