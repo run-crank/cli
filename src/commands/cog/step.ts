@@ -101,7 +101,7 @@ export default class Step extends StepAwareCommand {
 
     this.log()
     try {
-      await this.runStep(step, 2, false, true)
+      await this.runStep(step, 2, false, true, flags.debug)
     } catch (e) {
       process.exitCode = e ? 1 : 1
     }
