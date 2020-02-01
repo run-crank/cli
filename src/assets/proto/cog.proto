@@ -228,6 +228,15 @@ message StepDefinition {
    */
   repeated FieldDefinition expected_fields = 4;
 
+  /**
+   * A list of record definitions that this step may respond with alongside
+   * other step response data. The definitions provided here are used by Cog
+   * clients (like `crank`) to auto-generate step documentation, as well as
+   * provide dynamic token value substitution hints during the Scenario
+   * authoring process.
+   */
+  repeated RecordDefinition expected_records = 7;
+
 }
 
 /**
@@ -311,6 +320,58 @@ message FieldDefinition {
    * **An example**: `This token can be found in your user settings under "API Tokens"`
    */
   string help = 5;
+
+}
+
+/**
+ * Represents the definition of a `StepRecord`'s schema. Metadata provided here
+ * informs Cog clients (like `crank`) of what records to expect and what form
+ * they will take. This metadata is used to improve step documentation and
+ * enable dynamic token hinting in the Scenario authoring process.
+ */
+message RecordDefinition {
+
+  /**
+   * A response record's type.
+   */
+  enum Type {
+    KEYVALUE = 0;
+    TABLE = 1;
+    BINARY = 2;
+  }
+
+  /**
+   * A unique identifier (alphanumeric and all lowercase) for this record. It
+   * should correspond to the id on the `StepRecord` that is provided on the
+   * `RunStepResponse` message.
+   * <br><br>
+   * **An example**: `lead`
+   */
+  string id = 1;
+
+  /**
+   * The type of structured data this record represents.
+   */
+  Type type = 2;
+
+  /**
+   * Represents a list of fields (`FieldDefinition` objects) whose keys are
+   * guaranteed to be included on the Record's key/value object or in every
+   * table row. This list should be reserved for fields which will always be
+   * included (e.g. the ID or creation date of a Lead object).
+   * <br><br>
+   * Note: only relevant for `StepRecord`s of type `KEYVALUE` or `TABLE`.
+   */
+  repeated FieldDefinition guaranteed_fields = 3;
+
+  /**
+   * Set this to `true` if the list of `guaranteed_fields` provided on this
+   * record definition is non-exhausitve (meaning: the record may contain
+   * additional fields, but their keys and types are unknowable until run-time).
+   * <br><br>
+   * Note: only relevant for `StepRecord`s of type `KEYVALUE` or `TABLE`.
+   */
+  bool may_have_more_fields = 4;
 
 }
 
@@ -423,10 +484,107 @@ message RunStepResponse {
   repeated google.protobuf.Value message_args = 3;
 
   /**
-   * Can be used to pass arbitrary data back to the Cog client. This may be
-   * used by Cog clients (like `crank`) to print additional data in logs to
-   * help users debug further.
+   * An optional list of structured data records that Cog clients (like `crank`)
+   * can render to help users diagnose failures and errors. A common example is
+   * to return a record representing the object being created or checked.
+   * <br><br>
+   * Note: Structured data in these records will be used to populate dynamic
+   * token values that Scenario authors can include in their Scenario
+   * definitions. Well-defined and expected record definitions should be defined
+   * on the `expected_records` field on the `StepDefinition` message.
+   */
+  repeated StepRecord records = 5;
+
+  /**
+   * This has no formal use in Cog clients and should be ignored. Use the
+   * records field instead.
    */
   google.protobuf.Struct response_data = 4;
+
+}
+
+/**
+ * Represents a piece of structured data that may be included on a Step
+ * Response. Cog clients (like `crank`) will render this structured data in
+ * order to help users diagnose failures or errors. This data also forms the
+ * basis for dynamic token value substitution.
+ */
+message StepRecord {
+
+  /**
+   * A unique identifier (alphanumeric and all lowercase) for this record. It
+   * should correspond to the id on the corresponding `RecordDefinition` that
+   * you provide on the `StepDefinition` message.
+   * <br><br>
+   * **An example**: `lead`
+   */
+  string id = 1;
+
+  /**
+   * Represents a human-readable name or description of this record, which may
+   * be displayed along with the record value by Cog clients (like `crank`).
+   * <br><br>
+   * **An example**: `The Lead Record That Was Checked`
+   */
+  string name = 2;
+
+  /**
+   * Represents the record or data itself. Must conform to one of the defined
+   * message types representing structured data.
+   */
+  oneof value {
+    /**
+     * Blargh.
+     */
+    google.protobuf.Struct key_value = 3;
+
+    /**
+     * Blergh.
+     */
+    TableRecord table = 4;
+    BinaryRecord binary = 5;
+  }
+
+}
+
+/**
+ * Represents a type of structured data record that a `RunStepResponse` may
+ * include. This record type is useful when you want to represent data which
+ * is multi-dimensional (e.g. has many rows/columns). In these situations, it's
+ * recommended to use this record type, rather than returning many instances of
+ * the Struct or Key/Value record type.
+ */
+message TableRecord {
+
+  /**
+   * A key/value map representing table headers. Each key should correspond to
+   * a key on each provided row, while the value represents the label shown to
+   * the user as the column header when rendered.
+   */
+  google.protobuf.Struct headers = 1;
+
+  /**
+   * Represents the actual table rows to be rendered.
+   */
+  repeated google.protobuf.Struct rows = 2;
+
+}
+
+/**
+ * Represents a type of structured data record that a `RunStepResponse` may
+ * include. This record type is useful for large, binary objects like images.
+ */
+message BinaryRecord {
+
+  /**
+   * The binary data itself.
+   */
+  bytes data = 1;
+
+  /**
+   * A mime type that describes how the data can or should be rendered, e.g.
+   * `image/png`.
+   */
+  string mime_type = 2;
 
 }
