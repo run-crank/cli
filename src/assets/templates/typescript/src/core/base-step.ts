@@ -1,6 +1,6 @@
 import { ClientWrapper } from '../client/client-wrapper';
-import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse } from '../proto/cog_pb';
-import { Value } from 'google-protobuf/google/protobuf/struct_pb';
+import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse, StepRecord, TableRecord, BinaryRecord, RecordDefinition } from '../proto/cog_pb';
+import { Struct, Value } from 'google-protobuf/google/protobuf/struct_pb';
 import * as util from '@run-crank/utilities';
 
 export interface StepInterface {
@@ -17,12 +17,20 @@ export interface Field {
   optionality?: number;
 }
 
+export interface ExpectedRecord {
+  id: string;
+  type: RecordDefinition.Type;
+  fields?: Field[];
+  dynamicFields?: boolean;
+}
+
 export abstract class BaseStep {
 
   protected stepName: string;
   protected stepExpression: string;
   protected stepType: StepDefinition.Type;
   protected expectedFields: Field[];
+  protected expectedRecords?: ExpectedRecord[];
   protected stepHelp?: string;
 
   constructor(protected client: ClientWrapper) { }
@@ -47,7 +55,6 @@ export abstract class BaseStep {
       expectedField.setType(field.type);
       expectedField.setKey(field.field);
       expectedField.setDescription(field.description);
-      stepDefinition.addExpectedFields(expectedField);
 
       if (field.hasOwnProperty('help')) {
         expectedField.setHelp(field.help);
@@ -58,31 +65,83 @@ export abstract class BaseStep {
       } else {
         expectedField.setOptionality(FieldDefinition.Optionality.REQUIRED);
       }
+
+      stepDefinition.addExpectedFields(expectedField);
+    });
+
+    (this.expectedRecords || []).forEach((record: ExpectedRecord) => {
+      const expectedRecord = new RecordDefinition();
+      expectedRecord.setId(record.id);
+      expectedRecord.setType(record.type);
+      expectedRecord.setMayHaveMoreFields(record.dynamicFields || false);
+      (record.fields || []).forEach((field: Field) => {
+        const guaranteedField = new FieldDefinition();
+        guaranteedField.setType(field.type);
+        guaranteedField.setKey(field.field);
+        guaranteedField.setDescription(field.description);
+        expectedRecord.addGuaranteedFields(guaranteedField);
+      });
+      stepDefinition.addExpectedRecords(expectedRecord);
     });
 
     return stepDefinition;
   }
 
-  compare(operator: string, actualValue: string, value:string): boolean {
+  compare(operator: string, actualValue: string, value: string): boolean {
     return util.compare(operator, actualValue, value);
   }
 
-  protected pass(message: string, messageArgs: any[] = []): RunStepResponse {
+  protected pass(message: string, messageArgs: any[] = [], records: StepRecord[] = []): RunStepResponse {
     const response = this.outcomelessResponse(message, messageArgs);
     response.setOutcome(RunStepResponse.Outcome.PASSED);
+    records.forEach((record) => {
+      response.addRecords(record);
+    });
     return response;
   }
 
-  protected fail(message: string, messageArgs: any[] = []): RunStepResponse {
+  protected fail(message: string, messageArgs: any[] = [], records: StepRecord[] = []): RunStepResponse {
     const response = this.outcomelessResponse(message, messageArgs);
     response.setOutcome(RunStepResponse.Outcome.FAILED);
+    records.forEach((record) => {
+      response.addRecords(record);
+    });
     return response;
   }
 
-  protected error(message: string, messageArgs: any[] = []): RunStepResponse {
+  protected error(message: string, messageArgs: any[] = [], records: StepRecord[] = []): RunStepResponse {
     const response = this.outcomelessResponse(message, messageArgs);
     response.setOutcome(RunStepResponse.Outcome.ERROR);
+    records.forEach((record) => {
+      response.addRecords(record);
+    });
     return response;
+  }
+
+  protected keyValue(id: string, name: string, data: Record<string, any>): StepRecord {
+    const record: StepRecord = this.typelessRecord(id, name);
+    record.setKeyValue(Struct.fromJavaScript(data));
+    return record;
+  }
+
+  protected table(id: string, name: string, headers: Record<string, string>, rows: Record<string, any>[]): StepRecord {
+    const record: StepRecord = this.typelessRecord(id, name);
+    const table: TableRecord = new TableRecord();
+    table.setHeaders(Struct.fromJavaScript(headers));
+    rows.forEach((row) => {
+      table.addRows(Struct.fromJavaScript(row));
+    });
+    record.setTable(table);
+    return record;
+  }
+
+  protected binary(id: string, name: string, mimeType: string, data: string | Uint8Array): StepRecord {
+    const record: StepRecord = this.typelessRecord(id, name);
+    const binary: BinaryRecord = new BinaryRecord();
+    binary.setMimeType(mimeType);
+    binary.setData(data);
+    record.setBinary(binary);
+    return record;
   }
 
   private outcomelessResponse(message: string, messageArgs: any[] = []): RunStepResponse {
@@ -92,6 +151,13 @@ export abstract class BaseStep {
       response.addMessageArgs(Value.fromJavaScript(arg));
     });
     return response;
+  }
+
+  private typelessRecord(id: string, name: string): StepRecord {
+    const record: StepRecord = new StepRecord();
+    record.setId(id);
+    record.setName(name);
+    return record;
   }
 
 }

@@ -1,8 +1,8 @@
 /*tslint:disable:no-else-after-return*/
 /*tslint:disable:triple-equals*/
 
-import { BaseStep, Field, StepInterface } from '../../core/base-step';
-import { FieldDefinition, RunStepResponse, Step, StepDefinition } from '../../proto/cog_pb';
+import { BaseStep, Field, ExpectedRecord, StepInterface } from '../../core/base-step';
+import { FieldDefinition, RunStepResponse, Step, StepDefinition, RecordDefinition } from '../../proto/cog_pb';
 
 import { baseOperators } from './../../client/constants/operators';
 import * as util from '@run-crank/utilities';
@@ -59,6 +59,31 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     description: 'Expected field value',
   }];
 
+  /**
+   * An array of Record definitions that this step may return as structured data. This metadata
+   * is used in auto-generated step documentation, and powers dynamic token value substitution. In
+   * the example below, a token like {{cog.user.id}} could be used in a Scenario step following the
+   * invocation of this step.
+   */
+  protected expectedRecords: ExpectedRecord[] = [{
+    id: 'user',
+    type: RecordDefinition.Type.KEYVALUE,
+    dynamicFields: true,
+    fields: [{
+      field: 'id',
+      description: 'User ID',
+      type: FieldDefinition.Type.NUMERIC,
+    }, {
+      field: 'name',
+      description: "User's full name",
+      type: FieldDefinition.Type.STRING,
+    }, {
+      field: 'email',
+      description: "User's e-mail address",
+      type: FieldDefinition.Type.EMAIL,
+    }],
+  }];
+
   async executeStep(step: Step): Promise<RunStepResponse> {
     let apiRes: any;
     const stepData: any = step.getData().toJavaScript();
@@ -80,20 +105,16 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
         return this.error('No user found for email %s', [email]);
       } else if (!apiRes.body[0].hasOwnProperty(field)) {
         // If the given field does not exist on the user, return an error.
-        return this.error('The %s field does not exist on user %s', [field, email]);
+        const user = this.keyValue('user', 'User Record', apiRes.body[0]);
+        return this.error('The %s field does not exist on user %s', [field, email], [user]);
       } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
         // If the value of the field matches expectations, pass.
-        return this.pass(util.operatorSuccessMessages[operator], [
-          field,
-          expectedValue,
-        ]);
+        const user = this.keyValue('user', 'User Record', apiRes.body[0]);
+        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue], [user]);
       } else {
         // If the value of the field does not match expectations, fail.
-        return this.fail(util.operatorFailMessages[operator], [
-          field,
-          expectedValue,
-          apiRes.body[0][field],
-        ]);
+        const user = this.keyValue('user', 'User Record', apiRes.body[0]);
+        return this.fail(util.operatorFailMessages[operator], [field, expectedValue, apiRes.body[0][field]], [user]);
       }
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
