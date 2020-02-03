@@ -128,6 +128,7 @@ export default abstract class extends RegistryAwareCommand {
             this.log()
           }
           cli.table(keyValueTableData, {Field: {minWidth: 8}, Value: {}}, {
+            'no-truncate': true,
             printLine: l => {
               this.log(`${prefix}  ${color(l)}`)
             }
@@ -150,6 +151,7 @@ export default abstract class extends RegistryAwareCommand {
             this.log()
           }
           cli.table(rows, headers, {
+            'no-truncate': true,
             printLine: l => {
               this.log(`${prefix}  ${color(l)}`)
             }
