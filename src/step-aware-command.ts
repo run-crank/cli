@@ -102,7 +102,7 @@ export default abstract class extends RegistryAwareCommand {
       const formatArgs: any = stepResponse.getMessageArgsList().map((value: Value) => {
         // If the value is null, replace with empty string.
         const jsValue = value.toJavaScript()
-        return jsValue === null ? '' : jsValue
+        return jsValue === null ? '(empty value)' : jsValue
       })
       formatArgs.unshift(stepResponse.getMessageFormat())
       const resultMessage: string = util.format.apply(util, formatArgs)
