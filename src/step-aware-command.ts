@@ -132,6 +132,7 @@ export default abstract class extends RegistryAwareCommand {
               this.log(`${prefix}  ${color(l)}`)
             }
           })
+          this.log()
         }
 
         // Actually printing a table.
@@ -153,6 +154,7 @@ export default abstract class extends RegistryAwareCommand {
               this.log(`${prefix}  ${color(l)}`)
             }
           })
+          this.log()
         }
 
         // Store binary data as a file in temporary directory.
@@ -169,6 +171,7 @@ export default abstract class extends RegistryAwareCommand {
             this.log(`${prefix}${color(`${chalk.bold(recordName || 'File')} written to:`)}`)
             this.log()
             this.log(`${prefix}  ${color(writeFileTo)}`)
+            this.log()
             // tslint:disable-next-line:no-unused
           } catch (e) {}
         }
