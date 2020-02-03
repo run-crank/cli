@@ -7,7 +7,6 @@ import * as debug from 'debug'
 import * as fs from 'fs'
 import * as glob from 'glob'
 import * as _ from 'lodash'
-import * as uuidv4 from 'uuid/v4'
 
 import {AuthenticationError} from '../errors/authentication-error'
 import {MissingStepError} from '../errors/missing-step-error'
@@ -110,7 +109,6 @@ export default class Run extends StepAwareCommand {
     // Run through scenarios.
     const overallTimer = new Timer()
     await Bluebird.mapSeries(scenarios, async (scenario: Scenario) => {
-      const scenarioID = uuidv4()
       let hasFailures = false
 
       // Run through steps.
@@ -130,7 +128,7 @@ export default class Run extends StepAwareCommand {
                 waitFor: step.map(s => s.waitFor[0]),
                 failAfter: step.map(s => s.failAfter[0]),
                 priorFailure: hasFailures,
-                scenarioId: scenarioID,
+                scenarioId: scenario.id,
               })
               await this.runSteps(stepRunner, 2, true, false, flags.debug)
               timer.addPassedStep(step.length)

@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
+import * as uuidv4 from 'uuid/v4'
 import * as YAML from 'yaml'
 
 import {MissingStepError} from '../errors/missing-step-error'
@@ -20,6 +21,7 @@ interface ScenarioConstructorArgs {
 }
 
 export class Scenario {
+  public readonly id: string
   public name: string
   public description: string
   public steps: RunnerStep[]
@@ -31,6 +33,7 @@ export class Scenario {
   constructor({registries, fromFile, tokenOverrides}: ScenarioConstructorArgs) {
     this.registries = registries
     this.file = fromFile
+    this.id = uuidv4()
 
     const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
     const combinedTokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
@@ -98,6 +101,7 @@ export class Scenario {
       registries: this.registries,
       waitFor: step.waitFor || 0,
       failAfter: step.failAfter || 0,
+      scenarioId: this.id,
     })
   }
 
