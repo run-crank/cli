@@ -132,10 +132,10 @@ export default class Run extends StepAwareCommand {
                 priorFailure: hasFailures,
                 scenarioId: scenarioID,
               })
-              await this.runSteps(stepRunner, 2, true, false)
+              await this.runSteps(stepRunner, 2, true, false, flags.debug)
               timer.addPassedStep(step.length)
             } else {
-              await this.runStep(step, 2, true, false)
+              await this.runStep(step, 2, true, false, flags.debug)
               timer.addPassedStep()
             }
 

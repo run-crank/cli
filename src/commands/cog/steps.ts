@@ -115,7 +115,7 @@ export default class Step extends StepAwareCommand {
     const timer: Timer = new Timer()
     let responses: RunStepResponse[] = []
     try {
-      responses = await this.runSteps(step, 2, false, true)
+      responses = await this.runSteps(step, 2, false, true, flags.debug)
     } catch (e) {
       responses = e
     }

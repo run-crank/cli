@@ -1,13 +1,17 @@
 import chalk from 'chalk'
+import {cli} from 'cli-ux'
+import * as fs from 'fs'
 import {Struct, Value} from 'google-protobuf/google/protobuf/struct_pb'
 import * as inquirer from 'inquirer'
 import * as moment from 'moment'
+import * as os from 'os'
+import * as path from 'path'
 import {Subject} from 'rxjs'
 import {URL} from 'url'
 import * as util from 'util'
 
 import {Step as StepRunner} from './models/step'
-import {FieldDefinition, RunStepResponse, Step as ProtoStep} from './proto/cog_pb'
+import {BinaryRecord, FieldDefinition, RunStepResponse, Step as ProtoStep, StepRecord, TableRecord} from './proto/cog_pb'
 import RegistryAwareCommand from './registry-aware-command'
 import {CogRegistryEntry} from './services/registries'
 
@@ -18,10 +22,11 @@ interface PrintStepArgs {
   indent: number
   printStepText: boolean
   printMessage: boolean
+  debug: boolean
 }
 
 export default abstract class extends RegistryAwareCommand {
-  protected async runStep(stepRunner: StepRunner, indentBy = 0, shouldPrintStepText = true, shouldPrintSuccessMessage = false): Promise<RunStepResponse> {
+  protected async runStep(stepRunner: StepRunner, indentBy = 0, shouldPrintStepText = true, shouldPrintSuccessMessage = false, isDebug = false): Promise<RunStepResponse> {
     let response: RunStepResponse
 
     try {
@@ -35,7 +40,8 @@ export default abstract class extends RegistryAwareCommand {
       stepResponse: response,
       indent: indentBy,
       printMessage: shouldPrintSuccessMessage,
-      printStepText: shouldPrintStepText
+      printStepText: shouldPrintStepText,
+      debug: isDebug,
     })
 
     if (response.getOutcome() === RunStepResponse.Outcome.PASSED) {
@@ -45,7 +51,7 @@ export default abstract class extends RegistryAwareCommand {
     }
   }
 
-  protected async runSteps(stepRunner: StepRunner, indentBy = 0, shouldPrintStepText = true, shouldPrintSuccessMessage = false): Promise<RunStepResponse[]> {
+  protected async runSteps(stepRunner: StepRunner, indentBy = 0, shouldPrintStepText = true, shouldPrintSuccessMessage = false, isDebug = false): Promise<RunStepResponse[]> {
     let responses: RunStepResponse[] = []
     let hasErrors = false
 
@@ -63,7 +69,8 @@ export default abstract class extends RegistryAwareCommand {
         stepResponse: response,
         indent: indentBy,
         printMessage: shouldPrintSuccessMessage,
-        printStepText: shouldPrintStepText
+        printStepText: shouldPrintStepText,
+        debug: isDebug,
       })
     })
 
@@ -74,7 +81,7 @@ export default abstract class extends RegistryAwareCommand {
     }
   }
 
-  protected printStepResult({step, stepIndex, stepResponse, indent, printStepText, printMessage}: PrintStepArgs): void {
+  protected printStepResult({step, stepIndex, stepResponse, indent, printStepText, printMessage, debug}: PrintStepArgs): void {
     const passed = stepResponse.getOutcome() === RunStepResponse.Outcome.PASSED
     const color = passed ? chalk.green : chalk.red
     const symbol = passed ? '\u2713' : '\u2718'
@@ -102,6 +109,75 @@ export default abstract class extends RegistryAwareCommand {
       if (stepTextPrinted) this.log()
       this.log(`${prefix}${color(resultMessage)}`)
       if (stepTextPrinted) this.log()
+    }
+
+    if (printMessage || !passed || debug) {
+      stepResponse.getRecordsList().forEach(record => {
+        const recordName = record.getName()
+
+        // Printing an object as a table.
+        if (record.getValueCase() === StepRecord.ValueCase.KEY_VALUE) {
+          // Construct a table
+          const keyValue = (record.getKeyValue() || new Struct()).toJavaScript()
+          const keyValueTableData = Object.keys(keyValue).map(key => {
+            return {Field: key, Value: keyValue[key]}
+          })
+
+          if (recordName) {
+            this.log(`${prefix}${color(`${chalk.bold(recordName)}:`)}`)
+            this.log()
+          }
+          cli.table(keyValueTableData, {Field: {minWidth: 8}, Value: {}}, {
+            'no-truncate': true,
+            printLine: l => {
+              this.log(`${prefix}  ${color(l)}`)
+            }
+          })
+          this.log()
+        }
+
+        // Actually printing a table.
+        if (record.getValueCase() === StepRecord.ValueCase.TABLE) {
+          const table = record.getTable() || new TableRecord()
+          const tableHeaders = (table.getHeaders() || new Struct()).toJavaScript()
+          const rows = table.getRowsList().map(row => row.toJavaScript())
+          let headers: Record<string, any> = {}
+          Object.keys(tableHeaders).forEach(key => {
+            headers[key] = {header: tableHeaders[key]}
+          })
+
+          if (recordName) {
+            this.log(`${prefix}${color(`${chalk.bold(recordName)}:`)}`)
+            this.log()
+          }
+          cli.table(rows, headers, {
+            'no-truncate': true,
+            printLine: l => {
+              this.log(`${prefix}  ${color(l)}`)
+            }
+          })
+          this.log()
+        }
+
+        // Store binary data as a file in temporary directory.
+        if (record.getValueCase() === StepRecord.ValueCase.BINARY) {
+          const binary = record.getBinary() || new BinaryRecord()
+          const mimeType = binary.getMimeType()
+          const extension = (/([a-zA-Z0-9]+)$/.exec(mimeType) || [])[0]
+          const fileName = (`${recordName || 'Step File'} ${moment().format('YYYY-MM-DD HH-mm-ss')}${extension ? `.${extension}` : ''}`).split(' ').join('-')
+
+          try {
+            const base = fs.mkdtempSync(`${os.tmpdir}${path.sep}crank-run-`)
+            const writeFileTo = `${base}${path.sep}${fileName}`
+            fs.writeFileSync(writeFileTo, binary.getData())
+            this.log(`${prefix}${color(`${chalk.bold(recordName || 'File')} written to:`)}`)
+            this.log()
+            this.log(`${prefix}  ${color(writeFileTo)}`)
+            this.log()
+            // tslint:disable-next-line:no-unused
+          } catch (e) {}
+        }
+      })
     }
   }
 

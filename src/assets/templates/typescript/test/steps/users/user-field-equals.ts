@@ -4,7 +4,7 @@ import { default as sinon } from 'ts-sinon';
 import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
-import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse } from '../../../src/proto/cog_pb';
+import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse, RecordDefinition, StepRecord } from '../../../src/proto/cog_pb';
 import { Step } from '../../../src/steps/users/user-field-equals';
 
 chai.use(sinonChai);
@@ -55,6 +55,30 @@ describe('UserFieldEqualsStep', () => {
     expect(expectedValue.type).to.equal(FieldDefinition.Type.ANYSCALAR);
   });
 
+  it('should return expected step records', () => {
+    const stepDef: StepDefinition = stepUnderTest.getDefinition();
+    const records: any[] = stepDef.getExpectedRecordsList().map((record: RecordDefinition) => {
+      return record.toObject();
+    });
+
+    // User record
+    const user: any = records.filter(r => r.id === 'user')[0];
+    expect(user.type).to.equal(RecordDefinition.Type.KEYVALUE);
+    expect(user.mayHaveMoreFields).to.equal(true);
+
+    // User record ID field
+    const userId: any = user.guaranteedFieldsList.filter(f => f.key === 'id')[0];
+    expect(userId.type).to.equal(FieldDefinition.Type.NUMERIC);
+
+    // User record name field
+    const userName: any = user.guaranteedFieldsList.filter(f => f.key === 'name')[0];
+    expect(userName.type).to.equal(FieldDefinition.Type.STRING);
+
+    // User record email field
+    const userEmail: any = user.guaranteedFieldsList.filter(f => f.key === 'email')[0];
+    expect(userEmail.type).to.equal(FieldDefinition.Type.EMAIL);
+  });
+
   it('should respond with pass if API client resolves expected data', async () => {
     // Stub a response that matches expectations.
     const expectedUser: any = {someField: 'Expected Value'};
@@ -69,7 +93,10 @@ describe('UserFieldEqualsStep', () => {
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+    const records: StepRecord[] = response.getRecordsList();
     expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.PASSED);
+    expect(records[0].getId()).to.equal('user');
+    expect(records[0].getKeyValue().toJavaScript()).to.deep.equal(expectedUser);
   });
 
   it('should respond with fail if API client resolves unexpected data', async () => {
@@ -86,7 +113,10 @@ describe('UserFieldEqualsStep', () => {
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+    const records: StepRecord[] = response.getRecordsList();
     expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.FAILED);
+    expect(records[0].getId()).to.equal('user');
+    expect(records[0].getKeyValue().toJavaScript()).to.deep.equal(expectedUser);
   });
 
   it('should respond with error if API client resolves no results', async () => {
@@ -115,7 +145,10 @@ describe('UserFieldEqualsStep', () => {
     }));
 
     const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+    const records: StepRecord[] = response.getRecordsList();
     expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.ERROR);
+    expect(records[0].getId()).to.equal('user');
+    expect(records[0].getKeyValue().toJavaScript()).to.deep.equal(expectedUser);
   });
 
   it('should respond with error if API client throws error', async () => {
