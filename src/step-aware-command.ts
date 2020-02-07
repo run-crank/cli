@@ -235,7 +235,7 @@ export default abstract class extends RegistryAwareCommand {
         } else {
           if (answer.name.includes(':internal:confirm:')) {
             if (answer.answer) {
-              if(util.isNullOrUndefined(lastParentKey)) {
+              if (!lastParentKey) {
                 lastParentKey = answer.name.replace(':internal:confirm:', '')
               }
               prompts.next({
