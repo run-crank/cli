@@ -213,7 +213,6 @@ export default abstract class extends RegistryAwareCommand {
             parentKey = answer.name.replace('nonscalar.', '').replace('.key', '')
             lastDynamicKey = answer.answer
             lastParentKey = parentKey
-
             // Scrub out the optional message, don't even set a key.
             if (answer.answer !== optionalMsg) {
               try {
@@ -234,8 +233,11 @@ export default abstract class extends RegistryAwareCommand {
             }
           }
         } else {
-          if (answer.name === ':internal:confirm:') {
+          if (answer.name.includes(':internal:confirm:')) {
             if (answer.answer) {
+              if(util.isNullOrUndefined(lastParentKey)) {
+                lastParentKey = answer.name.replace(':internal:confirm:', '')
+              }
               prompts.next({
                 name: `nonscalar.${lastParentKey}.key`,
                 message: `${lastParentKey} object key`,
@@ -266,24 +268,11 @@ export default abstract class extends RegistryAwareCommand {
       }, () => {
         resolve(response)
       })
-
       expectedFields.forEach(field => {
         if (field.type === FieldDefinition.Type.ANYNONSCALAR || field.type === FieldDefinition.Type.MAP) {
           prompts.next({
-            name: `nonscalar.${field.key}.key`,
-            message: `${field.key} object key`,
-            type: 'input',
-            default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
-          })
-          prompts.next({
-            name: `nonscalar.${field.key}.value`,
-            message: `${field.key} object value`,
-            type: 'input',
-            default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
-          })
-          prompts.next({
-            name: ':internal:confirm:',
-            message: `Add another ${field.key} field?`,
+            name: `:internal:confirm:${field.key}`,
+            message: `Add ${field.key} fields?`,
             type: 'confirm'
           })
           hasObjectNeed = true
