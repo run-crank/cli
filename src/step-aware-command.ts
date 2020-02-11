@@ -270,11 +270,31 @@ export default abstract class extends RegistryAwareCommand {
       })
       expectedFields.forEach(field => {
         if (field.type === FieldDefinition.Type.ANYNONSCALAR || field.type === FieldDefinition.Type.MAP) {
-          prompts.next({
-            name: `:internal:confirm:${field.key}`,
-            message: `Add ${field.key} fields?`,
-            type: 'confirm'
-          })
+          if (field.optionality === FieldDefinition.Optionality.OPTIONAL) {
+            prompts.next({
+              name: `:internal:confirm:${field.key}`,
+              message: `Add ${field.key} fields?`,
+              type: 'confirm'
+            })
+          } else {
+            prompts.next({
+              name: `nonscalar.${field.key}.key`,
+              message: `${field.key} object key`,
+              type: 'input',
+              default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
+            })
+            prompts.next({
+              name: `nonscalar.${field.key}.value`,
+              message: `${field.key} object value`,
+              type: 'input',
+              default: field.optionality === FieldDefinition.Optionality.OPTIONAL ? optionalMsg : null,
+            })
+            prompts.next({
+              name: ':internal:confirm:',
+              message: `Add another ${field.key} field?`,
+              type: 'confirm'
+            })
+          }
           hasObjectNeed = true
         } else {
           prompts.next({
