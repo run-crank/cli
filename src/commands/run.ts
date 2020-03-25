@@ -121,6 +121,7 @@ export default class Run extends StepAwareCommand {
             if (step instanceof Array) {
               const stepRunner = new RunnerStep({
                 cog: step[0].cog,
+                tokens: scenario.tokens,
                 protoSteps: step.map(s => s.protoSteps instanceof Array ? s.protoSteps[0] : s.protoSteps),
                 stepText: step.map(s => s.stepText instanceof Array ? s.stepText[0] : s.stepText),
                 client: step[0].client,
