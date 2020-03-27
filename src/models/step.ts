@@ -303,6 +303,16 @@ export class Step {
           preserveUnknownTokens: true,
         })
 
+        // Also apply currently known/dynamic tokens to the step text.
+        if (this.stepText) {
+          this.stepText = substitute(this.stepText, {
+            tokens: this.tokens,
+            prefix: '{{',
+            suffix: '}}',
+            preserveUnknownTokens: true,
+          })
+        }
+
         // Re-set the step data on the protobuf step message.
         protoStep.setData(Struct.fromJavaScript(newData))
       }
