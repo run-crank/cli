@@ -333,7 +333,7 @@ export class Step {
           table.getRowsList().forEach((row, index) => {
             const rowData = row.toJavaScript()
             Object.keys(rowData).forEach(key => {
-              this.tokens[`${keyPrefix}.${index}.${key}`.toLowerCase()] = rowData[key]
+              this.tokens[`${keyPrefix}.${index + 1}.${key}`.toLowerCase()] = rowData[key]
             })
           })
         }
