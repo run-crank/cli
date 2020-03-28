@@ -1,15 +1,18 @@
 import * as retry from 'async-retry'
 import {Promise as Bluebird} from 'bluebird'
-import {Value} from 'google-protobuf/google/protobuf/struct_pb'
+import {Struct, Value} from 'google-protobuf/google/protobuf/struct_pb'
 import * as grpc from 'grpc'
 import * as uuidv4 from 'uuid/v4'
 
 import {AuthenticationError} from '../errors/authentication-error'
 import {CogServiceClient} from '../proto/cog_grpc_pb'
-import {RunStepRequest, RunStepResponse, Step as ProtoStep, StepDefinition} from '../proto/cog_pb'
+import {RunStepRequest, RunStepResponse, Step as ProtoStep, StepDefinition, StepRecord} from '../proto/cog_pb'
 import {CogRegistryEntry, Registries, StepRegistryEntry} from '../services/registries'
 
+const substitute = require('token-substitute')
+
 /* tslint:disable:no-unused */
+/* tslint:disable:no-console */
 
 interface StepConstructorArgs {
   cog: string
@@ -21,6 +24,7 @@ interface StepConstructorArgs {
   scenarioId: string
   client?: CogServiceClient
   registries: Registries
+  tokens?: Record<string, any>
 }
 
 export class Step {
@@ -32,13 +36,15 @@ export class Step {
   public failAfter: number[]
   public priorFailure: boolean
 
+  protected tokens: Record<string, any>
+
   private readonly auth: any = {}
   private readonly reg: CogRegistryEntry
   private readonly requestId: string
   private readonly scenarioId: string
   private readonly requestorId: string
 
-  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter, scenarioId, priorFailure = false}: StepConstructorArgs) {
+  constructor({cog, protoSteps, stepText, client, registries, waitFor, failAfter, scenarioId, tokens = {}, priorFailure = false}: StepConstructorArgs) {
     this.cog = cog
     this.protoSteps = protoSteps instanceof Array ? protoSteps : [protoSteps]
     this.stepText = stepText
@@ -49,6 +55,7 @@ export class Step {
     this.requestId = uuidv4()
     this.scenarioId = scenarioId
     this.requestorId = registries.getRegistryRequestorId()
+    this.tokens = tokens
 
     const matchingReg = registries.buildCogRegistry().filter(a => a.name === cog)[0]
     const matchingAuth = registries.buildAuthRegistry().filter(a => a.cog === cog)
@@ -84,6 +91,9 @@ export class Step {
     await this.waitBeforeExecution()
     const startedAt = Date.now()
 
+    // Apply any new dynamic token data to the step.
+    this.applyTokens(this.protoSteps[0])
+
     const request = new RunStepRequest()
     request.setStep(this.protoSteps[0])
     request.setRequestId(this.requestId)
@@ -106,6 +116,9 @@ export class Step {
                 bail(err)
                 return
               }
+
+              // Merge response data into tokens.
+              this.mergeResponseTokens(response)
 
               if (response.getOutcome() === RunStepResponse.Outcome.PASSED) {
                 doneTrying(returnResponse(response))
@@ -163,6 +176,9 @@ export class Step {
               return new Promise((doneTrying, keepTrying) => {
                 // Listen (only once) for data from the server.
                 stream.once('data', (data: RunStepResponse) => {
+                  // Merge response data into tokens.
+                  this.mergeResponseTokens(data)
+
                   if (data.getOutcome() !== RunStepResponse.Outcome.PASSED) {
                     if (this.shouldRetryStep(startedAt, stepNumber)) {
                       // Have to pass an empty object due to bug in async-retry...
@@ -202,6 +218,9 @@ export class Step {
                     }
                   }
                 })
+
+                // Apply any new dynamic token data to the step.
+                this.applyTokens(protoStep)
 
                 // Write the step request onto the stream.
                 const request = new RunStepRequest()
@@ -268,6 +287,68 @@ export class Step {
    */
   protected shouldRetryStep(startedAt: number, stepNumber = 0): boolean {
     return Date.now() - startedAt < (this.failAfter[stepNumber] * 1000)
+  }
+
+  protected applyTokens(protoStep: ProtoStep) {
+    try {
+      // Pull data from the step protobuf message.
+      const data = protoStep.getData() || null
+
+      if (data) {
+        // Apply currently known/dynamic tokens to the step data.
+        const newData = substitute(data.toJavaScript(), {
+          tokens: this.tokens,
+          prefix: '{{',
+          suffix: '}}',
+          preserveUnknownTokens: true,
+        })
+
+        // Also apply currently known/dynamic tokens to the step text.
+        if (this.stepText) {
+          this.stepText = substitute(this.stepText, {
+            tokens: this.tokens,
+            prefix: '{{',
+            suffix: '}}',
+            preserveUnknownTokens: true,
+          })
+        }
+
+        // Re-set the step data on the protobuf step message.
+        protoStep.setData(Struct.fromJavaScript(newData))
+      }
+      // tslint:disable-next-line:no-unused
+    } catch (e) {
+      console.error('Error substituting token values, but continuing. Check your tokens')
+    }
+  }
+
+  protected mergeResponseTokens(response: RunStepResponse) {
+    const cog = this.cog.split('/')[1]
+    response.getRecordsList().forEach(record => {
+      const keyPrefix = `${cog}.${record.getId()}`
+
+      if (record.getValueCase() === StepRecord.ValueCase.KEY_VALUE) {
+        const keyValue = record.getKeyValue()
+        if (keyValue) {
+          const keyValueData = keyValue.toJavaScript()
+          Object.keys(keyValueData).forEach(key => {
+            this.tokens[`${keyPrefix}.${key}`] = keyValueData[key]
+          })
+        }
+      }
+
+      if (record.getValueCase() === StepRecord.ValueCase.TABLE) {
+        const table = record.getTable()
+        if (table) {
+          table.getRowsList().forEach((row, index) => {
+            const rowData = row.toJavaScript()
+            Object.keys(rowData).forEach(key => {
+              this.tokens[`${keyPrefix}.${index + 1}.${key}`] = rowData[key]
+            })
+          })
+        }
+      }
+    })
   }
 
   private getAuthMeta() {

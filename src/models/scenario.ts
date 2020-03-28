@@ -24,6 +24,7 @@ export class Scenario {
   public readonly id: string
   public name: string
   public description: string
+  public tokens: Record<string, any>
   public steps: RunnerStep[]
   public optimizedSteps: (RunnerStep | RunnerStep[])[]
   public file: string
@@ -36,8 +37,8 @@ export class Scenario {
     this.id = uuidv4()
 
     const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
-    const combinedTokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
-    let rawSteps = this.applyTokens(scenario.steps, combinedTokens)
+    this.tokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
+    let rawSteps = this.applyTokens(scenario.steps, this.tokens)
     this.name = scenario.scenario
     this.description = scenario.description
     this.steps = rawSteps.map((step: any) => {
@@ -96,6 +97,7 @@ export class Scenario {
 
     return new RunnerStep({
       cog: cogName,
+      tokens: this.tokens,
       protoSteps: protoStep,
       stepText: step.step || stepDefName || stepDefExpression || stepDefId,
       registries: this.registries,
