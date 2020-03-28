@@ -332,7 +332,7 @@ export class Step {
         if (keyValue) {
           const keyValueData = keyValue.toJavaScript()
           Object.keys(keyValueData).forEach(key => {
-            this.tokens[`${keyPrefix}.${key}`.toLowerCase()] = keyValueData[key]
+            this.tokens[`${keyPrefix}.${key}`] = keyValueData[key]
           })
         }
       }
@@ -343,7 +343,7 @@ export class Step {
           table.getRowsList().forEach((row, index) => {
             const rowData = row.toJavaScript()
             Object.keys(rowData).forEach(key => {
-              this.tokens[`${keyPrefix}.${index + 1}.${key}`.toLowerCase()] = rowData[key]
+              this.tokens[`${keyPrefix}.${index + 1}.${key}`] = rowData[key]
             })
           })
         }
