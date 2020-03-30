@@ -28,9 +28,8 @@ export class Auth extends RegistryAwareCommand {
     const {args} = this.parse(Auth)
     const cogRegEntry = this.registry.getCogConfigFromRegistry(args.cogName)
     if (!cogRegEntry || !cogRegEntry.authFieldsList) {
-      process.exitCode = 1
-      this.log(`No Cog found named ${args.cogName}`)
-      return
+      this.error(`No Cog found named ${args.cogName}`, {exit: false})
+      return this.exit(1)
     }
 
     if (!cogRegEntry.authFieldsList || cogRegEntry.authFieldsList.length === 0) {
