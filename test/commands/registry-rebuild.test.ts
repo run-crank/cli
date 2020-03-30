@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import * as inquirer from 'inquirer'
 import {expect, test} from '@oclif/test'
 import { sync as rmRfSync } from 'rimraf';
 
