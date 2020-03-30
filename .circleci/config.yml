@@ -2,8 +2,8 @@ version: 2.1
 
 jobs:
   test:
-    docker:
-      - image: circleci/node:10
+    machine:
+      image: circleci/classic:latest
     steps:
       - checkout
       - restore_cache:
@@ -15,6 +15,11 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 10
+            nvm alias default 10
             npm install
       - save_cache:
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
@@ -23,6 +28,9 @@ jobs:
       - run:
           name: Test Code
           command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 10
             npm test
 
   pack-and-publish:
