@@ -37,10 +37,8 @@ export class Rebuild extends RegistryAwareCommand {
     })
 
     if (args.cogName && registry.length === 0) {
-      this.log(`Error rebuilding registry for ${args.cogName}`)
-      this.log('  Cog not found')
-      process.exitCode = 1
-      return
+      this.error(`Error rebuilding registry for ${args.cogName}\n  Cog not found`, {exit: false})
+      this.exit(1)
     }
 
     await Bluebird.mapSeries(registry, this.rebuildCogRegistryEntry.bind(this))

@@ -31,6 +31,7 @@ describe('cog:install', () => {
 
   test
     .stdout()
+    .stderr()
     .command(['cog:install', 'automatoninc/salesforce:0.1.1', '--ignore-auth'])
     .it('can install cog from docker hub', ctx => {
       // Success message should have been printed.
