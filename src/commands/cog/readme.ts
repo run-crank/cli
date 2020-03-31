@@ -35,18 +35,16 @@ The readme must have any of the following tags inside of it for it to be replace
     const cogRegistry = this.registry.buildCogRegistry()
     const cogRegEntry = cogRegistry.filter(r => r.name && r.name === args.cogName)[0]
     if (!cogRegEntry || !cogRegEntry._runConfig) {
-      this.log(`Cog with name ${args.cogName} not found`)
-      process.exitCode = 1
-      return
+      this.error(`Cog with name ${args.cogName} not found`, {exit: false})
+      return this.exit(1)
     }
 
     // Make sure there's a README.md file.
     try {
       readme = fs.readFileSync('README.md', 'utf8')
     } catch (e) {
-      this.log('No README.md file found! Check your current working directory and try again.')
-      process.exitCode = e ? 1 : 1
-      return
+      this.error('No README.md file found! Check your current working directory and try again.', {exit: false})
+      return this.exit(e ? 1 : 1)
     }
 
     const client = await this.cogManager.startCogAndGetClient(cogRegEntry._runConfig, false)
