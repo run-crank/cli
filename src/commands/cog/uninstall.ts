@@ -49,9 +49,8 @@ export default class Uninstall extends registryAwareCommand {
     const regEntry = this.registry.getCogConfigFromRegistry(args.cogName)
 
     if (!regEntry) {
-      this.log(`There's no Cog named ${args.cogName} installed. Maybe a typo?`)
-      process.exitCode = 1
-      return
+      this.error(`There's no Cog named ${args.cogName} installed. Maybe a typo?`, {exit: false})
+      return this.exit(1)
     }
 
     if (!flags.force) {
