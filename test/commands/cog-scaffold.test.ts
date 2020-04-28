@@ -48,9 +48,11 @@ describe('cog:scaffold', () => {
 
   test
     .stdout()
-    .command(['registry:steps'])
     .it('installs sample step correctly', ctx => {
-      expect(ctx.stdout).to.contain('the (?<field>.+) field on JSON Placeholder user');
+      const stepFile = fs.readFileSync(`${cacheDir}/cog/src/steps/users/user-field-equals.ts`, {encoding: 'utf8'});
+      const stepTest = fs.readFileSync(`${cacheDir}/cog/test/steps/users/user-field-equals.ts`, {encoding: 'utf8'});
+      expect(stepFile).to.contain('Check a field on a JSON Placeholder user');
+      expect(stepTest).to.contain('Check a field on a JSON Placeholder user');
     })
 
   test
