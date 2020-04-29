@@ -111,6 +111,10 @@
       "identifier": "com.automatoninc.crank"
     }
   },
+  "nyc": {
+    "include": ["src"],
+    "exclude": ["src/proto", "src/assets"]
+  },
   "repository": "run-crank/cli",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json && rm -f tsconfig.tsbuildinfo",
