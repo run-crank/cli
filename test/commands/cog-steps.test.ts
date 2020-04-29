@@ -6,6 +6,7 @@ import { sync as rmRfSync } from 'rimraf';
 const cacheDir: string = `${__dirname}/../.test_cache`;
 
 describe('cog:steps', () => {
+  let inquirerStubCount = 0
 
   before(() => {
     process.env.CRANK_CACHEDIR = cacheDir;
@@ -137,6 +138,38 @@ describe('cog:steps', () => {
       expect(ctx.stderr).to.contain('Running... Done');
     })
 
+    test
+    .stdout()
+    .stderr()
+    .stub(inquirer, 'prompt', () => {
+      // This is the only sensible way to stub step prompt inquiry.
+      if (inquirerStubCount === 0) {
+        inquirerStubCount++;
+        return {ui: {process: {subscribe: (answer: Function, errCallback: Function, doneCallback: Function) => {
+          answer({answer: 'AssertZoundsStep'});
+          answer({answer: 'AssertZoundsStep'});
+          answer({answer: 'noMorePleaseThankYou'});
+          doneCallback();
+        }}}};
+      }
+
+      if (inquirerStubCount >= 1) {
+        inquirerStubCount++;
+        return {ui: {process: {subscribe: (answer: Function, errCallback: Function, doneCallback: Function) => {
+          answer({name: 'moreThanText', answer: 'Zounds!'});
+          answer({name: 'moreThanText', answer: 'Zounds!'});
+          doneCallback();
+        }}}};
+      }
+    })
+    .command(['cog:steps', 'automatoninc/metacog'])
+    .it('can gather steps interactively', ctx => {
+      // Assert running helpers and basic response text.
+      expect(ctx.stdout).to.contain('Ad-hoc scenario');
+      expect(ctx.stdout).to.match(/Text Zounds! equals Zounds!, as expected\..*Text Zounds! equals Zounds!, as expected\./is);
+      expect(ctx.stderr).to.contain('Running... Done');
+    })
+
   test
     .stdout()
     .stderr()
@@ -159,6 +192,10 @@ describe('cog:steps', () => {
 
   after(() => {
     delete process.env.CRANK_CACHEDIR;
+  });
+
+  afterEach(() => {
+    inquirerStubCount = 0;
   });
 
 });
