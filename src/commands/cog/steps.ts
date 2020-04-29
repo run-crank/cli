@@ -15,6 +15,8 @@ import {CogRegistryEntry} from '../../services/registries'
 import {Timer} from '../../services/timer'
 import StepAwareCommand from '../../step-aware-command'
 
+// tslint:disable:ignore no-unused
+
 export default class Step extends StepAwareCommand {
   static description = 'Run multiple Cog steps interactively.'
   static examples = [
@@ -57,12 +59,12 @@ export default class Step extends StepAwareCommand {
   async run() {
     const {args, flags} = this.parse(Step)
     const cogConfig = this.registry.getCogConfigFromRegistry(args.cogName)
+    let exitCode = 0
     let cogClient: CogServiceClient
 
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
-      this.log(`Couldn't find a Cog named ${args.cogName}`)
-      process.exitCode = 1
-      return
+      this.error(`Couldn't find a Cog named ${args.cogName}`, {exit: false})
+      return this.exit(1)
     }
 
     let stepIds: string[]
@@ -86,8 +88,7 @@ export default class Step extends StepAwareCommand {
         }
       })
     } catch (e) {
-      if (e) {}
-      return
+      return this.exit(1)
     }
 
     cli.action.start('Running')
@@ -124,13 +125,16 @@ export default class Step extends StepAwareCommand {
         timer.addPassedStep()
       } else {
         timer.addFailedStep()
-        process.exitCode = 1
+        exitCode = 1
       }
     })
     this.log()
 
     cli.action.stop('Done')
     timer.printTime(this.log.bind(this))
+    if (exitCode) {
+      this.exit(exitCode)
+    }
   }
 
   async finally() {
