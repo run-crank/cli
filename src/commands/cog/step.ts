@@ -11,6 +11,8 @@ import {Step as ProtoStep} from '../../proto/cog_pb'
 import {CogManager} from '../../services/cog-manager'
 import StepAwareCommand from '../../step-aware-command'
 
+// tslint:disable:ignore no-unused
+
 export default class Step extends StepAwareCommand {
   static description = 'Run a single Cog step interactively.'
   static examples = [
@@ -55,9 +57,8 @@ export default class Step extends StepAwareCommand {
     const cogConfig = this.registry.getCogConfigFromRegistry(args.cogName)
     let cogClient: CogServiceClient
     if (!cogConfig || !cogConfig._runConfig || !cogConfig.stepDefinitionsList) {
-      this.log(`Couldn't find a Cog named ${args.cogName}`)
-      process.exitCode = 1
-      return
+      this.error(`Couldn't find a Cog named ${args.cogName}`, {exit: false})
+      return this.exit(1)
     }
 
     let stepId = flags.step || ''
@@ -103,7 +104,9 @@ export default class Step extends StepAwareCommand {
     try {
       await this.runStep(step, 2, false, true, flags.debug)
     } catch (e) {
-      process.exitCode = e ? 1 : 1
+      this.log()
+      cli.action.stop('Done')
+      return this.exit(1)
     }
     this.log()
 
