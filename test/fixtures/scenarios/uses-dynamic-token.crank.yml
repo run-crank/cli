@@ -1,0 +1,8 @@
+scenario: Uses Dynamic Token
+description: >
+  Used to assert that a dynamic token, from the scenario step itself, can be
+  used as intended.
+
+steps:
+- step: Then the text Zounds! should equal Zounds!
+- step: Then the text {{metacog.zound.text}} should equal Zounds!

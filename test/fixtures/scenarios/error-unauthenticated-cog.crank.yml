@@ -1,0 +1,7 @@
+scenario: Error - Unauthenticated Cog
+description: >
+  Used to assert that a perfectly valid scenario results in an error message
+  when an underlying cog in the scenario is as-yet unauthenticated.
+  
+steps:
+- step: Then the text Doesn't Matter should equal Zounds!

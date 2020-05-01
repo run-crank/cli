@@ -1,0 +1,7 @@
+scenario: Can Fail After
+description: >
+  Used to assert that the failAfter key on a step is respected.
+
+steps:
+- step: The text Not Zounds! should equal Zounds!
+  failAfter: 1

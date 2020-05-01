@@ -1,0 +1,10 @@
+scenario: Cog Step IDs
+description: >
+  Used to assert that a scenario using Cog and Step IDs can be used in place of
+  step expressions.
+
+steps:
+- cog: automatoninc/metacog
+  stepId: AssertZoundsStep
+  data:
+    moreThanText: Zounds!

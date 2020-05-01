@@ -3,6 +3,7 @@ import {Struct} from 'google-protobuf/google/protobuf/struct_pb'
 import * as uuidv4 from 'uuid/v4'
 import * as YAML from 'yaml'
 
+import {InvalidScenarioError} from '../errors/invalid-scenario-error'
 import {MissingStepError} from '../errors/missing-step-error'
 import {Step} from '../proto/cog_pb'
 import {Registries} from '../services/registries'
@@ -13,6 +14,7 @@ const substitute = require('token-substitute')
 
 // tslint:disable:prefer-object-spread
 // tslint:disable:no-console
+// tslint:disable:ignore no-unused
 
 interface ScenarioConstructorArgs {
   registries: Registries
@@ -32,11 +34,22 @@ export class Scenario {
   private readonly registries: Registries
 
   constructor({registries, fromFile, tokenOverrides}: ScenarioConstructorArgs) {
+    let scenario: Record<string, any>
     this.registries = registries
     this.file = fromFile
     this.id = uuidv4()
 
-    const scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
+    try {
+      scenario = YAML.parse(fs.readFileSync(fromFile).toString('utf8'))
+    } catch (e) {
+      throw new InvalidScenarioError(`Unable to parse the scenario file (${fromFile})`)
+    }
+
+    // Ensure there is a steps key and that it is an array.
+    if (!scenario || !scenario.steps || !Array.isArray(scenario.steps)) {
+      throw new InvalidScenarioError(`Scenario is missing a list of steps (${fromFile})`)
+    }
+
     this.tokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
     let rawSteps = this.applyTokens(scenario.steps, this.tokens)
     this.name = scenario.scenario

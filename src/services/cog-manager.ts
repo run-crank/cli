@@ -44,7 +44,8 @@ export class CogManager {
     this.registries = registries
     this.logDebug = debug('crank:cogManager')
 
-    if (CogManager.instance) {
+    // Don't behave as a singleton in automated tests...
+    if (!process.env.NYC_CONFIG && CogManager.instance) {
       return CogManager.instance
     }
 

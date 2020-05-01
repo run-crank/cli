@@ -1,0 +1,7 @@
+scenario: Can Wait For
+description: >
+  Used to assert that the waitFor key on a step is respected.
+
+steps:
+- waitFor: 2
+  step: The text Zounds! should equal Zounds!

@@ -62,6 +62,7 @@ export default class Run extends StepAwareCommand {
     const {args, flags} = this.parse(Run)
     const tokens = this.parseTokens(flags.token || [])
     let scenarios: Scenario[] = []
+    let exitCode = 0
 
     try {
       this.logDebug('Parsing scenario file or directory %s', args.file)
@@ -74,7 +75,7 @@ export default class Run extends StepAwareCommand {
     } catch (e) {
       this.log()
       this.log(chalk.red('Error running scenario:'))
-      this.log(chalk.red(`  ${e}`))
+      this.log(chalk.red(`  ${e.message || e}`))
 
       // Provide friendlier authentication help/documentation.
       if (e instanceof AuthenticationError && e.helpUrl) {
@@ -90,8 +91,7 @@ export default class Run extends StepAwareCommand {
         this.log('  crank registry:steps')
       }
 
-      process.exitCode = 1
-      return
+      return this.exit(1)
     }
 
     // Coerce types on steps.
@@ -174,7 +174,7 @@ export default class Run extends StepAwareCommand {
             } else {
               timer.addFailedStep()
             }
-            process.exitCode = 1
+            exitCode = 1
 
             // If the next step/series of steps is or begins with a validation,
             // then resolve and let the next step be executed.
@@ -220,6 +220,10 @@ export default class Run extends StepAwareCommand {
       overallTimer.printTime(msg => {
         this.log(msg.trim())
       })
+    }
+
+    if (exitCode > 0) {
+      this.exit(exitCode)
     }
   }
 

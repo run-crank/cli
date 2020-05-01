@@ -1,0 +1,6 @@
+scenario: Many Scenarios 1
+description: >
+  Used to assert that a folder of scenarios can be run with one command.
+
+steps:
+- step: The text Zounds! should equal Zounds!
