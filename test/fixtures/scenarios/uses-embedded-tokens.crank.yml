@@ -1,0 +1,10 @@
+scenario: Uses Embedded Tokens
+description: >
+  Used to assert that a static token, defined on the scenario itself, is used
+  as it should be.
+
+tokens:
+  txt: Zounds!
+
+steps:
+- step: Then the text {{txt}} should equal Zounds!

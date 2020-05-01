@@ -1,0 +1,8 @@
+scenario: Uses CLI-Sourced Tokens
+description: >
+  Used to assert that static tokens, provided via CLI flags, can be used in a
+  scenario definition.
+
+steps:
+- step: Then the text {{txt.1}} should equal Zounds!
+- step: And the text {{txt.2}} should equal Zounds!

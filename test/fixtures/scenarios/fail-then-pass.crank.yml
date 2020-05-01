@@ -1,0 +1,8 @@
+scenario: Fail Then Pass
+description: >
+  Used to assert that a single scenario run can include two validation steps in
+  a row, the first that fails, and the second that passes.
+
+steps:
+- step: The text Not Zounds! should equal Zounds!
+- step: Then the text Zounds! should equal Zounds!

@@ -1,0 +1,7 @@
+scenario: Error - Non-Existent Step
+description: >
+  Used to assert crank run behavior when a scenario contains step text that
+  does not correspond to any known steps.
+
+steps:
+- step: No step corresponds to this step text.

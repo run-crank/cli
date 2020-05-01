@@ -1,0 +1,9 @@
+scenario: Error - Invalid Scenario YAML
+description: >
+  Used to assert that a yaml file that does not fit the spec results in the
+  appropriate error message printed.
+  
+steps:
+- step: Then the text doesn't matter should equal Zounds!
+
+invalidYaml#!
