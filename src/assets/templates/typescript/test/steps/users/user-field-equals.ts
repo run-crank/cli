@@ -162,4 +162,14 @@ describe('UserFieldEqualsStep', () => {
     expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.ERROR);
   });
 
+  it('should respond with error if expectedValue was not provided and operator is not either "be set" or "not be set"', async () => {
+    protoStep.setData(Struct.fromJavaScript({
+      field: 'email',
+      email: 'anything@example.com',
+      operator: 'be',
+    }));
+
+    const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+    expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.ERROR);
+  });
 });
