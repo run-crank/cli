@@ -7,8 +7,8 @@ import * as moment from 'moment'
 import * as os from 'os'
 import * as path from 'path'
 import {Subject} from 'rxjs'
+import {sprintf} from 'sprintf-js'
 import {URL} from 'url'
-import * as util from 'util'
 
 import {Step as StepRunner} from './models/step'
 import {BinaryRecord, FieldDefinition, RunStepResponse, Step as ProtoStep, StepRecord, TableRecord} from './proto/cog_pb'
@@ -105,7 +105,7 @@ export default abstract class extends RegistryAwareCommand {
         return jsValue === null ? '(empty value)' : jsValue
       })
       formatArgs.unshift(stepResponse.getMessageFormat())
-      const resultMessage: string = util.format.apply(util, formatArgs)
+      const resultMessage: string = sprintf.apply(sprintf, formatArgs)
       if (stepTextPrinted) this.log()
       this.log(`${prefix}${color(resultMessage)}`)
       if (stepTextPrinted) this.log()

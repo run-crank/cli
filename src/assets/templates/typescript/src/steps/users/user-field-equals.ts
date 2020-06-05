@@ -6,6 +6,7 @@ import { FieldDefinition, RunStepResponse, Step, StepDefinition, RecordDefinitio
 
 import { baseOperators } from './../../client/constants/operators';
 import * as util from '@run-crank/utilities';
+import { isNullOrUndefined } from 'util';
 
 /**
  * Note: the class name here becomes this step's stepId.
@@ -29,7 +30,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
    * named regex capturing groups that correspond to the expected fields below.
    */
   // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be less than|be greater than|be|contain|not be|not contain) (?<expectedValue>.+)';
+  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be set|not be set|be less than|be greater than|be|contain|not be|not contain) ?(?<expectation>.+)?';
 
   /**
    * Extra help text describing how this step works: used in auto-generated docs.
@@ -52,10 +53,11 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   }, {
     field: 'operator',
     type: FieldDefinition.Type.STRING,
-    description: 'Check Logic (be, not be, contain, not contain, be greater than, or be less than)',
+    description: 'Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, or not be set)',
   }, {
     field: 'expectedValue',
     type: FieldDefinition.Type.ANYSCALAR,
+    optionality: FieldDefinition.Optionality.OPTIONAL,
     description: 'Expected field value',
   }];
 
@@ -92,6 +94,10 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
     const expectedValue: string = stepData.expectedValue;
     const operator: string = stepData.operator.toLowerCase();
 
+    if (isNullOrUndefined(expectedValue) && !(operator == 'be set' || operator == 'not be set')) {
+      return this.error("The operator '%s' requires an expected value. Please provide one.", [operator]);
+    }
+
     // Search JSON Placeholder API for user with given email.
     try {
       apiRes = await this.client.getUserByEmail(email);
@@ -110,11 +116,11 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
       } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
         // If the value of the field matches expectations, pass.
         const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue], [user]);
+        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue || ''], [user]);
       } else {
         // If the value of the field does not match expectations, fail.
         const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.fail(util.operatorFailMessages[operator], [field, expectedValue, apiRes.body[0][field]], [user]);
+        return this.fail(util.operatorFailMessages[operator], [field, expectedValue || '', apiRes.body[0][field]], [user]);
       }
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
