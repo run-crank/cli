@@ -116,11 +116,11 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
       } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
         // If the value of the field matches expectations, pass.
         const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue], [user]);
+        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue || ''], [user]);
       } else {
         // If the value of the field does not match expectations, fail.
         const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.fail(util.operatorFailMessages[operator], [field, expectedValue, apiRes.body[0][field]], [user]);
+        return this.fail(util.operatorFailMessages[operator], [field, expectedValue || '', apiRes.body[0][field]], [user]);
       }
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
