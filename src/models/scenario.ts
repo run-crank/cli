@@ -54,8 +54,6 @@ export class Scenario {
     this.tokens = Object.assign({}, (scenario.tokens || {}), tokenOverrides)
     let rawSteps = this.applyTokens(scenario.steps, this.tokens)
     rawSteps = this.replaceSpecialDateTokens(rawSteps)
-    console.log(rawSteps[0])
-    console.log(rawSteps)
     this.name = scenario.scenario
     this.description = scenario.description
     this.steps = rawSteps.map((step: any) => {
@@ -140,18 +138,19 @@ export class Scenario {
   }
 
   protected replaceSpecialDateTokens(steps: any[]) {
+    const dateAnchor = new Date()
     let dateRegex = /{{date\(([^[\(\)]*)\)}}/
     steps.forEach((step: any) => {
       let match = dateRegex.exec(step.step)
       if (match) {
-        step.step = step.step.replace(match[0], chrono.parseDate(match[0]).toISOString())
+        step.step = step.step.replace(match[0], chrono.parseDate(match[0], dateAnchor).toISOString())
       }
       if (step.hasOwnProperty('data')) {
         const objectName = Object.keys(step.data)[0]
         const object = step.data[objectName]
         Object.keys(object).forEach((key: string) => {
           if (dateRegex.test(object[key])) {
-            step.data[objectName][key] = chrono.parseDate(object[key]).toISOString()
+            step.data[objectName][key] = chrono.parseDate(object[key], dateAnchor).toISOString()
           }
         })
       }
