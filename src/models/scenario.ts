@@ -143,14 +143,22 @@ export class Scenario {
     steps.forEach((step: any) => {
       let match = dateRegex.exec(step.step)
       if (match) {
-        step.step = step.step.replace(match[0], chrono.parseDate(match[0], dateAnchor).toISOString())
+        try {
+          step.step = step.step.replace(match[0], chrono.parseDate(match[0], dateAnchor).toISOString())
+        } catch (e) {
+          throw new InvalidScenarioError(`Unable to parse token (${match[0]}) as date (${this.file})`)
+        }
       }
       if (step.hasOwnProperty('data')) {
         const objectName = Object.keys(step.data)[0]
         const object = step.data[objectName]
         Object.keys(object).forEach((key: string) => {
           if (dateRegex.test(object[key])) {
-            step.data[objectName][key] = chrono.parseDate(object[key], dateAnchor).toISOString()
+            try {
+              step.data[objectName][key] = chrono.parseDate(object[key], dateAnchor).toISOString()
+            } catch (e) {
+              throw new InvalidScenarioError(`Unable to parse token (${object[key]}) as date (${this.file})`)
+            }
           }
         })
       }
