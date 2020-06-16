@@ -30,7 +30,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
    * named regex capturing groups that correspond to the expected fields below.
    */
   // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be set|not be set|be less than|be greater than|be|contain|not be|not contain) ?(?<expectation>.+)?';
+  protected stepExpression: string = 'the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain) ?(?<expectation>.+)?';
 
   /**
    * Extra help text describing how this step works: used in auto-generated docs.
@@ -53,7 +53,7 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
   }, {
     field: 'operator',
     type: FieldDefinition.Type.STRING,
-    description: 'Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, or not be set)',
+    description: 'Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of)',
   }, {
     field: 'expectedValue',
     type: FieldDefinition.Type.ANYSCALAR,
