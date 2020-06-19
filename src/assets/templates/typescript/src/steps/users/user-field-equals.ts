@@ -7,7 +7,6 @@ import { FieldDefinition, RunStepResponse, Step, StepDefinition, RecordDefinitio
 import { baseOperators } from './../../client/constants/operators';
 import * as util from '@run-crank/utilities';
 import { isNullOrUndefined } from 'util';
-
 /**
  * Note: the class name here becomes this step's stepId.
  * @see BaseStep.getId()
@@ -113,15 +112,15 @@ export class UserFieldEqualsStep extends BaseStep implements StepInterface {
         // If the given field does not exist on the user, return an error.
         const user = this.keyValue('user', 'User Record', apiRes.body[0]);
         return this.error('The %s field does not exist on user %s', [field, email], [user]);
-      } else if (this.compare(operator, apiRes.body[0][field], expectedValue)) {
-        // If the value of the field matches expectations, pass.
-        const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.pass(util.operatorSuccessMessages[operator], [field, expectedValue || ''], [user]);
-      } else {
-        // If the value of the field does not match expectations, fail.
-        const user = this.keyValue('user', 'User Record', apiRes.body[0]);
-        return this.fail(util.operatorFailMessages[operator], [field, expectedValue || '', apiRes.body[0][field]], [user]);
       }
+
+      const user = this.keyValue('user', 'User Record', apiRes.body[0]);
+      const result = this.assert(operator, apiRes.body[0][field], expectedValue, field);
+
+      // If the value of the field matches expectations, pass.
+      // If the value of the field does not match expectations, fail.
+      return result.valid ? this.pass(result.message, [], [user])
+        : this.fail(result.message, [], [user]);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
         return this.error('%s. Please provide one of: %s', [e.message, baseOperators]);
