@@ -139,30 +139,53 @@ export class Scenario {
 
   protected replaceSpecialDateTokens(steps: any[]) {
     const dateAnchor = new Date()
-    let dateRegex = /{{date\(([^[\(\)]*)\)}}/
-    steps.forEach((step: any) => {
-      let match = dateRegex.exec(step.step)
-      if (match) {
+
+    const replaceDateTokens = (text: any): any => {
+      const dateRegex = /{{date\(([^[\(\)]*)\)}}/gm
+      let returnString = text
+      let match
+
+      if (typeof text !== 'string') {
+        return text
+      }
+
+      // Iterate through all potential matches (in case more than 1 in a step).
+      while (match = dateRegex.exec(text)) {
+        // This is necessary to avoid infinite loops with zero-width matches.
+        if (match.index === dateRegex.lastIndex) {
+          dateRegex.lastIndex++
+        }
+
         try {
-          step.step = step.step.replace(match[0], chrono.parseDate(match[0], dateAnchor).toISOString())
+          returnString = returnString.replace(match[0], chrono.parseDate(match[1], dateAnchor).toISOString())
         } catch (e) {
-          throw new InvalidScenarioError(`Unable to parse token (${match[0]}) as date (${this.file})`)
+          throw new InvalidScenarioError(`Unable to parse token ${match[0]} as date (${this.file})`)
         }
       }
+
+      return returnString
+    }
+
+    steps.forEach((step: any) => {
+      // Replace any step text.
+      step.step = replaceDateTokens.call(this, step.step)
+
+      // If there is a data property, replace any keys and sub-keys.
       if (step.hasOwnProperty('data')) {
-        const objectName = Object.keys(step.data)[0]
-        const object = step.data[objectName]
-        Object.keys(object).forEach((key: string) => {
-          if (dateRegex.test(object[key])) {
-            try {
-              step.data[objectName][key] = chrono.parseDate(object[key], dateAnchor).toISOString()
-            } catch (e) {
-              throw new InvalidScenarioError(`Unable to parse token (${object[key]}) as date (${this.file})`)
+        Object.keys(step.data).forEach((key: string) => {
+          if (step.data.hasOwnProperty(key)) {
+            if (step.data[key].constructor === Object) {
+              Object.keys(step.data[key]).forEach((subKey: string) => {
+                step.data[key][subKey] = replaceDateTokens.call(this, step.data[key][subKey])
+              })
+            } else {
+              step.data[key] = replaceDateTokens.call(this, step.data[key])
             }
           }
         })
       }
     })
+
     return steps
   }
 
