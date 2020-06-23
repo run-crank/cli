@@ -1,0 +1,18 @@
+scenario: Uses Date Token
+description: Proves that date tokens are evaluated at step run-time in ways
+  that are well understood.
+
+steps:
+# Prove various expected date token formats resolve correctly.
+- step: The text 1 hour ago is {{date(1 hour ago)}} should equal Zounds!
+- step: The text 1 hour from now is {{date(1 hour from now)}} should equal Zounds!
+- step: The text 1 day ago is {{date(1 day ago)}} should equal Zounds!
+- step: The text 1 day from now is {{date(1 day from now)}} should equal Zounds!
+- step: The text today is {{date(today)}} should equal Zounds!
+
+# Prove multiple tokens can be used in step text or in data.
+- step: The text m-y is {{date(midnight yesterday utc)}} and m-2 is {{date(midnight 2 days ago utc)}} should equal Zounds!
+- cog: automatoninc/metacog
+  stepId: AssertZoundsStep
+  data:
+    moreThanText: 'm-t is {{date(midnight tomorrow utc)}} and mx2 is {{date(midnight 2 days from now utc)}}'
