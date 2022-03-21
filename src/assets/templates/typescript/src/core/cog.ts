@@ -222,9 +222,16 @@ export class Cog implements ICogServiceServer {
 
   /**
    * Helper method to instantiate an API client wrapper for this Cog.
+   * If a redisUrl is passed in in the grpc-server.ts, then the
+   * caching-client-wrapper will be used.
    */
-  private getClientWrapper(auth: grpc.Metadata): ClientWrapper {
-    return new this.clientWrapperClass(auth);
+  private getClientWrapper(auth: grpc.Metadata, idMap: {} = null) {
+    if (this.redisClient) {
+      const client = new ClientWrapper(auth);
+      return new this.clientWrapperClass(client, this.redisClient, idMap);
+    } else {
+      return new this.clientWrapperClass(auth);
+    }
   }
 
 }
