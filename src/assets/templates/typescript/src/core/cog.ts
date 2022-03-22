@@ -230,7 +230,7 @@ export class Cog implements ICogServiceServer {
       const client = new ClientWrapper(auth);
       return new this.clientWrapperClass(client, this.redisClient, idMap);
     } else {
-      return new this.clientWrapperClass(auth);
+      return new ClientWrapper(auth);
     }
   }
 
