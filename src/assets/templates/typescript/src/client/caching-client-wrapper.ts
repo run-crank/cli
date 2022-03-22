@@ -14,8 +14,8 @@ class CachingClientWrapper {
   // -------------------------------------------------------------------
 
   /**
-   * An example of how to expose the use caching. This methods will
-   * first check the cache for a user with that email, then it will
+   * An example of how to use caching. This methods will first
+   * check the cache for a user with the email, then it will
    * make the api call if it is not in the cache.
    */
   public async getUserByEmail(email: string) {
