@@ -39,10 +39,10 @@ export class Cog implements ICogServiceServer {
         if (this.mailgunCredentials.apiKey && this.mailgunCredentials.domain && this.mailgunCredentials.alertEmail && !emailSent) {
           const mg = mailgun({ apiKey: this.mailgunCredentials.apiKey, domain: this.mailgunCredentials.domain });
           const emailData = {
-            from: `Salesforce Cog <noreply@${this.mailgunCredentials.domain}>`,
+            from: `Cog <noreply@${this.mailgunCredentials.domain}>`,
             to: this.mailgunCredentials.alertEmail,
-            subject: 'Broken Redis Url in Salesforce Cog',
-            text: 'The redis url in the Salesforce Cog is no longer working. Caching is disabled for the Salesforce Cog.',
+            subject: 'Broken Redis Url in Cog',
+            text: 'The redis url in the Cog is no longer working. Caching is disabled for the Cog.',
           };
           mg.messages().send(emailData, (error, body) => {
             console.log('email sent: ', body);

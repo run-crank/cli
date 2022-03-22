@@ -17,7 +17,7 @@ export class UserAwareMixin {
   /**
    * Another example called by: this.client.deleteUserByEmail()
    */
-   public async deleteUserByEmail(email: string): Promise<needle.NeedleResponse> {
+  public async deleteUserByEmail(email: string): Promise<needle.NeedleResponse> {
     // Naturally, the code here will depend on the actual API client you use.
     return this.client(`https://jsonplaceholder.typicode.com/delete/user?email=${email}`);
   }
@@ -25,7 +25,7 @@ export class UserAwareMixin {
   /**
    * Another example called by: this.client.getUserById()
    */
-   public async getUserById(id: string): Promise<needle.NeedleResponse> {
+  public async getUserById(id: string): Promise<needle.NeedleResponse> {
     // Naturally, the code here will depend on the actual API client you use.
     return this.client(`https://jsonplaceholder.typicode.com/delete/user?email=${id}`);
   }

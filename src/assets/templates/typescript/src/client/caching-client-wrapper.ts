@@ -18,7 +18,7 @@ class CachingClientWrapper {
    * first check the cache for a user with that email, then it will
    * make the api call if it is not in the cache.
    */
-   public async getUserByEmail(email: string) {
+  public async getUserByEmail(email: string) {
     const cachekey = `CogName|User|${email}|${this.cachePrefix}`;
     const stored = await this.getCache(cachekey);
     if (stored) {
