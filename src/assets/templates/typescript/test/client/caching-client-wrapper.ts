@@ -70,7 +70,7 @@ describe('CachingClientWrapper', () => {
 
     setTimeout(() => {
       expect(cachingClientWrapperUnderTest.clearCache).to.have.been.called;
-      expect(clientWrapperStub.deleteContactByEmail).to.have.been.calledWith(expectedEmail);
+      expect(clientWrapperStub.deleteUserByEmail).to.have.been.calledWith(expectedEmail);
       done();
     });
   });
