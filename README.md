@@ -57,7 +57,7 @@ _See code: [src/commands/cog/auth.ts](https://github.com/run-crank/cli/blob/v0.1
 
 ## `crank cog:install [COGNAME]`
 
-Install a Cog on this system.
+Install a Cog on this system. Make sure to run `npm install` beforehand or it may get stuck while trying to use a local version.
 
 ```
 USAGE
@@ -71,7 +71,7 @@ OPTIONS
   --debug                                    More verbose output to aid in diagnosing issues using Crank
   --ignore-auth                              Suppress prompts for Cog auth details
   --local-start-command=local-start-command  Command to start the local Cog (used in combo with --source=local)
-  --source=source                            [default: docker] Use if you are installing a locally developed Cog
+  --source=source                            [default: docker] Use if you are installing a locally developed Cog. 
 
 EXAMPLE
   $ crank install --source=local
